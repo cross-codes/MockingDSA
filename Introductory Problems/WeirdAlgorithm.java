@@ -57,7 +57,6 @@ public class WeirdAlgorithm implements Runnable {
   }
 
   // Custom STDIN reader. Relatively faster than BufferedReader
-  // NOTE: Has a 64 byte limitation per line of user input
 
   static class StandardInputReader {
     private final int BUFFER_SIZE = 1 << 16;
@@ -78,7 +77,7 @@ public class WeirdAlgorithm implements Runnable {
     }
 
     public String readLine() throws IOException {
-      byte[] buf = new byte[64];
+      byte[] buf = new byte[1024];
       int cnt = 0, c;
       while ((c = read()) != -1) {
         if (c == '\n') {
@@ -87,6 +86,11 @@ public class WeirdAlgorithm implements Runnable {
           } else {
             continue;
           }
+        }
+        if (cnt >= buf.length) {
+          byte[] newBuf = new byte[buf.length * 2];
+          System.arraycopy(buf, 0, newBuf, 0, buf.length);
+          buf = newBuf;
         }
         buf[cnt++] = (byte) c;
       }

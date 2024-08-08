@@ -1,14 +1,12 @@
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 public class IncreasingArray implements Runnable {
 
-  BufferedReader in;
+  StandardInputReader in;
   PrintWriter out;
   StringTokenizer tok = new StringTokenizer("");
 
@@ -18,7 +16,7 @@ public class IncreasingArray implements Runnable {
 
   public void run() {
     try {
-      in = new BufferedReader(new InputStreamReader(System.in));
+      in = new StandardInputReader();
       out = new PrintWriter(System.out);
       solve();
       in.close();
@@ -63,7 +61,6 @@ public class IncreasingArray implements Runnable {
   }
 
   // Custom STDIN reader. Relatively faster than BufferedReader
-  // NOTE: Has a 64 byte limitation per line of input
 
   static class StandardInputReader {
     private final int BUFFER_SIZE = 1 << 16;
@@ -84,7 +81,7 @@ public class IncreasingArray implements Runnable {
     }
 
     public String readLine() throws IOException {
-      byte[] buf = new byte[64];
+      byte[] buf = new byte[1024];
       int cnt = 0, c;
       while ((c = read()) != -1) {
         if (c == '\n') {
@@ -93,6 +90,11 @@ public class IncreasingArray implements Runnable {
           } else {
             continue;
           }
+        }
+        if (cnt >= buf.length) {
+          byte[] newBuf = new byte[buf.length * 2];
+          System.arraycopy(buf, 0, newBuf, 0, buf.length);
+          buf = newBuf;
         }
         buf[cnt++] = (byte) c;
       }
