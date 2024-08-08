@@ -59,8 +59,6 @@ public class MaximumSubarraySum implements Runnable {
     out.println(bestSum);
   }
 
-  // Custom STDIN reader. Relatively faster than BufferedReader
-
   static class StandardInputReader {
     private final int BUFFER_SIZE = 1 << 16;
     private DataInputStream din;

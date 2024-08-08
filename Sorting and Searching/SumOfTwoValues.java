@@ -65,8 +65,6 @@ public class SumOfTwoValues implements Runnable {
     out.println("IMPOSSIBLE");
   }
 
-  // Custom STDIN reader. Relatively faster than BufferedReader
-
   static class StandardInputReader {
     private final int BUFFER_SIZE = 1 << 16;
     private DataInputStream din;
