@@ -5,17 +5,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.StringTokenizer;
 
-public class DistinctNumbers implements Runnable {
+public class PointLocationTest implements Runnable {
 
   StandardInputReader in;
   StandardOutputWriter out;
   StringTokenizer tok = new StringTokenizer("");
 
   public static void main(String[] args) {
-    new Thread(null, new DistinctNumbers(), "", 256 * (1L << 20)).start();
+    new Thread(null, new PointLocationTest(), "", 256 * (1L << 20)).start();
   }
 
   public void run() {
@@ -51,12 +50,21 @@ public class DistinctNumbers implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = readInt();
-    HashSet<Long> set = new HashSet<>();
+    // Use the directed ratios of the lines and compute the value
+    // of the cross product. Envision the original line to be horizontal
+    // and view RIGHT and LEFT as DOWN and UP respectively.
+    int t = readInt();
+    while (t-- > 0) {
+      long x1 = readLong(), y1 = readLong();
+      long x2 = readLong(), y2 = readLong();
+      long x3 = readLong(), y3 = readLong();
 
-    for (int i = 0; i < n; i++) set.add(readLong());
+      long kComponent = ((x2 - x1) * (y3 - y1)) - ((y2 - y1) * (x3 - x1));
 
-    out.println(set.size());
+      if (kComponent > 0) out.println("LEFT");
+      else if (kComponent < 0) out.println("RIGHT");
+      else out.println("TOUCH");
+    }
   }
 
   static class StandardInputReader {
