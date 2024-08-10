@@ -1,17 +1,17 @@
-import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.StringTokenizer;
+import java.util.Arrays;
+import java.util.InputMismatchException;
 
 public class MissingNumber implements Runnable {
 
-  StandardInputReader in;
+  InputStream in;
   StandardOutputWriter out;
-  StringTokenizer tok = new StringTokenizer("");
+  private byte[] inbuf = new byte[1024];
+  public int lenbuf = 0, ptrbuf = 0;
 
   public static void main(String[] args) {
     new Thread(null, new MissingNumber(), "", 256 * (1L << 20)).start();
@@ -19,7 +19,7 @@ public class MissingNumber implements Runnable {
 
   public void run() {
     try {
-      in = new StandardInputReader(System.in);
+      in = System.in;
       out = new StandardOutputWriter(System.out);
       solve();
       in.close();
@@ -30,136 +30,102 @@ public class MissingNumber implements Runnable {
     }
   }
 
-  String readString() throws IOException {
-    while (!tok.hasMoreTokens()) {
-      tok = new StringTokenizer(in.readLine());
+  int readByte() {
+    if (lenbuf == -1) throw new InputMismatchException();
+    if (ptrbuf >= lenbuf) {
+      ptrbuf = 0;
+      try {
+        lenbuf = in.read(inbuf);
+      } catch (IOException e) {
+        throw new InputMismatchException();
+      }
+      if (lenbuf <= 0) return -1;
     }
-    return tok.nextToken();
+    return inbuf[ptrbuf++];
   }
 
-  int readInt() throws IOException {
-    return Integer.parseInt(readString());
+  boolean isSpaceChar(int c) {
+    return !(c >= 33 && c <= 126);
   }
 
-  long readLong() throws IOException {
-    return Long.parseLong(readString());
+  int skip() {
+    int b;
+    while ((b = readByte()) != -1 && isSpaceChar(b))
+      ;
+    return b;
   }
 
-  double readDouble() throws IOException {
-    return Double.parseDouble(readString());
+  char rc() {
+    return (char) skip();
+  }
+
+  String rs() {
+    int b = skip();
+    StringBuilder sb = new StringBuilder();
+    while (!(isSpaceChar(b))) {
+      sb.appendCodePoint(b);
+      b = readByte();
+    }
+    return sb.toString();
+  }
+
+  char[] rs(int n) {
+    char[] buf = new char[n];
+    int b = skip(), p = 0;
+    while (p < n && !(isSpaceChar(b))) {
+      buf[p++] = (char) b;
+      b = readByte();
+    }
+    return n == p ? buf : Arrays.copyOf(buf, p);
+  }
+
+  int ri() {
+    return (int) rl();
+  }
+
+  long rl() {
+    long num = 0;
+    int b;
+    boolean minus = false;
+    while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
+      ;
+    if (b == '-') {
+      minus = true;
+      b = readByte();
+    }
+
+    while (true) {
+      if (b >= '0' && b <= '9') {
+        num = num * 10 + (b - '0');
+      } else {
+        return minus ? -num : num;
+      }
+      b = readByte();
+    }
+  }
+
+  double rd() {
+    return Double.parseDouble(rs());
+  }
+
+  int[] ra(int n) {
+    int[] a = new int[n];
+    for (int i = 0; i < n; i++) a[i] = ri();
+    return a;
+  }
+
+  long[] ral(int n) {
+    long[] a = new long[n];
+    for (int i = 0; i < n; i++) a[i] = rl();
+    return a;
   }
 
   void solve() throws IOException {
-    long n = readLong();
+    long n = rl();
     long sum = 0;
-    for (int i = 0; i < n - 1; i++) sum += readLong();
+    for (int i = 0; i < n - 1; i++) sum += rl();
 
     out.println(((n * (n + 1)) / 2) - sum);
-  }
-
-  static class StandardInputReader {
-    private final int BUFFER_SIZE = 1 << 16;
-    private DataInputStream din;
-    private byte[] buffer;
-    private int bufferPointer, bytesRead;
-
-    public StandardInputReader(InputStream iStr) {
-      din = new DataInputStream(iStr);
-      buffer = new byte[BUFFER_SIZE];
-      bufferPointer = bytesRead = 0;
-    }
-
-    public StandardInputReader(String file_name) throws IOException {
-      din = new DataInputStream(new FileInputStream(file_name));
-      buffer = new byte[BUFFER_SIZE];
-      bufferPointer = bytesRead = 0;
-    }
-
-    public String readLine() throws IOException {
-      byte[] buf = new byte[1024];
-      int cnt = 0, c;
-      while ((c = read()) != -1) {
-        if (c == '\n') {
-          if (cnt != 0) {
-            break;
-          } else {
-            continue;
-          }
-        }
-        if (cnt >= buf.length) {
-          byte[] newBuf = new byte[buf.length * 2];
-          System.arraycopy(buf, 0, newBuf, 0, buf.length);
-          buf = newBuf;
-        }
-        buf[cnt++] = (byte) c;
-      }
-      return new String(buf, 0, cnt);
-    }
-
-    public int nextInt() throws IOException {
-      int ret = 0;
-      byte c = read();
-      while (c <= ' ') {
-        c = read();
-      }
-      boolean neg = (c == '-');
-      if (neg) c = read();
-      do {
-        ret = ret * 10 + c - '0';
-      } while ((c = read()) >= '0' && c <= '9');
-
-      if (neg) return -ret;
-      return ret;
-    }
-
-    public long nextLong() throws IOException {
-      long ret = 0;
-      byte c = read();
-      while (c <= ' ') c = read();
-      boolean neg = (c == '-');
-      if (neg) c = read();
-      do {
-        ret = ret * 10 + c - '0';
-      } while ((c = read()) >= '0' && c <= '9');
-      if (neg) return -ret;
-      return ret;
-    }
-
-    public double nextDouble() throws IOException {
-      double ret = 0, div = 1;
-      byte c = read();
-      while (c <= ' ') c = read();
-      boolean neg = (c == '-');
-      if (neg) c = read();
-
-      do {
-        ret = ret * 10 + c - '0';
-      } while ((c = read()) >= '0' && c <= '9');
-
-      if (c == '.') {
-        while ((c = read()) >= '0' && c <= '9') {
-          ret += (c - '0') / (div *= 10);
-        }
-      }
-
-      if (neg) return -ret;
-      return ret;
-    }
-
-    private void fillBuffer() throws IOException {
-      bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
-      if (bytesRead == -1) buffer[0] = -1;
-    }
-
-    private byte read() throws IOException {
-      if (bufferPointer == bytesRead) fillBuffer();
-      return buffer[bufferPointer++];
-    }
-
-    public void close() throws IOException {
-      if (din == null) return;
-      din.close();
-    }
   }
 
   static class StandardOutputWriter {
@@ -176,7 +142,7 @@ public class MissingNumber implements Runnable {
       try {
         this.out = new FileOutputStream(path);
       } catch (FileNotFoundException e) {
-        throw new RuntimeException("FastWriter");
+        throw new RuntimeException("StandardOutputWriter");
       }
     }
 

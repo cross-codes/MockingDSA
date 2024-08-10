@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 
-public class CountingBits implements Runnable {
+public class SalaryQueries implements Runnable {
 
   InputStream in;
   StandardOutputWriter out;
@@ -14,7 +14,7 @@ public class CountingBits implements Runnable {
   public int lenbuf = 0, ptrbuf = 0;
 
   public static void main(String[] args) {
-    new Thread(null, new CountingBits(), "", 256 * (1L << 20)).start();
+    new Thread(null, new SalaryQueries(), "", 256 * (1L << 20)).start();
   }
 
   public void run() {
@@ -120,23 +120,7 @@ public class CountingBits implements Runnable {
     return a;
   }
 
-  long countSetBits(long n) {
-    long count = 0;
-
-    for (int i = 0; (1L << i) <= n; i++) {
-      long k = 1L << (i + 1);
-      count += (n / k) * (k / 2);
-      if ((n % k) > (k / 2 - 1)) {
-        count += (n % k) - (k / 2) + 1;
-      }
-    }
-
-    return count;
-  }
-
-  void solve() throws IOException {
-    out.println(countSetBits(rl()));
-  }
+  void solve() throws IOException {}
 
   static class StandardOutputWriter {
     private static final int BUFFER_SIZE = 1 << 16;

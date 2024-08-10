@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 
-public class CountingBits implements Runnable {
+public class CountingDivisors implements Runnable {
 
   InputStream in;
   StandardOutputWriter out;
@@ -14,7 +14,7 @@ public class CountingBits implements Runnable {
   public int lenbuf = 0, ptrbuf = 0;
 
   public static void main(String[] args) {
-    new Thread(null, new CountingBits(), "", 256 * (1L << 20)).start();
+    new Thread(null, new CountingDivisors(), "", 256 * (1L << 20)).start();
   }
 
   public void run() {
@@ -120,22 +120,17 @@ public class CountingBits implements Runnable {
     return a;
   }
 
-  long countSetBits(long n) {
-    long count = 0;
+  void solve() throws IOException {
+    int t = ri();
+    int[] divisors = new int[(int) 1e6 + 1];
 
-    for (int i = 0; (1L << i) <= n; i++) {
-      long k = 1L << (i + 1);
-      count += (n / k) * (k / 2);
-      if ((n % k) > (k / 2 - 1)) {
-        count += (n % k) - (k / 2) + 1;
-      }
+    for (int i = 1; i <= 1e6; i++) {
+      for (int j = i; j <= 1e6; j += i) divisors[j]++;
     }
 
-    return count;
-  }
-
-  void solve() throws IOException {
-    out.println(countSetBits(rl()));
+    while (t-- > 0) {
+      out.println(divisors[ri()]);
+    }
   }
 
   static class StandardOutputWriter {
