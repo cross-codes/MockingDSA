@@ -125,6 +125,7 @@ public class PointLocationTest implements Runnable {
     // of the cross product. Envision the original line to be horizontal
     // and view RIGHT and LEFT as DOWN and UP respectively.
     int t = ri();
+    StringBuilder sb = new StringBuilder(t);
     while (t-- > 0) {
       long x1 = rl(), y1 = rl();
       long x2 = rl(), y2 = rl();
@@ -132,10 +133,12 @@ public class PointLocationTest implements Runnable {
 
       long kComponent = ((x2 - x1) * (y3 - y1)) - ((y2 - y1) * (x3 - x1));
 
-      if (kComponent > 0) out.println("LEFT");
-      else if (kComponent < 0) out.println("RIGHT");
-      else out.println("TOUCH");
+      if (kComponent > 0) sb.append("LEFT\n");
+      else if (kComponent < 0) sb.append("RIGHT\n");
+      else sb.append("TOUCH\n");
     }
+
+    out.print(sb.toString());
   }
 
   static class StandardOutputWriter {

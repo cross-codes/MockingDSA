@@ -128,9 +128,12 @@ public class CountingDivisors implements Runnable {
       for (int j = i; j <= 1e6; j += i) divisors[j]++;
     }
 
+    StringBuilder sb = new StringBuilder(t);
     while (t-- > 0) {
-      out.println(divisors[ri()]);
+      sb.append(divisors[ri()]).append("\n");
     }
+
+    out.print(sb.toString());
   }
 
   static class StandardOutputWriter {
