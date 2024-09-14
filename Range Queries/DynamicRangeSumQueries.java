@@ -5,9 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
-import java.util.TreeMap;
 
-public class ConcertTickets implements Runnable {
+public class DynamicRangeSumQueries implements Runnable {
 
   InputStream in;
   StandardOutputWriter out;
@@ -15,7 +14,7 @@ public class ConcertTickets implements Runnable {
   public int lenbuf = 0, ptrbuf = 0;
 
   public static void main(String[] args) {
-    new Thread(null, new ConcertTickets(), "", 256 * (1L << 20)).start();
+    new Thread(null, new DynamicRangeSumQueries(), "", 256 * (1L << 20)).start();
   }
 
   public void run() {
@@ -122,28 +121,57 @@ public class ConcertTickets implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = ri(), m = ri();
-    TreeMap<Integer, Integer> tickets = new TreeMap<>();
-    final StringBuilder sb = new StringBuilder(m);
+    int n = ri(), q = ri();
+    final StringBuilder sb = new StringBuilder(q);
 
-    while (n-- > 0) {
-      int price = ri();
-      tickets.put(price, tickets.getOrDefault(price, 0) + 1);
+    FenwickTree bit = new FenwickTree(n);
+
+    for (int i = 1; i <= n; i++) {
+      long num = ri();
+      bit.add(i, num);
+      bit.arr[i] = num;
     }
 
-    while (m-- > 0) {
-      var det = tickets.floorEntry(ri());
-      if (det == null) sb.append("-1\n");
-      else {
-        int bestPrice = det.getKey(), freq = det.getValue();
-        sb.append(bestPrice).append("\n");
+    while (q-- > 0) {
+      if (ri() == 1) {
+        int k = ri();
+        long u = rl();
+        bit.add(k, u - bit.arr[k]);
+        bit.arr[k] = u;
+      } else {
+        int a = ri(), b = ri();
+        sb.append(bit.sumq(b) - bit.sumq(a - 1)).append("\n");
+      }
+    }
+    out.print(sb.toString());
+  }
 
-        if (freq == 1) tickets.remove(bestPrice);
-        else tickets.put(bestPrice, freq - 1);
+  static class FenwickTree {
+    public final long[] arr;
+    private final long[] tree;
+    private final int N;
+
+    public FenwickTree(int n) {
+      this.arr = new long[n + 1];
+      this.tree = new long[n + 1];
+      this.N = n;
+    }
+
+    public void add(int k, long x) {
+      while (k <= this.N) {
+        this.tree[k] += x;
+        k += Integer.lowestOneBit(k);
       }
     }
 
-    out.print(sb.toString());
+    public long sumq(int k) {
+      long s = 0L;
+      while (k >= 1) {
+        s += this.tree[k];
+        k -= Integer.lowestOneBit(k);
+      }
+      return s;
+    }
   }
 
   static class StandardOutputWriter {
