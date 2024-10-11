@@ -7,5 +7,6 @@
 	<classpathentry kind="src" path="Mathematics"/>
 	<classpathentry kind="src" path="Range Queries"/>
 	<classpathentry kind="src" path="Sorting and Searching"/>
+  <classpathentry kind="src" path="String Algorithms"/>
 	<classpathentry kind="output" path=".bin"/>
 </classpath>
