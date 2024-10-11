@@ -92,10 +92,10 @@ public class CoinPiles implements Runnable {
     public byte[] nextLine() {
       int from = pos;
       while (true) {
-        byte b = this.buffer[pos++];
+        byte b = this.buffer[this.pos++];
         if (b == '\n') break;
       }
-      byte[] bytes = new byte[pos - from - 1];
+      byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
       return bytes;
     }
