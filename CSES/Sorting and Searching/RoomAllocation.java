@@ -1,17 +1,14 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.TreeSet;
 
-public class CreatingStrings implements Runnable {
+public class RoomAllocation implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new CreatingStrings(), "", 256 * (1L << 20)).start();
+    new Thread(null, new RoomAllocation(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -28,13 +25,31 @@ public class CreatingStrings implements Runnable {
   }
 
   void solve() throws IOException {
-    byte[] s = in.nextLine();
-    for (int i = 0; i < s.length; i++) System.out.println(s[i]);
-    Arrays.sort(s);
-    TreeSet<String> set = new TreeSet<>();
-    Array.permute(s, () -> set.add(new String(s, StandardCharsets.UTF_8)));
-    out.append(set.size()).appendNewLine();
-    for (String elem : set) out.append(elem).appendNewLine();
+    int n = in.nextInt();
+    int[] start = new int[n];
+    int[] end = new int[n];
+
+    for (int i = 0; i < n; i++) {
+      start[i] = in.nextInt();
+      end[i] = in.nextInt();
+    }
+
+    Array.sort(start);
+    Array.sort(end);
+
+    int maxHotels = 0, availableHotels = 0, p1 = 0, p2 = 0;
+
+    while (true) {
+      if (start[p1] < end[p2]) {
+        if (availableHotels == 0) maxHotels++;
+        else availableHotels--;
+      } else {
+        p2++;
+      }
+      if (++p1 == n) break;
+    }
+
+    out.append(maxHotels).appendNewLine();
   }
 
   @FunctionalInterface
@@ -148,12 +163,6 @@ public class CreatingStrings implements Runnable {
       array[j] = temp;
     }
 
-    public static void swap(char[] array, int i, int j) {
-      char temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
     public static <T> void swap(T[] array, int i, int j) {
       T temp = array[i];
       array[i] = array[j];
@@ -191,25 +200,10 @@ public class CreatingStrings implements Runnable {
         }
       }
     }
-
-    public static void permute(char[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(char[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
-      }
-    }
   }
 
   static class InputReader {
+
     private final byte[] buffer;
     private int pos;
     private final InputStream in;
@@ -252,18 +246,18 @@ public class CreatingStrings implements Runnable {
         byte b = this.buffer[this.pos++];
         if (b == ' ' || b == '\n') break;
       }
-      byte[] bytes = new byte[pos - from];
+      byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
       return bytes;
     }
 
     public byte[] nextLine() {
-      int from = pos;
+      int from = this.pos;
       while (true) {
-        byte b = this.buffer[pos++];
+        byte b = this.buffer[this.pos++];
         if (b == '\n') break;
       }
-      byte[] bytes = new byte[pos - from - 1];
+      byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
       return bytes;
     }
@@ -313,7 +307,7 @@ public class CreatingStrings implements Runnable {
         }
       }
       while (true) {
-        byte b = this.buffer[pos++];
+        byte b = this.buffer[this.pos++];
         if (b >= '0' && b <= '9') n = n * 10 + b - '0';
         else return positive ? n : -n;
       }

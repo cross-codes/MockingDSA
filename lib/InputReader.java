@@ -1,5 +1,9 @@
 import java.io.InputStream;
 
+/**
+ * Note: This class relies on the input stream not being buffered. It expects that the InputStream
+ * provided is in a state that allows immediate reading of the available bytes.
+ */
 public class InputReader {
 
   private final byte[] buffer;
@@ -50,12 +54,12 @@ public class InputReader {
   }
 
   public byte[] nextLine() {
-    int from = pos;
+    int from = this.pos;
     while (true) {
-      byte b = this.buffer[pos++];
+      byte b = this.buffer[this.pos++];
       if (b == '\n') break;
     }
-    byte[] bytes = new byte[pos - from - 1];
+    byte[] bytes = new byte[this.pos - from - 1];
     System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
     return bytes;
   }

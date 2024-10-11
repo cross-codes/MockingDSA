@@ -48,6 +48,7 @@ public class CountingBits implements Runnable {
   }
 
   static class InputReader {
+
     private final byte[] buffer;
     private int pos;
     private final InputStream in;
@@ -90,18 +91,18 @@ public class CountingBits implements Runnable {
         byte b = this.buffer[this.pos++];
         if (b == ' ' || b == '\n') break;
       }
-      byte[] bytes = new byte[pos - from];
+      byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
       return bytes;
     }
 
     public byte[] nextLine() {
-      int from = pos;
+      int from = this.pos;
       while (true) {
-        byte b = this.buffer[pos++];
+        byte b = this.buffer[this.pos++];
         if (b == '\n') break;
       }
-      byte[] bytes = new byte[pos - from - 1];
+      byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
       return bytes;
     }
@@ -151,7 +152,7 @@ public class CountingBits implements Runnable {
         }
       }
       while (true) {
-        byte b = this.buffer[pos++];
+        byte b = this.buffer[this.pos++];
         if (b >= '0' && b <= '9') n = n * 10 + b - '0';
         else return positive ? n : -n;
       }

@@ -92,4 +92,36 @@ public class Array {
       }
     }
   }
+
+  public static int min(int[] array) {
+    int min = Integer.MAX_VALUE;
+    for (int e : array) {
+      min = Math.min(min, e);
+    }
+    return min;
+  }
+
+  public static int max(int[] array) {
+    int max = Integer.MIN_VALUE;
+    for (int e : array) {
+      max = Math.max(max, e);
+    }
+    return max;
+  }
+
+  public static long min(long[] array) {
+    long min = Long.MAX_VALUE;
+    for (long e : array) {
+      min = Math.min(e, min);
+    }
+    return min;
+  }
+
+  public static long max(long[] array) {
+    long max = Long.MIN_VALUE;
+    for (long e : array) {
+      max = Math.max(e, max);
+    }
+    return max;
+  }
 }

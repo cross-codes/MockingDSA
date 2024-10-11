@@ -127,4 +127,15 @@ public class Algebra {
       }
     }
   }
+
+  public static long binarySearchOnAnswerSpace(
+      LongFunction function, long target, long lowerBound, long upperBound) {
+    while (lowerBound < upperBound) {
+      long mid = lowerBound + upperBound >> 1;
+      long result = function.apply(mid);
+      if (result < target) lowerBound = mid + 1;
+      else upperBound = mid;
+    }
+    return lowerBound;
+  }
 }
