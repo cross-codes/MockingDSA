@@ -30,8 +30,8 @@ public class _1506C implements Runnable {
     int t = in.nextInt();
     iter:
     while (t-- > 0) {
-      String a = new String(in.next(), StandardCharsets.US_ASCII).trim();
-      String b = new String(in.next(), StandardCharsets.US_ASCII).trim();
+      String a = new String(in.next(), StandardCharsets.US_ASCII);
+      String b = new String(in.next(), StandardCharsets.US_ASCII);
       int lenA = a.length(), lenB = b.length();
       TreeSet<String> substrings =
           new TreeSet<>(
@@ -75,16 +75,17 @@ public class _1506C implements Runnable {
   }
 
   @FunctionalInterface
-  static interface Procedure {
+  private interface Procedure {
     void run();
   }
 
   @FunctionalInterface
-  static interface LongFunction {
+  private interface LongFunction {
     long apply(long t);
   }
 
-  static class InputReader {
+  @SuppressWarnings("unused")
+  private static class InputReader {
 
     private final byte[] buffer;
     private int pos;
@@ -104,7 +105,7 @@ public class _1506C implements Runnable {
     public byte[] next(int n) {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != '\n') {
+        if (b != '\n' && b != '\r') {
           this.pos--;
           break;
         }
@@ -119,14 +120,14 @@ public class _1506C implements Runnable {
       int from;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') {
+        if (b != ' ' && b != '\n' && b != '\r') {
           from = this.pos;
           break;
         }
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n') break;
+        if (b == ' ' || b == '\n' || b == '\r') break;
       }
       byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -137,7 +138,10 @@ public class _1506C implements Runnable {
       int from = this.pos;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == '\n') break;
+        if (b == '\n' || b == '\r') {
+          if (b == '\r' && this.buffer[this.pos] == '\n') this.pos++;
+          break;
+        }
       }
       byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -147,7 +151,7 @@ public class _1506C implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') return b;
+        if (b != ' ' && b != '\n' && b != '\r') return b;
       }
     }
 
@@ -243,7 +247,8 @@ public class _1506C implements Runnable {
     }
   }
 
-  static class OutputWriter {
+  @SuppressWarnings("unused")
+  private static class OutputWriter {
 
     private static final int BUFFER_SIZE = 1048576;
     private final byte[] buffer;
