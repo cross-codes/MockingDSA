@@ -1,17 +1,14 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.TreeSet;
 
-public class CreatingStrings implements Runnable {
+public class DistributingApples implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new CreatingStrings(), "", 256 * (1L << 20)).start();
+    new Thread(null, new DistributingApples(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -28,137 +25,130 @@ public class CreatingStrings implements Runnable {
   }
 
   void solve() throws IOException {
-    byte[] s = in.nextLine();
-    Arrays.sort(s);
-    TreeSet<String> set = new TreeSet<>();
-    Array.permute(s, () -> set.add(new String(s, StandardCharsets.US_ASCII)));
-    out.append(set.size()).appendNewLine();
-    for (String elem : set) out.append(elem).appendNewLine();
+    final int MOD = (int) 1e9 + 7;
+    int n = in.nextInt(), m = in.nextInt();
+
+    int[] factorials = new int[n + m];
+    int[] inverseFactorials = new int[Math.max(n, m) + 1];
+
+    factorials[0] = 1;
+
+    for (int i = 1; i < factorials.length; i++) {
+      factorials[i] = (int) (factorials[i - 1] * (long) i % MOD);
+    }
+
+    for (int i = 0; i < inverseFactorials.length; i++) {
+      inverseFactorials[i] = Algebra.modInverse(factorials[i], MOD);
+    }
+
+    long res =
+        (long) factorials[n + m - 1] * inverseFactorials[n - 1] % MOD * inverseFactorials[m] % MOD;
+
+    out.append(res).appendNewLine();
   }
 
   @FunctionalInterface
-  private interface Procedure {
+  static interface Procedure {
     void run();
   }
 
-  @SuppressWarnings("unused")
-  private static class Random {
-    private static long seed = System.nanoTime() ^ 8682522807148012L;
-
-    private Random() {}
-
-    public static void nextBytes(byte[] bytes) {
-      for (int i = 0, len = bytes.length; i < len; ) {
-        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
-            n-- > 0;
-            rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
-      }
-    }
-
-    public static int nextInt() {
-      return next(32);
-    }
-
-    public static int nextInt(int bound) {
-      int r = next(31);
-      int m = bound - 1;
-      if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
-      else
-        for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
-          ;
-      return r;
-    }
-
-    public static long nextLong() {
-      return (long) next(32) << 32 | next(32);
-    }
-
-    public static boolean nextBoolean() {
-      return next(1) != 0;
-    }
-
-    public static float nextFloat() {
-      return next(24) / (float) (1 << 24);
-    }
-
-    public static double nextDouble() {
-      return ((long) next(26) << 27 | next(27)) * 0x1.0p-53;
-    }
-
-    private static int next(int bits) {
-      seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
-      return (int) (seed >>> 48 - bits);
-    }
+  @FunctionalInterface
+  static interface LongFunction {
+    long apply(long t);
   }
 
-  @SuppressWarnings("unused")
-  private static class Array {
-    private Array() {}
+  static class Algebra {
+    private static final double EPSILON = 1E-6;
 
-    public static void sort(int[] array) {
-      int bits = 4;
-      int radix = 1 << bits;
-      int[][] buckets = new int[radix][array.length];
-      int[] size = new int[radix];
-      for (int e : array) {
-        int index = e & radix - 1;
-        buckets[index][size[index]++] = e;
+    private Algebra() {}
+
+    public static int modPow(int n, int exponent, int m) {
+      long result = 1;
+      for (long i = 1, j = n; i <= exponent; i <<= 1, j = j * j % m) {
+        if ((i & exponent) != 0) result = result * j % m;
       }
-      int[][] newBuckets = new int[radix][array.length];
-      for (int i = bits; i < Integer.SIZE; i += bits) {
-        int[] newSize = new int[radix];
-        for (int j = 0; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) {
-            int index = buckets[j][k] >>> i & radix - 1;
-            newBuckets[index][newSize[index]++] = buckets[j][k];
-          }
-        }
-        int[][] temp = buckets;
-        buckets = newBuckets;
-        newBuckets = temp;
-        size = newSize;
+      return (int) result;
+    }
+
+    public static int modInverse(int n, int p) {
+      return modPow(n, p - 2, p);
+    }
+
+    public static int[] modInverses(int n, int p) {
+      int[] inverses = new int[n + 1];
+      inverses[1] = 1;
+      for (int i = 2; i <= n; i++) inverses[i] = (int) ((long) (p - p / i) * inverses[p % i] % p);
+      return inverses;
+    }
+
+    public static int gcd(int a, int b) {
+      if (a < b) {
+        int temp = a;
+        a = b;
+        b = temp;
       }
-      {
-        int i = 0;
-        for (int j = radix >> 1; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
-        }
-        for (int j = 0; j < radix >> 1; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
+      while (true) {
+        a %= b;
+        if (a == 0) return b;
+        else {
+          int temp = a;
+          a = b;
+          b = temp;
         }
       }
     }
 
-    public static <T> void shuffle(int[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
+    public static long gcd(long a, long b) {
+      if (a < b) {
+        long temp = a;
+        a = b;
+        b = temp;
+      }
+      while (true) {
+        a %= b;
+        if (a == 0) return b;
+        else {
+          long temp = a;
+          a = b;
+          b = temp;
+        }
+      }
     }
 
-    public static <T> void shuffle(T[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
+    public static int log2(int n) {
+      return 31 - Integer.numberOfLeadingZeros(n);
     }
 
-    public static void swap(byte[] array, int i, int j) {
-      byte temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+    public static int ceilLog2(int n) {
+      return 32 - Integer.numberOfLeadingZeros(n - 1);
     }
 
-    public static void swap(int[] array, int i, int j) {
-      int temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+    public static boolean equal(double a, double b) {
+      return Math.abs(a - b) < EPSILON;
     }
 
-    public static void swap(char[] array, int i, int j) {
-      char temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+    public static boolean equal0(double a) {
+      return Math.abs(a) < EPSILON;
     }
 
-    public static <T> void swap(T[] array, int i, int j) {
-      T temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+    public static double[] solveLinear(double a, double b, double c, double d, double e, double f) {
+      double D = a * e - b * d;
+      double Dx = c * e - b * f;
+      double Dy = a * f - c * d;
+      if (D == 0) return new double[Dx == 0 && Dy == 0 ? 1 : 0];
+      else return new double[] {Dx / D, Dy / D};
+    }
+
+    public static double[] solveQuadratic(double a, double b, double c) {
+      double delta = b * b - a * c * 4;
+      if (Algebra.equal0(delta)) return new double[] {-b / (a * 2)};
+      else if (delta < 0) return new double[0];
+      else {
+        double a2 = a * 2;
+        double x = -b / a2;
+        double y = Math.sqrt(delta) / a2;
+        return new double[] {x + y, x - y};
+      }
     }
 
     public static void permute(byte[] array, Procedure procedure) {
@@ -171,7 +161,9 @@ public class CreatingStrings implements Runnable {
         permute(array, --length, procedure);
         for (int i = 0; i < length; i++) {
           int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
+          byte temp = array[index];
+          array[index] = array[length];
+          array[length] = temp;
           permute(array, length, procedure);
         }
       }
@@ -187,31 +179,27 @@ public class CreatingStrings implements Runnable {
         permute(array, --length, procedure);
         for (int i = 0; i < length; i++) {
           int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
+          int temp = array[index];
+          array[index] = array[length];
+          array[length] = temp;
           permute(array, length, procedure);
         }
       }
     }
 
-    public static void permute(char[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(char[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
+    public static long binarySearchOnAnswerSpace(
+        LongFunction function, long target, long lowerBound, long upperBound) {
+      while (lowerBound < upperBound) {
+        long mid = lowerBound + upperBound >> 1;
+        long result = function.apply(mid);
+        if (result < target) lowerBound = mid + 1;
+        else upperBound = mid;
       }
+      return lowerBound;
     }
   }
 
-  @SuppressWarnings("unused")
-  private static class InputReader {
+  static class InputReader {
 
     private final byte[] buffer;
     private int pos;
@@ -231,7 +219,7 @@ public class CreatingStrings implements Runnable {
     public byte[] next(int n) {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != '\n' && b != '\r') {
+        if (b != '\n') {
           this.pos--;
           break;
         }
@@ -246,14 +234,14 @@ public class CreatingStrings implements Runnable {
       int from;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n' && b != '\r') {
+        if (b != ' ' && b != '\n') {
           from = this.pos;
           break;
         }
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n' || b == '\r') break;
+        if (b == ' ' || b == '\n') break;
       }
       byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -264,10 +252,7 @@ public class CreatingStrings implements Runnable {
       int from = this.pos;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == '\n' || b == '\r') {
-          if (b == '\r' && this.buffer[this.pos] == '\n') this.pos++;
-          break;
-        }
+        if (b == '\n') break;
       }
       byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -277,7 +262,7 @@ public class CreatingStrings implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n' && b != '\r') return b;
+        if (b != ' ' && b != '\n') return b;
       }
     }
 
@@ -373,8 +358,7 @@ public class CreatingStrings implements Runnable {
     }
   }
 
-  @SuppressWarnings("unused")
-  private static class OutputWriter {
+  static class OutputWriter {
 
     private static final int BUFFER_SIZE = 1048576;
     private final byte[] buffer;

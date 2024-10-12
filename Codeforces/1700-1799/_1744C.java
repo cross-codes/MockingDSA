@@ -1,17 +1,15 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.TreeSet;
 
-public class CreatingStrings implements Runnable {
+public class _1744C implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new CreatingStrings(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _1744C(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -28,12 +26,42 @@ public class CreatingStrings implements Runnable {
   }
 
   void solve() throws IOException {
-    byte[] s = in.nextLine();
-    Arrays.sort(s);
-    TreeSet<String> set = new TreeSet<>();
-    Array.permute(s, () -> set.add(new String(s, StandardCharsets.US_ASCII)));
-    out.append(set.size()).appendNewLine();
-    for (String elem : set) out.append(elem).appendNewLine();
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
+      byte start = in.nextCharacter();
+
+      if ((char) start == 'g') {
+        out.append(0).appendNewLine();
+        continue;
+      }
+
+      byte[] input = in.next();
+
+      int numStart = 0, numEnd = 0;
+      for (int i = 0; i < n; i++) {
+        if (input[i] == start) numStart++;
+        else if ((char) input[i] == 'g') numEnd++;
+      }
+
+      int[] startPositions = new int[numStart];
+      int[] endPositions = new int[numEnd];
+      int sCounter = 0, eCounter = 0;
+      for (int i = 0; i < n; i++) {
+        if (input[i] == start) startPositions[sCounter++] = i;
+        else if ((char) input[i] == 'g') endPositions[eCounter++] = i;
+      }
+
+      int max = Integer.MIN_VALUE;
+      for (int i = 0; i < numStart; i++) {
+        int pos = startPositions[i];
+        int dest = -(Arrays.binarySearch(endPositions, pos) + 1);
+        if (dest == numEnd) max = Math.max(max, n - pos - 1 + endPositions[0]);
+        else max = Math.max(max, endPositions[dest] - pos - 1);
+      }
+
+      out.append(max + 1).appendNewLine();
+    }
   }
 
   @FunctionalInterface
@@ -41,173 +69,9 @@ public class CreatingStrings implements Runnable {
     void run();
   }
 
-  @SuppressWarnings("unused")
-  private static class Random {
-    private static long seed = System.nanoTime() ^ 8682522807148012L;
-
-    private Random() {}
-
-    public static void nextBytes(byte[] bytes) {
-      for (int i = 0, len = bytes.length; i < len; ) {
-        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
-            n-- > 0;
-            rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
-      }
-    }
-
-    public static int nextInt() {
-      return next(32);
-    }
-
-    public static int nextInt(int bound) {
-      int r = next(31);
-      int m = bound - 1;
-      if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
-      else
-        for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
-          ;
-      return r;
-    }
-
-    public static long nextLong() {
-      return (long) next(32) << 32 | next(32);
-    }
-
-    public static boolean nextBoolean() {
-      return next(1) != 0;
-    }
-
-    public static float nextFloat() {
-      return next(24) / (float) (1 << 24);
-    }
-
-    public static double nextDouble() {
-      return ((long) next(26) << 27 | next(27)) * 0x1.0p-53;
-    }
-
-    private static int next(int bits) {
-      seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
-      return (int) (seed >>> 48 - bits);
-    }
-  }
-
-  @SuppressWarnings("unused")
-  private static class Array {
-    private Array() {}
-
-    public static void sort(int[] array) {
-      int bits = 4;
-      int radix = 1 << bits;
-      int[][] buckets = new int[radix][array.length];
-      int[] size = new int[radix];
-      for (int e : array) {
-        int index = e & radix - 1;
-        buckets[index][size[index]++] = e;
-      }
-      int[][] newBuckets = new int[radix][array.length];
-      for (int i = bits; i < Integer.SIZE; i += bits) {
-        int[] newSize = new int[radix];
-        for (int j = 0; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) {
-            int index = buckets[j][k] >>> i & radix - 1;
-            newBuckets[index][newSize[index]++] = buckets[j][k];
-          }
-        }
-        int[][] temp = buckets;
-        buckets = newBuckets;
-        newBuckets = temp;
-        size = newSize;
-      }
-      {
-        int i = 0;
-        for (int j = radix >> 1; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
-        }
-        for (int j = 0; j < radix >> 1; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
-        }
-      }
-    }
-
-    public static <T> void shuffle(int[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
-    }
-
-    public static <T> void shuffle(T[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
-    }
-
-    public static void swap(byte[] array, int i, int j) {
-      byte temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static void swap(int[] array, int i, int j) {
-      int temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static void swap(char[] array, int i, int j) {
-      char temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static <T> void swap(T[] array, int i, int j) {
-      T temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static void permute(byte[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(byte[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
-      }
-    }
-
-    public static void permute(int[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(int[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
-      }
-    }
-
-    public static void permute(char[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(char[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
-      }
-    }
+  @FunctionalInterface
+  private interface LongFunction {
+    long apply(long t);
   }
 
   @SuppressWarnings("unused")
