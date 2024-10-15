@@ -1,15 +1,14 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.TreeMap;
 
-public class Apartments implements Runnable {
+public class JosephusProblemI implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new Apartments(), "", 256 * (1L << 20)).start();
+    new Thread(null, new JosephusProblemI(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -26,31 +25,27 @@ public class Apartments implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = in.nextInt(), m = in.nextInt(), k = in.nextInt();
-    TreeMap<Integer, Integer> a = new TreeMap<>();
-    int[] b = new int[m];
+    int n = in.nextInt();
+    if (n == 1) out.append(1).appendNewLine();
+    else {
 
-    for (int i = 0; i < n; i++) {
-      int num = in.nextInt();
-      a.put(num, a.getOrDefault(num, 0) + 1);
-    }
-
-    for (int j = 0; j < m; j++) b[j] = in.nextInt();
-
-    Array.sort(b);
-
-    int cnt = 0;
-    for (int i = 0; i < m; i++) {
-      Integer elem = a.ceilingKey(b[i] - k);
-      if (elem != null && elem <= b[i] + k) {
-        cnt++;
-        int freq = a.get(elem);
-        if (freq == 1) a.remove(elem);
-        else a.put(elem, --freq);
+      boolean[] marked = new boolean[n + 1];
+      int numMarked = 0, ptr = 2, numJumps = 2;
+      while (numMarked != n) {
+        if (marked[ptr] || numJumps < 2) {
+          ptr = (ptr == n) ? 1 : ++ptr;
+          numJumps = (marked[ptr]) ? numJumps : ++numJumps;
+        } else {
+          marked[ptr] = true;
+          numMarked++;
+          out.append(ptr).append(" ");
+          ptr = (ptr == n) ? 1 : ++ptr;
+          numJumps = (marked[ptr]) ? 0 : 1;
+        }
       }
-    }
 
-    out.append(cnt).appendNewLine();
+      out.appendNewLine();
+    }
   }
 
   @FunctionalInterface
@@ -61,185 +56,6 @@ public class Apartments implements Runnable {
   @FunctionalInterface
   private interface LongFunction {
     long apply(long t);
-  }
-
-  @SuppressWarnings("unused")
-  private static class Random {
-    private static long seed = System.nanoTime() ^ 8682522807148012L;
-
-    private Random() {}
-
-    public static void nextBytes(byte[] bytes) {
-      for (int i = 0, len = bytes.length; i < len; ) {
-        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
-            n-- > 0;
-            rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
-      }
-    }
-
-    public static int nextInt() {
-      return next(32);
-    }
-
-    public static int nextInt(int bound) {
-      int r = next(31);
-      int m = bound - 1;
-      if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
-      else
-        for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
-          ;
-      return r;
-    }
-
-    public static long nextLong() {
-      return (long) next(32) << 32 | next(32);
-    }
-
-    public static boolean nextBoolean() {
-      return next(1) != 0;
-    }
-
-    public static float nextFloat() {
-      return next(24) / (float) (1 << 24);
-    }
-
-    public static double nextDouble() {
-      return ((long) next(26) << 27 | next(27)) * 0x1.0p-53;
-    }
-
-    private static int next(int bits) {
-      seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
-      return (int) (seed >>> 48 - bits);
-    }
-  }
-
-  @SuppressWarnings("unused")
-  private static class Array {
-    private Array() {}
-
-    public static void sort(int[] array) {
-      int bits = 4;
-      int radix = 1 << bits;
-      int[][] buckets = new int[radix][array.length];
-      int[] size = new int[radix];
-      for (int e : array) {
-        int index = e & radix - 1;
-        buckets[index][size[index]++] = e;
-      }
-      int[][] newBuckets = new int[radix][array.length];
-      for (int i = bits; i < Integer.SIZE; i += bits) {
-        int[] newSize = new int[radix];
-        for (int j = 0; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) {
-            int index = buckets[j][k] >>> i & radix - 1;
-            newBuckets[index][newSize[index]++] = buckets[j][k];
-          }
-        }
-        int[][] temp = buckets;
-        buckets = newBuckets;
-        newBuckets = temp;
-        size = newSize;
-      }
-      {
-        int i = 0;
-        for (int j = radix >> 1; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
-        }
-        for (int j = 0; j < radix >> 1; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
-        }
-      }
-    }
-
-    public static <T> void shuffle(int[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
-    }
-
-    public static <T> void shuffle(T[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
-    }
-
-    public static void swap(byte[] array, int i, int j) {
-      byte temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static void swap(int[] array, int i, int j) {
-      int temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static <T> void swap(T[] array, int i, int j) {
-      T temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-
-    public static void permute(byte[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(byte[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
-      }
-    }
-
-    public static void permute(int[] array, Procedure procedure) {
-      permute(array, array.length, procedure);
-    }
-
-    private static void permute(int[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
-      else {
-        permute(array, --length, procedure);
-        for (int i = 0; i < length; i++) {
-          int index = (length & 1) == 0 ? 0 : i;
-          swap(array, index, length);
-          permute(array, length, procedure);
-        }
-      }
-    }
-
-    public static int min(int[] array) {
-      int min = Integer.MAX_VALUE;
-      for (int e : array) {
-        min = Math.min(min, e);
-      }
-      return min;
-    }
-
-    public static int max(int[] array) {
-      int max = Integer.MIN_VALUE;
-      for (int e : array) {
-        max = Math.max(max, e);
-      }
-      return max;
-    }
-
-    public static long min(long[] array) {
-      long min = Long.MAX_VALUE;
-      for (long e : array) {
-        min = Math.min(e, min);
-      }
-      return min;
-    }
-
-    public static long max(long[] array) {
-      long max = Long.MIN_VALUE;
-      for (long e : array) {
-        max = Math.max(e, max);
-      }
-      return max;
-    }
   }
 
   @SuppressWarnings("unused")

@@ -1,15 +1,15 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.TreeMap;
+import java.util.HashSet;
 
-public class Apartments implements Runnable {
+class Codechef implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new Apartments(), "", 256 * (1L << 20)).start();
+    new Thread(null, new Codechef(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -26,31 +26,28 @@ public class Apartments implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = in.nextInt(), m = in.nextInt(), k = in.nextInt();
-    TreeMap<Integer, Integer> a = new TreeMap<>();
-    int[] b = new int[m];
+    int t = in.nextInt();
+    iter:
+    while (t-- > 0) {
+      int n = in.nextInt();
+      int[] arr = in.readIntegerArray(n << 1);
 
-    for (int i = 0; i < n; i++) {
-      int num = in.nextInt();
-      a.put(num, a.getOrDefault(num, 0) + 1);
-    }
+      Array.sort(arr);
+      HashSet<Integer> set = new HashSet<>();
 
-    for (int j = 0; j < m; j++) b[j] = in.nextInt();
+      for (int i = 0; i < (n << 1); i++) {
+        if (set.contains(arr[i])) {
+          out.append("No").appendNewLine();
+          continue iter;
+        }
 
-    Array.sort(b);
-
-    int cnt = 0;
-    for (int i = 0; i < m; i++) {
-      Integer elem = a.ceilingKey(b[i] - k);
-      if (elem != null && elem <= b[i] + k) {
-        cnt++;
-        int freq = a.get(elem);
-        if (freq == 1) a.remove(elem);
-        else a.put(elem, --freq);
+        if (i != (n << 1) - 1 && arr[i] == arr[i + 1]) {
+          set.add(arr[i++]);
+        }
       }
-    }
 
-    out.append(cnt).appendNewLine();
+      out.append("Yes").appendNewLine();
+    }
   }
 
   @FunctionalInterface

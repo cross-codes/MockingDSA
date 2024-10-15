@@ -1,15 +1,14 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.TreeMap;
 
-public class Apartments implements Runnable {
+public class _1859B implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new Apartments(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _1859B(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -26,31 +25,23 @@ public class Apartments implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = in.nextInt(), m = in.nextInt(), k = in.nextInt();
-    TreeMap<Integer, Integer> a = new TreeMap<>();
-    int[] b = new int[m];
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
 
-    for (int i = 0; i < n; i++) {
-      int num = in.nextInt();
-      a.put(num, a.getOrDefault(num, 0) + 1);
-    }
-
-    for (int j = 0; j < m; j++) b[j] = in.nextInt();
-
-    Array.sort(b);
-
-    int cnt = 0;
-    for (int i = 0; i < m; i++) {
-      Integer elem = a.ceilingKey(b[i] - k);
-      if (elem != null && elem <= b[i] + k) {
-        cnt++;
-        int freq = a.get(elem);
-        if (freq == 1) a.remove(elem);
-        else a.put(elem, --freq);
+      long sumOfAllSecondMinimums = 0L;
+      int smallestSecondMinimum = Integer.MAX_VALUE;
+      int minimum = Integer.MAX_VALUE;
+      for (int i = 0; i < n; i++) {
+        int[] inner = in.readIntegerArray(in.nextInt());
+        Array.sort(inner);
+        minimum = Math.min(minimum, inner[0]);
+        smallestSecondMinimum = Math.min(smallestSecondMinimum, inner[1]);
+        sumOfAllSecondMinimums += inner[1];
       }
-    }
 
-    out.append(cnt).appendNewLine();
+      out.append(minimum + sumOfAllSecondMinimums - smallestSecondMinimum).appendNewLine();
+    }
   }
 
   @FunctionalInterface
