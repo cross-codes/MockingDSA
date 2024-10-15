@@ -1,15 +1,14 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.TreeMap;
 
-public class Apartments implements Runnable {
+public class _1725B implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new Apartments(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _1725B(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -26,31 +25,25 @@ public class Apartments implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = in.nextInt(), m = in.nextInt(), k = in.nextInt();
-    TreeMap<Integer, Integer> a = new TreeMap<>();
-    int[] b = new int[m];
+    int N = in.nextInt(), D = in.nextInt();
+    int[] powers = in.readIntegerArray(N);
 
-    for (int i = 0; i < n; i++) {
-      int num = in.nextInt();
-      a.put(num, a.getOrDefault(num, 0) + 1);
+    Array.sort(powers);
+
+    int res = 0;
+    int l = 0, r = N - 1;
+    while (l < r) {
+      int fromFront = D / powers[r];
+      if (l + fromFront <= r) {
+        l += fromFront;
+        res += 1;
+        r--;
+      } else break;
     }
 
-    for (int j = 0; j < m; j++) b[j] = in.nextInt();
+    if (l == r) res += (powers[r] > D) ? 1 : 0;
 
-    Array.sort(b);
-
-    int cnt = 0;
-    for (int i = 0; i < m; i++) {
-      Integer elem = a.ceilingKey(b[i] - k);
-      if (elem != null && elem <= b[i] + k) {
-        cnt++;
-        int freq = a.get(elem);
-        if (freq == 1) a.remove(elem);
-        else a.put(elem, --freq);
-      }
-    }
-
-    out.append(cnt).appendNewLine();
+    out.append(res).appendNewLine();
   }
 
   @FunctionalInterface
