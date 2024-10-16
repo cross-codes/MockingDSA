@@ -39,32 +39,35 @@ public class ArrayDivision implements Runnable {
       max = Math.max(max, num);
     }
 
-    LongPredicate maxReachable =
-        t -> {
-          int numberOfSubArrays = 0;
-          long currentSum = 0L;
+    LongPredicate maxReachable = t -> {
+      int numberOfSubArrays = 0;
+      long currentSum = 0L;
 
-          for (int e : array) {
-            if (e > t) return false;
+      for (int e : array) {
+        if (e > t)
+          return false;
 
-            if (e + currentSum > t) {
-              numberOfSubArrays++;
-              currentSum = 0L;
-            }
+        if (e + currentSum > t) {
+          numberOfSubArrays++;
+          currentSum = 0L;
+        }
 
-            currentSum += e;
-          }
+        currentSum += e;
+      }
 
-          if (currentSum > 0L) numberOfSubArrays++;
+      if (currentSum > 0L)
+        numberOfSubArrays++;
 
-          return numberOfSubArrays <= k;
-        };
+      return numberOfSubArrays <= k;
+    };
 
     long lower = max, higher = sum;
     while (lower < higher) {
       long mid = lower + higher >> 1;
-      if (maxReachable.test(mid)) higher = mid;
-      else lower = mid + 1;
+      if (maxReachable.test(mid))
+        higher = mid;
+      else
+        lower = mid + 1;
     }
 
     out.append(lower).appendNewLine();
@@ -123,7 +126,8 @@ public class ArrayDivision implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n' || b == '\r') break;
+        if (b == ' ' || b == '\n' || b == '\r')
+          break;
       }
       byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -135,7 +139,8 @@ public class ArrayDivision implements Runnable {
       while (true) {
         byte b = this.buffer[this.pos++];
         if (b == '\n' || b == '\r') {
-          if (b == '\r' && this.buffer[this.pos] == '\n') this.pos++;
+          if (b == '\r' && this.buffer[this.pos] == '\n')
+            this.pos++;
           break;
         }
       }
@@ -147,7 +152,8 @@ public class ArrayDivision implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n' && b != '\r') return b;
+        if (b != ' ' && b != '\n' && b != '\r')
+          return b;
       }
     }
 
@@ -168,8 +174,10 @@ public class ArrayDivision implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -190,8 +198,10 @@ public class ArrayDivision implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -212,9 +222,12 @@ public class ArrayDivision implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else if (b == '.') break;
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else if (b == '.')
+          break;
+        else
+          return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -232,13 +245,15 @@ public class ArrayDivision implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
+      for (int i = 0; i < n; i++)
+        a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
+      for (int i = 0; i < n; i++)
+        a[i] = nextLong();
       return a;
     }
   }
@@ -259,7 +274,8 @@ public class ArrayDivision implements Runnable {
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++)
+        this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
@@ -271,7 +287,8 @@ public class ArrayDivision implements Runnable {
           return this;
         }
       }
-      for (byte b : bytes) this.buffer[this.pos++] = b;
+      for (byte b : bytes)
+        this.buffer[this.pos++] = b;
       return this;
     }
 
@@ -284,7 +301,8 @@ public class ArrayDivision implements Runnable {
           return this;
         }
       }
-      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++)
+        this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
@@ -317,7 +335,8 @@ public class ArrayDivision implements Runnable {
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+      if (BUFFER_SIZE - this.pos < n)
+        this.flush();
     }
   }
 }

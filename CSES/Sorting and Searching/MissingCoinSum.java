@@ -31,8 +31,10 @@ public class MissingCoinSum implements Runnable {
     Array.sort(arr);
 
     for (int i = 0; i < arr.length; i++) {
-      if (arr[i] > res) break;
-      else res += arr[i];
+      if (arr[i] > res)
+        break;
+      else
+        res += arr[i];
     }
 
     out.append(res).appendNewLine();
@@ -46,13 +48,13 @@ public class MissingCoinSum implements Runnable {
   static class Random {
     private static long seed = System.nanoTime() ^ 8682522807148012L;
 
-    private Random() {}
+    private Random() {
+    }
 
     public static void nextBytes(byte[] bytes) {
-      for (int i = 0, len = bytes.length; i < len; ) {
-        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
-            n-- > 0;
-            rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
+      for (int i = 0, len = bytes.length; i < len;) {
+        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE); n-- > 0; rnd >>= Byte.SIZE)
+          bytes[i++] = (byte) rnd;
       }
     }
 
@@ -63,7 +65,8 @@ public class MissingCoinSum implements Runnable {
     public static int nextInt(int bound) {
       int r = next(31);
       int m = bound - 1;
-      if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
+      if ((bound & m) == 0)
+        r = (int) (bound * (long) r >> 31);
       else
         for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
           ;
@@ -93,7 +96,8 @@ public class MissingCoinSum implements Runnable {
   }
 
   static class Array {
-    private Array() {}
+    private Array() {
+    }
 
     public static void sort(int[] array) {
       int bits = 4;
@@ -121,20 +125,24 @@ public class MissingCoinSum implements Runnable {
       {
         int i = 0;
         for (int j = radix >> 1; j < radix; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
+          for (int k = 0; k < size[j]; k++)
+            array[i++] = buckets[j][k];
         }
         for (int j = 0; j < radix >> 1; j++) {
-          for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
+          for (int k = 0; k < size[j]; k++)
+            array[i++] = buckets[j][k];
         }
       }
     }
 
     public static <T> void shuffle(int[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
+      for (int i = array.length; i > 1; i--)
+        swap(array, Random.nextInt(i), i - 1);
     }
 
     public static <T> void shuffle(T[] array) {
-      for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
+      for (int i = array.length; i > 1; i--)
+        swap(array, Random.nextInt(i), i - 1);
     }
 
     public static void swap(byte[] array, int i, int j) {
@@ -160,7 +168,8 @@ public class MissingCoinSum implements Runnable {
     }
 
     private static void permute(byte[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
+      if (length == 1)
+        procedure.run();
       else {
         permute(array, --length, procedure);
         for (int i = 0; i < length; i++) {
@@ -176,7 +185,8 @@ public class MissingCoinSum implements Runnable {
     }
 
     private static void permute(int[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
+      if (length == 1)
+        procedure.run();
       else {
         permute(array, --length, procedure);
         for (int i = 0; i < length; i++) {
@@ -229,7 +239,8 @@ public class MissingCoinSum implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n') break;
+        if (b == ' ' || b == '\n')
+          break;
       }
       byte[] bytes = new byte[pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -240,7 +251,8 @@ public class MissingCoinSum implements Runnable {
       int from = pos;
       while (true) {
         byte b = this.buffer[pos++];
-        if (b == '\n') break;
+        if (b == '\n')
+          break;
       }
       byte[] bytes = new byte[pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -250,7 +262,8 @@ public class MissingCoinSum implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') return b;
+        if (b != ' ' && b != '\n')
+          return b;
       }
     }
 
@@ -271,8 +284,10 @@ public class MissingCoinSum implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -293,8 +308,10 @@ public class MissingCoinSum implements Runnable {
       }
       while (true) {
         byte b = this.buffer[pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -315,9 +332,12 @@ public class MissingCoinSum implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else if (b == '.') break;
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else if (b == '.')
+          break;
+        else
+          return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -335,13 +355,15 @@ public class MissingCoinSum implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
+      for (int i = 0; i < n; i++)
+        a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
+      for (int i = 0; i < n; i++)
+        a[i] = nextLong();
       return a;
     }
   }
@@ -361,7 +383,8 @@ public class MissingCoinSum implements Runnable {
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++)
+        this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
@@ -373,7 +396,8 @@ public class MissingCoinSum implements Runnable {
           return this;
         }
       }
-      for (byte b : bytes) this.buffer[this.pos++] = b;
+      for (byte b : bytes)
+        this.buffer[this.pos++] = b;
       return this;
     }
 
@@ -386,7 +410,8 @@ public class MissingCoinSum implements Runnable {
           return this;
         }
       }
-      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++)
+        this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
@@ -419,7 +444,8 @@ public class MissingCoinSum implements Runnable {
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+      if (BUFFER_SIZE - this.pos < n)
+        this.flush();
     }
   }
 }
