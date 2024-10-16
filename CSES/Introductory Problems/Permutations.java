@@ -43,11 +43,15 @@ public class Permutations implements Runnable {
 
       default:
         if ((n & 1) == 0) {
-          for (int i = 1; i < n; i += 2) out.append(i + " ").appendNewLine();
-          for (int j = 2; j <= n; j += 2) out.append(j + " ").appendNewLine();
+          for (int i = 1; i < n; i += 2)
+            out.append(i + " ").appendNewLine();
+          for (int j = 2; j <= n; j += 2)
+            out.append(j + " ").appendNewLine();
         } else {
-          for (int i = 1; i <= n; i += 2) out.append(i + " ").appendNewLine();
-          for (int j = 2; j < n; j += 2) out.append(j + " ").appendNewLine();
+          for (int i = 1; i <= n; i += 2)
+            out.append(i + " ").appendNewLine();
+          for (int j = 2; j < n; j += 2)
+            out.append(j + " ").appendNewLine();
         }
     }
   }
@@ -98,7 +102,8 @@ public class Permutations implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n') break;
+        if (b == ' ' || b == '\n')
+          break;
       }
       byte[] bytes = new byte[pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -109,7 +114,8 @@ public class Permutations implements Runnable {
       int from = pos;
       while (true) {
         byte b = this.buffer[pos++];
-        if (b == '\n') break;
+        if (b == '\n')
+          break;
       }
       byte[] bytes = new byte[pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -119,7 +125,8 @@ public class Permutations implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') return b;
+        if (b != ' ' && b != '\n')
+          return b;
       }
     }
 
@@ -140,8 +147,10 @@ public class Permutations implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -162,8 +171,10 @@ public class Permutations implements Runnable {
       }
       while (true) {
         byte b = this.buffer[pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -184,9 +195,12 @@ public class Permutations implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else if (b == '.') break;
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else if (b == '.')
+          break;
+        else
+          return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -204,13 +218,15 @@ public class Permutations implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
+      for (int i = 0; i < n; i++)
+        a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
+      for (int i = 0; i < n; i++)
+        a[i] = nextLong();
       return a;
     }
   }
@@ -230,7 +246,8 @@ public class Permutations implements Runnable {
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++)
+        this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
@@ -242,7 +259,8 @@ public class Permutations implements Runnable {
           return this;
         }
       }
-      for (byte b : bytes) this.buffer[this.pos++] = b;
+      for (byte b : bytes)
+        this.buffer[this.pos++] = b;
       return this;
     }
 
@@ -255,7 +273,8 @@ public class Permutations implements Runnable {
           return this;
         }
       }
-      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++)
+        this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
@@ -288,7 +307,8 @@ public class Permutations implements Runnable {
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+      if (BUFFER_SIZE - this.pos < n)
+        this.flush();
     }
   }
 }

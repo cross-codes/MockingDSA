@@ -28,11 +28,14 @@ public class SalaryQueries implements Runnable {
     int pivot = i + Random.nextInt(j - i + 1), small = i - 1;
     swap(nums, pivot, j);
     for (int p = i; p < j; ++p) {
-      if (nums[p][0] <= nums[j][0]) swap(nums, ++small, p);
+      if (nums[p][0] <= nums[j][0])
+        swap(nums, ++small, p);
     }
     swap(nums, ++small, j);
-    if (i < small - 1) qsort(nums, i, small - 1);
-    if (small + 1 < j) qsort(nums, small + 1, j);
+    if (i < small - 1)
+      qsort(nums, i, small - 1);
+    if (small + 1 < j)
+      qsort(nums, small + 1, j);
   }
 
   private static void swap(int[][] nums, int i, int j) {
@@ -83,18 +86,23 @@ public class SalaryQueries implements Runnable {
     qsort(compress, 0, compress.length - 1);
 
     for (int i = 0, j = Integer.MIN_VALUE; i < compress.length; ++i) {
-      if (compress[i][0] != j) cnt++;
-      if (compress[i][1] < n) salary[compress[i][1]] = cnt;
+      if (compress[i][0] != j)
+        cnt++;
+      if (compress[i][1] < n)
+        salary[compress[i][1]] = cnt;
       else {
         int p = (compress[i][1] - n) >> 1, r = 1 == ((compress[i][1] - n) & 1) ? 2 : 1;
-        if (1 == query[p][0] && 2 == r) query[p][2] = cnt;
-        else if (2 == query[p][0]) query[p][1 == ((compress[i][1] - n) & 1) ? 2 : 1] = cnt;
+        if (1 == query[p][0] && 2 == r)
+          query[p][2] = cnt;
+        else if (2 == query[p][0])
+          query[p][1 == ((compress[i][1] - n) & 1) ? 2 : 1] = cnt;
       }
       j = compress[i][0];
     }
 
     int[] bit = new int[cnt + 1];
-    for (int i : salary) add(bit, i, 1);
+    for (int i : salary)
+      add(bit, i, 1);
     for (int[] cmd : query) {
       if (1 == cmd[0]) {
         add(bit, salary[cmd[1] - 1], -1);
@@ -109,13 +117,13 @@ public class SalaryQueries implements Runnable {
   static class Random {
     private static long seed = System.nanoTime() ^ 8682522807148012L;
 
-    private Random() {}
+    private Random() {
+    }
 
     public static void nextBytes(byte[] bytes) {
-      for (int i = 0, len = bytes.length; i < len; ) {
-        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
-            n-- > 0;
-            rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
+      for (int i = 0, len = bytes.length; i < len;) {
+        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE); n-- > 0; rnd >>= Byte.SIZE)
+          bytes[i++] = (byte) rnd;
       }
     }
 
@@ -126,7 +134,8 @@ public class SalaryQueries implements Runnable {
     public static int nextInt(int bound) {
       int r = next(31);
       int m = bound - 1;
-      if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
+      if ((bound & m) == 0)
+        r = (int) (bound * (long) r >> 31);
       else
         for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
           ;
@@ -201,7 +210,8 @@ public class SalaryQueries implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n') break;
+        if (b == ' ' || b == '\n')
+          break;
       }
       byte[] bytes = new byte[pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -212,7 +222,8 @@ public class SalaryQueries implements Runnable {
       int from = pos;
       while (true) {
         byte b = this.buffer[pos++];
-        if (b == '\n') break;
+        if (b == '\n')
+          break;
       }
       byte[] bytes = new byte[pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -222,7 +233,8 @@ public class SalaryQueries implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') return b;
+        if (b != ' ' && b != '\n')
+          return b;
       }
     }
 
@@ -243,8 +255,10 @@ public class SalaryQueries implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -265,8 +279,10 @@ public class SalaryQueries implements Runnable {
       }
       while (true) {
         byte b = this.buffer[pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -287,9 +303,12 @@ public class SalaryQueries implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else if (b == '.') break;
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else if (b == '.')
+          break;
+        else
+          return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -307,13 +326,15 @@ public class SalaryQueries implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
+      for (int i = 0; i < n; i++)
+        a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
+      for (int i = 0; i < n; i++)
+        a[i] = nextLong();
       return a;
     }
   }
@@ -333,7 +354,8 @@ public class SalaryQueries implements Runnable {
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++)
+        this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
@@ -345,7 +367,8 @@ public class SalaryQueries implements Runnable {
           return this;
         }
       }
-      for (byte b : bytes) this.buffer[this.pos++] = b;
+      for (byte b : bytes)
+        this.buffer[this.pos++] = b;
       return this;
     }
 
@@ -358,7 +381,8 @@ public class SalaryQueries implements Runnable {
           return this;
         }
       }
-      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++)
+        this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
@@ -391,7 +415,8 @@ public class SalaryQueries implements Runnable {
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+      if (BUFFER_SIZE - this.pos < n)
+        this.flush();
     }
   }
 }

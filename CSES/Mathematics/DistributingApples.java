@@ -41,8 +41,7 @@ public class DistributingApples implements Runnable {
       inverseFactorials[i] = Algebra.modInverse(factorials[i], MOD);
     }
 
-    long res =
-        (long) factorials[n + m - 1] * inverseFactorials[n - 1] % MOD * inverseFactorials[m] % MOD;
+    long res = (long) factorials[n + m - 1] * inverseFactorials[n - 1] % MOD * inverseFactorials[m] % MOD;
 
     out.append(res).appendNewLine();
   }
@@ -60,12 +59,14 @@ public class DistributingApples implements Runnable {
   static class Algebra {
     private static final double EPSILON = 1E-6;
 
-    private Algebra() {}
+    private Algebra() {
+    }
 
     public static int modPow(int n, int exponent, int m) {
       long result = 1;
       for (long i = 1, j = n; i <= exponent; i <<= 1, j = j * j % m) {
-        if ((i & exponent) != 0) result = result * j % m;
+        if ((i & exponent) != 0)
+          result = result * j % m;
       }
       return (int) result;
     }
@@ -77,7 +78,8 @@ public class DistributingApples implements Runnable {
     public static int[] modInverses(int n, int p) {
       int[] inverses = new int[n + 1];
       inverses[1] = 1;
-      for (int i = 2; i <= n; i++) inverses[i] = (int) ((long) (p - p / i) * inverses[p % i] % p);
+      for (int i = 2; i <= n; i++)
+        inverses[i] = (int) ((long) (p - p / i) * inverses[p % i] % p);
       return inverses;
     }
 
@@ -89,7 +91,8 @@ public class DistributingApples implements Runnable {
       }
       while (true) {
         a %= b;
-        if (a == 0) return b;
+        if (a == 0)
+          return b;
         else {
           int temp = a;
           a = b;
@@ -106,7 +109,8 @@ public class DistributingApples implements Runnable {
       }
       while (true) {
         a %= b;
-        if (a == 0) return b;
+        if (a == 0)
+          return b;
         else {
           long temp = a;
           a = b;
@@ -135,19 +139,23 @@ public class DistributingApples implements Runnable {
       double D = a * e - b * d;
       double Dx = c * e - b * f;
       double Dy = a * f - c * d;
-      if (D == 0) return new double[Dx == 0 && Dy == 0 ? 1 : 0];
-      else return new double[] {Dx / D, Dy / D};
+      if (D == 0)
+        return new double[Dx == 0 && Dy == 0 ? 1 : 0];
+      else
+        return new double[] { Dx / D, Dy / D };
     }
 
     public static double[] solveQuadratic(double a, double b, double c) {
       double delta = b * b - a * c * 4;
-      if (Algebra.equal0(delta)) return new double[] {-b / (a * 2)};
-      else if (delta < 0) return new double[0];
+      if (Algebra.equal0(delta))
+        return new double[] { -b / (a * 2) };
+      else if (delta < 0)
+        return new double[0];
       else {
         double a2 = a * 2;
         double x = -b / a2;
         double y = Math.sqrt(delta) / a2;
-        return new double[] {x + y, x - y};
+        return new double[] { x + y, x - y };
       }
     }
 
@@ -156,7 +164,8 @@ public class DistributingApples implements Runnable {
     }
 
     private static void permute(byte[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
+      if (length == 1)
+        procedure.run();
       else {
         permute(array, --length, procedure);
         for (int i = 0; i < length; i++) {
@@ -174,7 +183,8 @@ public class DistributingApples implements Runnable {
     }
 
     private static void permute(int[] array, int length, Procedure procedure) {
-      if (length == 1) procedure.run();
+      if (length == 1)
+        procedure.run();
       else {
         permute(array, --length, procedure);
         for (int i = 0; i < length; i++) {
@@ -192,8 +202,10 @@ public class DistributingApples implements Runnable {
       while (lowerBound < upperBound) {
         long mid = lowerBound + upperBound >> 1;
         long result = function.apply(mid);
-        if (result < target) lowerBound = mid + 1;
-        else upperBound = mid;
+        if (result < target)
+          lowerBound = mid + 1;
+        else
+          upperBound = mid;
       }
       return lowerBound;
     }
@@ -241,7 +253,8 @@ public class DistributingApples implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n') break;
+        if (b == ' ' || b == '\n')
+          break;
       }
       byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -252,7 +265,8 @@ public class DistributingApples implements Runnable {
       int from = this.pos;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == '\n') break;
+        if (b == '\n')
+          break;
       }
       byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -262,7 +276,8 @@ public class DistributingApples implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') return b;
+        if (b != ' ' && b != '\n')
+          return b;
       }
     }
 
@@ -283,8 +298,10 @@ public class DistributingApples implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -305,8 +322,10 @@ public class DistributingApples implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -327,9 +346,12 @@ public class DistributingApples implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else if (b == '.') break;
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else if (b == '.')
+          break;
+        else
+          return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -347,13 +369,15 @@ public class DistributingApples implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
+      for (int i = 0; i < n; i++)
+        a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
+      for (int i = 0; i < n; i++)
+        a[i] = nextLong();
       return a;
     }
   }
@@ -373,7 +397,8 @@ public class DistributingApples implements Runnable {
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++)
+        this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
@@ -385,7 +410,8 @@ public class DistributingApples implements Runnable {
           return this;
         }
       }
-      for (byte b : bytes) this.buffer[this.pos++] = b;
+      for (byte b : bytes)
+        this.buffer[this.pos++] = b;
       return this;
     }
 
@@ -398,7 +424,8 @@ public class DistributingApples implements Runnable {
           return this;
         }
       }
-      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++)
+        this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
@@ -431,7 +458,8 @@ public class DistributingApples implements Runnable {
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+      if (BUFFER_SIZE - this.pos < n)
+        this.flush();
     }
   }
 }

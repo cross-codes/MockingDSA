@@ -2,13 +2,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class StaticRangeSumQueries implements Runnable {
+public class _1632B implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new StaticRangeSumQueries(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _1632B(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -25,23 +25,29 @@ public class StaticRangeSumQueries implements Runnable {
   }
 
   void solve() throws IOException {
-    int n = in.nextInt(), q = in.nextInt();
-    long[] prefix = new long[n + 1];
-    for (int i = 1; i < n + 1; i++)
-      prefix[i] = in.nextLong() + prefix[i - 1];
-
-    while (q-- > 0) {
-      int a = in.nextInt(), b = in.nextInt();
-      out.append(prefix[b] - prefix[a - 1]).appendNewLine();
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
+      int k = Integer.highestOneBit(n - 1);
+      for (int i = k - 1; i >= 0; i--) out.append(i).append(" ");
+      for (int i = k; i <= n - 1; i++) out.append(i).append(" ");
+      out.appendNewLine();
     }
   }
 
   @FunctionalInterface
-  static interface Procedure {
+  private interface Procedure {
     void run();
   }
 
-  static class InputReader {
+  @FunctionalInterface
+  private interface LongFunction {
+    long apply(long t);
+  }
+
+  @SuppressWarnings("unused")
+  private static class InputReader {
+
     private final byte[] buffer;
     private int pos;
     private final InputStream in;
@@ -60,7 +66,7 @@ public class StaticRangeSumQueries implements Runnable {
     public byte[] next(int n) {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != '\n') {
+        if (b != '\n' && b != '\r') {
           this.pos--;
           break;
         }
@@ -75,29 +81,30 @@ public class StaticRangeSumQueries implements Runnable {
       int from;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') {
+        if (b != ' ' && b != '\n' && b != '\r') {
           from = this.pos;
           break;
         }
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n')
-          break;
+        if (b == ' ' || b == '\n' || b == '\r') break;
       }
-      byte[] bytes = new byte[pos - from];
+      byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
       return bytes;
     }
 
     public byte[] nextLine() {
-      int from = pos;
+      int from = this.pos;
       while (true) {
-        byte b = this.buffer[pos++];
-        if (b == '\n')
+        byte b = this.buffer[this.pos++];
+        if (b == '\n' || b == '\r') {
+          if (b == '\r' && this.buffer[this.pos] == '\n') this.pos++;
           break;
+        }
       }
-      byte[] bytes = new byte[pos - from - 1];
+      byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
       return bytes;
     }
@@ -105,8 +112,7 @@ public class StaticRangeSumQueries implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n')
-          return b;
+        if (b != ' ' && b != '\n' && b != '\r') return b;
       }
     }
 
@@ -127,10 +133,8 @@ public class StaticRangeSumQueries implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9')
-          n = n * 10 + b - '0';
-        else
-          return positive ? n : -n;
+        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
+        else return positive ? n : -n;
       }
     }
 
@@ -150,11 +154,9 @@ public class StaticRangeSumQueries implements Runnable {
         }
       }
       while (true) {
-        byte b = this.buffer[pos++];
-        if (b >= '0' && b <= '9')
-          n = n * 10 + b - '0';
-        else
-          return positive ? n : -n;
+        byte b = this.buffer[this.pos++];
+        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
+        else return positive ? n : -n;
       }
     }
 
@@ -175,12 +177,9 @@ public class StaticRangeSumQueries implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9')
-          n = n * 10 + b - '0';
-        else if (b == '.')
-          break;
-        else
-          return positive ? n : -n;
+        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
+        else if (b == '.') break;
+        else return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -198,20 +197,19 @@ public class StaticRangeSumQueries implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++)
-        a[i] = nextInt();
+      for (int i = 0; i < n; i++) a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++)
-        a[i] = nextLong();
+      for (int i = 0; i < n; i++) a[i] = nextLong();
       return a;
     }
   }
 
-  static class OutputWriter {
+  @SuppressWarnings("unused")
+  private static class OutputWriter {
 
     private static final int BUFFER_SIZE = 1048576;
     private final byte[] buffer;
@@ -226,8 +224,7 @@ public class StaticRangeSumQueries implements Runnable {
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++)
-        this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
@@ -239,8 +236,7 @@ public class StaticRangeSumQueries implements Runnable {
           return this;
         }
       }
-      for (byte b : bytes)
-        this.buffer[this.pos++] = b;
+      for (byte b : bytes) this.buffer[this.pos++] = b;
       return this;
     }
 
@@ -253,8 +249,7 @@ public class StaticRangeSumQueries implements Runnable {
           return this;
         }
       }
-      for (int i = from; i < to; i++)
-        this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
@@ -287,8 +282,7 @@ public class StaticRangeSumQueries implements Runnable {
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n)
-        this.flush();
+      if (BUFFER_SIZE - this.pos < n) this.flush();
     }
   }
 }
