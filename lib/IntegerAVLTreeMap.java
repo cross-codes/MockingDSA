@@ -17,7 +17,8 @@ class OptionalInteger {
   private int value;
   private boolean present;
 
-  public OptionalInteger() {}
+  public OptionalInteger() {
+  }
 
   public OptionalInteger(int value) {
     set(value);
@@ -79,13 +80,15 @@ public class IntegerAVLTreeMap {
             entry.left = new Entry(k, v, entry);
             child = entry.left;
             break;
-          } else entry = entry.left;
+          } else
+            entry = entry.left;
         } else if (k > entry.key) {
           if (entry.right == null) {
             entry.right = new Entry(k, v, entry);
             child = entry.right;
             break;
-          } else entry = entry.right;
+          } else
+            entry = entry.right;
         } else {
           entry.value = remappingFunction.apply(entry.value, v);
           return;
@@ -94,16 +97,22 @@ public class IntegerAVLTreeMap {
       for (; entry != null; child = entry, entry = entry.parent) {
         if (entry.left == child) {
           if (entry.balanceFactor == 1) {
-            if (child.balanceFactor == 1) rotateLL(entry, child);
-            else rotateLR(entry, child, child.right);
+            if (child.balanceFactor == 1)
+              rotateLL(entry, child);
+            else
+              rotateLR(entry, child, child.right);
             break;
-          } else if (++entry.balanceFactor == 0) break;
+          } else if (++entry.balanceFactor == 0)
+            break;
         } else {
           if (entry.balanceFactor == -1) {
-            if (child.balanceFactor == -1) rotateRR(entry, child);
-            else rotateRL(entry, child, child.left);
+            if (child.balanceFactor == -1)
+              rotateRR(entry, child);
+            else
+              rotateRL(entry, child, child.left);
             break;
-          } else if (--entry.balanceFactor == 0) break;
+          } else if (--entry.balanceFactor == 0)
+            break;
         }
       }
       size++;
@@ -115,17 +124,20 @@ public class IntegerAVLTreeMap {
   }
 
   public int getOrDefault(int k, int defaultValue) {
-    for (Entry entry = root; entry != null; ) {
-      if (k < entry.key) entry = entry.left;
-      else if (k > entry.key) entry = entry.right;
-      else return entry.value;
+    for (Entry entry = root; entry != null;) {
+      if (k < entry.key)
+        entry = entry.left;
+      else if (k > entry.key)
+        entry = entry.right;
+      else
+        return entry.value;
     }
     return defaultValue;
   }
 
   public void computeForFloor(int k, IntegerXBiConsumer<OptionalInteger> remappingConsumer) {
     Entry floor;
-    for (Entry entry = root; ; entry = entry.left) {
+    for (Entry entry = root;; entry = entry.left) {
       if (entry == null) {
         optionalValue.clear();
         remappingConsumer.accept(0, optionalValue);
@@ -141,8 +153,9 @@ public class IntegerAVLTreeMap {
         }
       }
     }
-    for (Entry entry = floor.right; entry != null; ) {
-      if (k < entry.key) entry = entry.left;
+    for (Entry entry = floor.right; entry != null;) {
+      if (k < entry.key)
+        entry = entry.left;
       else if (k > entry.key) {
         floor = entry;
         entry = entry.right;
@@ -157,15 +170,18 @@ public class IntegerAVLTreeMap {
   private void compute(Entry entry, IntegerXBiConsumer<OptionalInteger> remappingConsumer) {
     optionalValue.set(entry.value);
     remappingConsumer.accept(entry.key, optionalValue);
-    if (optionalValue.isPresent()) entry.value = optionalValue.get();
-    else remove(entry);
+    if (optionalValue.isPresent())
+      entry.value = optionalValue.get();
+    else
+      remove(entry);
   }
 
   private void remove(Entry entry) {
     size--;
     if (entry.left != null && entry.right != null) {
       Entry next = entry.right;
-      while (next.left != null) next = next.left;
+      while (next.left != null)
+        next = next.left;
       entry.key = next.key;
       entry.value = next.value;
       entry = next;
@@ -190,7 +206,8 @@ public class IntegerAVLTreeMap {
             rotateRL(entry, child, grandchild);
             entry = grandchild;
           }
-        } else if (entry.balanceFactor-- == 0) break;
+        } else if (entry.balanceFactor-- == 0)
+          break;
       } else {
         if (entry.balanceFactor == 1) {
           child = entry.left;
@@ -205,13 +222,17 @@ public class IntegerAVLTreeMap {
             rotateLR(entry, child, grandchild);
             entry = grandchild;
           }
-        } else if (entry.balanceFactor++ == 0) break;
+        } else if (entry.balanceFactor++ == 0)
+          break;
       }
     }
     child = removed.left == null ? removed.right : removed.left;
-    if (removed.parent.left == removed) removed.parent.left = child;
-    else removed.parent.right = child;
-    if (child != null) child.parent = removed.parent;
+    if (removed.parent.left == removed)
+      removed.parent.left = child;
+    else
+      removed.parent.right = child;
+    if (child != null)
+      child.parent = removed.parent;
   }
 
   private void rotateLL(Entry entry, Entry child) {
@@ -304,19 +325,24 @@ public class IntegerAVLTreeMap {
 
   private void setNullableLeftChild(Entry entry, Entry child) {
     entry.left = child;
-    if (child != null) child.parent = entry;
+    if (child != null)
+      child.parent = entry;
   }
 
   private void setNullableRightChild(Entry entry, Entry child) {
     entry.right = child;
-    if (child != null) child.parent = entry;
+    if (child != null)
+      child.parent = entry;
   }
 
   private void replaceAsChild(Entry oldEntry, Entry newEntry) {
     Entry parent = oldEntry.parent;
-    if (parent == null) root = newEntry;
-    else if (parent.left == oldEntry) parent.left = newEntry;
-    else parent.right = newEntry;
+    if (parent == null)
+      root = newEntry;
+    else if (parent.left == oldEntry)
+      parent.left = newEntry;
+    else
+      parent.right = newEntry;
     newEntry.parent = parent;
   }
 

@@ -16,7 +16,8 @@ public class OutputWriter {
   public OutputWriter append(String s) throws IOException {
     int length = s.length();
     this.ensureCapacity(length);
-    for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+    for (int i = 0; i < length; i++)
+      this.buffer[this.pos++] = (byte) s.charAt(i);
     return this;
   }
 
@@ -28,7 +29,8 @@ public class OutputWriter {
         return this;
       }
     }
-    for (byte b : bytes) this.buffer[this.pos++] = b;
+    for (byte b : bytes)
+      this.buffer[this.pos++] = b;
     return this;
   }
 
@@ -41,7 +43,8 @@ public class OutputWriter {
         return this;
       }
     }
-    for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+    for (int i = from; i < to; i++)
+      this.buffer[this.pos++] = bytes[i];
     return this;
   }
 
@@ -74,6 +77,7 @@ public class OutputWriter {
   }
 
   private void ensureCapacity(int n) throws IOException {
-    if (BUFFER_SIZE - this.pos < n) this.flush();
+    if (BUFFER_SIZE - this.pos < n)
+      this.flush();
   }
 }

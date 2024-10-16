@@ -41,8 +41,10 @@ public class TreeMultiSet<E> {
 
   public boolean contains(Object o) {
     Integer cnt = this.mult.get(o);
-    if (cnt != null && cnt > 0) return true;
-    else return false;
+    if (cnt != null && cnt > 0)
+      return true;
+    else
+      return false;
   }
 
   public E first() {
@@ -70,11 +72,14 @@ public class TreeMultiSet<E> {
   }
 
   public boolean remove(E e) {
-    if (!this.mult.containsKey(e)) return false;
+    if (!this.mult.containsKey(e))
+      return false;
 
     Integer cnt = this.mult.get(e);
-    if (cnt == 1) this.mult.remove(e);
-    else this.mult.put(e, --cnt);
+    if (cnt == 1)
+      this.mult.remove(e);
+    else
+      this.mult.put(e, --cnt);
     return true;
   }
 }

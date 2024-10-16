@@ -13,14 +13,18 @@ public class Pair<K extends Comparable<K>, V extends Comparable<V>>
   @Override
   public int compareTo(Pair<K, V> other) {
     int cmp = this.key.compareTo(other.key);
-    if (cmp == 0) return this.value.compareTo(other.value);
-    else return cmp;
+    if (cmp == 0)
+      return this.value.compareTo(other.value);
+    else
+      return cmp;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Pair)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof Pair))
+      return false;
     Pair<?, ?> pair = (Pair<?, ?>) o;
     return Objects.equals(this.key, pair.key) && Objects.equals(this.value, pair.value);
   }

@@ -1,8 +1,9 @@
 import java.io.InputStream;
 
 /**
- * Note: This class relies on the input stream not being buffered. It expects that the InputStream
- * provided is in a state that allows immediate reading of the available bytes.
+ * Note: This class relies on the input stream not being buffered. It expects
+ * that the InputStream provided is in a state that allows immediate reading of
+ * the available bytes.
  */
 public class InputReader {
 
@@ -46,7 +47,8 @@ public class InputReader {
     }
     while (true) {
       byte b = this.buffer[this.pos++];
-      if (b == ' ' || b == '\n' || b == '\r') break;
+      if (b == ' ' || b == '\n' || b == '\r')
+        break;
     }
     byte[] bytes = new byte[this.pos - from];
     System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
@@ -58,7 +60,8 @@ public class InputReader {
     while (true) {
       byte b = this.buffer[this.pos++];
       if (b == '\n' || b == '\r') {
-        if (b == '\r' && this.buffer[this.pos] == '\n') this.pos++;
+        if (b == '\r' && this.buffer[this.pos] == '\n')
+          this.pos++;
         break;
       }
     }
@@ -70,7 +73,8 @@ public class InputReader {
   public byte nextCharacter() {
     while (true) {
       byte b = this.buffer[this.pos++];
-      if (b != ' ' && b != '\n' && b != '\r') return b;
+      if (b != ' ' && b != '\n' && b != '\r')
+        return b;
     }
   }
 
@@ -91,8 +95,10 @@ public class InputReader {
     }
     while (true) {
       byte b = this.buffer[this.pos++];
-      if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-      else return positive ? n : -n;
+      if (b >= '0' && b <= '9')
+        n = n * 10 + b - '0';
+      else
+        return positive ? n : -n;
     }
   }
 
@@ -113,8 +119,10 @@ public class InputReader {
     }
     while (true) {
       byte b = this.buffer[this.pos++];
-      if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-      else return positive ? n : -n;
+      if (b >= '0' && b <= '9')
+        n = n * 10 + b - '0';
+      else
+        return positive ? n : -n;
     }
   }
 
@@ -135,9 +143,12 @@ public class InputReader {
     }
     while (true) {
       byte b = this.buffer[this.pos++];
-      if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-      else if (b == '.') break;
-      else return positive ? n : -n;
+      if (b >= '0' && b <= '9')
+        n = n * 10 + b - '0';
+      else if (b == '.')
+        break;
+      else
+        return positive ? n : -n;
     }
     long m = 0;
     long o = 1;
@@ -155,13 +166,15 @@ public class InputReader {
 
   public int[] readIntegerArray(int n) {
     int[] a = new int[n];
-    for (int i = 0; i < n; i++) a[i] = nextInt();
+    for (int i = 0; i < n; i++)
+      a[i] = nextInt();
     return a;
   }
 
   public long[] readLongArray(int n) {
     long[] a = new long[n];
-    for (int i = 0; i < n; i++) a[i] = nextLong();
+    for (int i = 0; i < n; i++)
+      a[i] = nextLong();
     return a;
   }
 }

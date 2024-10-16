@@ -1,5 +1,6 @@
 public class Array {
-  private Array() {}
+  private Array() {
+  }
 
   public static void sort(int[] array) {
     int bits = 4;
@@ -27,20 +28,24 @@ public class Array {
     {
       int i = 0;
       for (int j = radix >> 1; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++)
+          array[i++] = buckets[j][k];
       }
       for (int j = 0; j < radix >> 1; j++) {
-        for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++)
+          array[i++] = buckets[j][k];
       }
     }
   }
 
   public static <T> void shuffle(int[] array) {
-    for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
+    for (int i = array.length; i > 1; i--)
+      swap(array, Random.nextInt(i), i - 1);
   }
 
   public static <T> void shuffle(T[] array) {
-    for (int i = array.length; i > 1; i--) swap(array, Random.nextInt(i), i - 1);
+    for (int i = array.length; i > 1; i--)
+      swap(array, Random.nextInt(i), i - 1);
   }
 
   public static void swap(byte[] array, int i, int j) {
@@ -66,7 +71,8 @@ public class Array {
   }
 
   private static void permute(byte[] array, int length, Procedure procedure) {
-    if (length == 1) procedure.run();
+    if (length == 1)
+      procedure.run();
     else {
       permute(array, --length, procedure);
       for (int i = 0; i < length; i++) {
@@ -82,7 +88,8 @@ public class Array {
   }
 
   private static void permute(int[] array, int length, Procedure procedure) {
-    if (length == 1) procedure.run();
+    if (length == 1)
+      procedure.run();
     else {
       permute(array, --length, procedure);
       for (int i = 0; i < length; i++) {

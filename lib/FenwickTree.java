@@ -40,7 +40,8 @@ public class FenwickTree {
 
     String[] tokens = in.readLine().split(" ");
 
-    for (int i = 0; i < tokens.length; i++) bit.add(i + 1, Integer.parseInt(tokens[i]));
+    for (int i = 0; i < tokens.length; i++)
+      bit.add(i + 1, Integer.parseInt(tokens[i]));
 
     out.print(Arrays.toString(bit.tree));
     out.close();

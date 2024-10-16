@@ -1,13 +1,13 @@
 public class Random {
   private static long seed = System.nanoTime() ^ 8682522807148012L;
 
-  private Random() {}
+  private Random() {
+  }
 
   public static void nextBytes(byte[] bytes) {
-    for (int i = 0, len = bytes.length; i < len; ) {
-      for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
-          n-- > 0;
-          rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
+    for (int i = 0, len = bytes.length; i < len;) {
+      for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE); n-- > 0; rnd >>= Byte.SIZE)
+        bytes[i++] = (byte) rnd;
     }
   }
 
@@ -18,7 +18,8 @@ public class Random {
   public static int nextInt(int bound) {
     int r = next(31);
     int m = bound - 1;
-    if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
+    if ((bound & m) == 0)
+      r = (int) (bound * (long) r >> 31);
     else
       for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
         ;
