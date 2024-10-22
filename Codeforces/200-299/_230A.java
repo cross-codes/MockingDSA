@@ -1,16 +1,16 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.PriorityQueue;
 
-public class _1849B implements Runnable {
+public class _230A implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new _1849B(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _230A(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -27,38 +27,30 @@ public class _1849B implements Runnable {
   }
 
   void solve() throws IOException {
-    int t = in.nextInt();
+    int s = in.nextInt(), n = in.nextInt();
 
-    final Comparator<int[]> QUEUE_ORDER = new Comparator<int[]>() {
-      @Override
-      public int compare(int[] a, int[] b) {
-        int cmp = Integer.compare(a[0], b[0]);
-        if (cmp == 0)
-          return Integer.compare(b[1], a[1]);
-        else
-          return cmp;
-      }
+    final Comparator<int[]> PAIR_ORDER = (a1, a2) -> {
+      int cmp1 = Integer.compare(a1[0], a2[0]);
+      if (cmp1 == 0)
+        return Integer.compare(a2[1], a1[1]);
+      return cmp1;
     };
 
-    while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
+    PriorityQueue<int[]> duels = new PriorityQueue<>(PAIR_ORDER);
+    for (int i = 0; i < n; i++)
+      duels.add(new int[] { in.nextInt(), in.nextInt() });
 
-      int[][] arr = new int[n][2];
-      for (int i = 0; i < n; i++) {
-        int num = in.nextInt();
-        if (num % k != 0) {
-          arr[i] = new int[] { num % k, i + 1 };
-        } else
-          arr[i] = new int[] { k, i + 1 };
+    while (!duels.isEmpty()) {
+      int[] match = duels.poll();
+      if (s > match[0]) {
+        s += match[1];
+      } else {
+        out.append("NO").appendNewLine();
+        return;
       }
-
-      Arrays.sort(arr, QUEUE_ORDER);
-
-      for (int i = 0; i < n; i++)
-        out.append(arr[n - i - 1][1]).append(" ");
-
-      out.appendNewLine();
     }
+
+    out.append("YES").appendNewLine();
   }
 
   @FunctionalInterface
