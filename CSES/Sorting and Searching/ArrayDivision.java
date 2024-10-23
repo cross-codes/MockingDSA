@@ -1,19 +1,17 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.LongPredicate;
 
-public class ArrayDivision implements Runnable {
+public class ArrayDivision {
 
-  InputReader in;
-  OutputWriter out;
+  private static InputReader in;
+  private static OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new ArrayDivision(), "", 256 * (1L << 20)).start();
+    new Thread(null, IO_PROC, "", 256 * (1L << 20)).start();
   }
 
-  @Override
-  public void run() {
+  private static final Runnable IO_PROC = () -> {
     try {
       in = new InputReader(System.in);
       out = new OutputWriter(System.out);
@@ -23,9 +21,9 @@ public class ArrayDivision implements Runnable {
       t.printStackTrace(System.err);
       System.exit(-1);
     }
-  }
+  };
 
-  void solve() throws IOException {
+  private static void solve() throws IOException {
     int n = in.nextInt(), k = in.nextInt();
     int[] array = new int[n];
 
@@ -74,12 +72,17 @@ public class ArrayDivision implements Runnable {
   }
 
   @FunctionalInterface
-  private interface Procedure {
+  private static interface Procedure {
     void run();
   }
 
   @FunctionalInterface
-  private interface LongFunction {
+  private static interface LongPredicate {
+    boolean test(long t);
+  }
+
+  @FunctionalInterface
+  private static interface LongFunction {
     long apply(long t);
   }
 

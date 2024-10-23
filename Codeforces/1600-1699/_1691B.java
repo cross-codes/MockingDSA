@@ -1,9 +1,12 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
-public class ConcertTickets {
+public class _1691B {
 
   private static InputReader in;
   private static OutputWriter out;
@@ -25,27 +28,60 @@ public class ConcertTickets {
   };
 
   private static void solve() throws IOException {
-    int n = in.nextInt(), m = in.nextInt();
-    TreeMap<Integer, Integer> tickets = new TreeMap<>();
+    int t = in.nextInt();
+    iter: while (t-- > 0) {
+      final StringBuilder sb = new StringBuilder();
+      int n = in.nextInt();
 
-    while (n-- > 0) {
-      int price = in.nextInt();
-      tickets.put(price, tickets.getOrDefault(price, 0) + 1);
-    }
-
-    while (m-- > 0) {
-      var det = tickets.floorEntry(in.nextInt());
-      if (det == null)
-        out.append("-1").appendNewLine();
-      else {
-        int bestPrice = det.getKey(), freq = det.getValue();
-        out.append(bestPrice).appendNewLine();
-
-        if (freq == 1)
-          tickets.remove(bestPrice);
-        else
-          tickets.put(bestPrice, freq - 1);
+      int[] sizes = new int[n];
+      MultiValueRBMap map = new MultiValueRBMap();
+      for (int i = 1; i <= n; i++) {
+        int size = in.nextInt();
+        sizes[i - 1] = size;
+        map.addValueToKeyOrDefault(size, i);
       }
+
+      for (int i = 1; i <= n; i++) {
+        Map.Entry<Integer, TreeSet<Integer>> entry = map.ceilingEntry(sizes[i - 1]);
+
+        if (entry == null) {
+          out.append(-1).appendNewLine();
+          continue iter;
+        }
+        TreeSet<Integer> people = entry.getValue();
+
+        if (people.size() > 1 || (people.size() > 0 && !people.contains(i))) {
+          boolean toAddBack = false;
+
+          if (people.contains(i)) {
+            people.remove(i);
+            toAddBack = true;
+          }
+
+          Integer value = people.last();
+          people.remove(value);
+
+          if (toAddBack)
+            people.add(i);
+
+          sb.append(value).append(" ");
+        } else {
+          Integer key = map.higherKey(sizes[i - 1]);
+
+          if (key == null) {
+            out.append(-1).appendNewLine();
+            continue iter;
+          }
+          people = map.get(key);
+
+          Integer value = people.last();
+          map.removeValueFromKey(key, value);
+
+          sb.append(value).append(" ");
+        }
+      }
+
+      out.append(sb.toString()).appendNewLine();
     }
   }
 
@@ -57,6 +93,39 @@ public class ConcertTickets {
   @FunctionalInterface
   private static interface LongFunction {
     long apply(long t);
+  }
+
+  @SuppressWarnings("unused")
+  private static class MultiValueRBMap extends TreeMap<Integer, TreeSet<Integer>> {
+    public MultiValueRBMap() {
+      super();
+    }
+
+    public MultiValueRBMap(Comparator<? super Integer> comp) {
+      super(comp);
+    }
+
+    public boolean removeValueFromKey(Integer key, Integer value) {
+      if (key == null)
+        return false;
+
+      TreeSet<Integer> values = this.get(key);
+      if (values != null && values.remove(value)) {
+        if (values.isEmpty())
+          this.remove(key);
+        return true;
+      }
+
+      return false;
+    }
+
+    public boolean addValueToKeyOrDefault(Integer key, Integer value) {
+      if (key == null)
+        return false;
+
+      this.computeIfAbsent(key, k -> new TreeSet<>()).add(value);
+      return true;
+    }
   }
 
   @SuppressWarnings("unused")

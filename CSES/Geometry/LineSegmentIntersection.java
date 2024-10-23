@@ -3,17 +3,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class LineSegmentIntersection implements Runnable {
+public class LineSegmentIntersection {
 
-  InputReader in;
-  OutputWriter out;
+  private static InputReader in;
+  private static OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new LineSegmentIntersection(), "", 256 * (1L << 20)).start();
+    new Thread(null, IO_PROC, "", 256 * (1L << 20)).start();
   }
 
-  @Override
-  public void run() {
+  private static final Runnable IO_PROC = () -> {
     try {
       in = new InputReader(System.in);
       out = new OutputWriter(System.out);
@@ -23,9 +22,9 @@ public class LineSegmentIntersection implements Runnable {
       t.printStackTrace(System.err);
       System.exit(-1);
     }
-  }
+  };
 
-  void solve() throws IOException {
+  private static void solve() throws IOException {
     int t = in.nextInt();
     while (t-- > 0) {
       Line2D.Double l1 = new Line2D.Double(in.nextDouble(), in.nextDouble(), in.nextDouble(), in.nextDouble());
@@ -34,16 +33,23 @@ public class LineSegmentIntersection implements Runnable {
       if (l1.intersectsLine(l2))
         out.append("YES").appendNewLine();
       else
-        out.append("NO\n").appendNewLine();
+        out.append("NO").appendNewLine();
     }
   }
 
   @FunctionalInterface
-  static interface Procedure {
+  private static interface Procedure {
     void run();
   }
 
-  static class InputReader {
+  @FunctionalInterface
+  private static interface LongFunction {
+    long apply(long t);
+  }
+
+  @SuppressWarnings("unused")
+  private static class InputReader {
+
     private final byte[] buffer;
     private int pos;
     private final InputStream in;
@@ -62,7 +68,7 @@ public class LineSegmentIntersection implements Runnable {
     public byte[] next(int n) {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != '\n') {
+        if (b != '\n' && b != '\r') {
           this.pos--;
           break;
         }
@@ -77,29 +83,32 @@ public class LineSegmentIntersection implements Runnable {
       int from;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') {
+        if (b != ' ' && b != '\n' && b != '\r') {
           from = this.pos;
           break;
         }
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n')
+        if (b == ' ' || b == '\n' || b == '\r')
           break;
       }
-      byte[] bytes = new byte[pos - from];
+      byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
       return bytes;
     }
 
     public byte[] nextLine() {
-      int from = pos;
+      int from = this.pos;
       while (true) {
-        byte b = this.buffer[pos++];
-        if (b == '\n')
+        byte b = this.buffer[this.pos++];
+        if (b == '\n' || b == '\r') {
+          if (b == '\r' && this.buffer[this.pos] == '\n')
+            this.pos++;
           break;
+        }
       }
-      byte[] bytes = new byte[pos - from - 1];
+      byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
       return bytes;
     }
@@ -107,7 +116,7 @@ public class LineSegmentIntersection implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n')
+        if (b != ' ' && b != '\n' && b != '\r')
           return b;
       }
     }
@@ -152,7 +161,7 @@ public class LineSegmentIntersection implements Runnable {
         }
       }
       while (true) {
-        byte b = this.buffer[pos++];
+        byte b = this.buffer[this.pos++];
         if (b >= '0' && b <= '9')
           n = n * 10 + b - '0';
         else
@@ -213,7 +222,8 @@ public class LineSegmentIntersection implements Runnable {
     }
   }
 
-  static class OutputWriter {
+  @SuppressWarnings("unused")
+  private static class OutputWriter {
 
     private static final int BUFFER_SIZE = 1048576;
     private final byte[] buffer;
