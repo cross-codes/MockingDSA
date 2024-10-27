@@ -1,30 +1,18 @@
-import java.util.PriorityQueue;
-
-public class _230A {
+public class _1312B {
 
   public static void main(String[] args) {
     final StandardInputReader in = new StandardInputReader();
     final StandardOutputWriter out = new StandardOutputWriter();
 
-    int s = in.nextInt(), n = in.nextInt();
-
-    PriorityQueue<int[]> duels = new PriorityQueue<>(
-        (a, b) -> (Integer.compare(a[0], b[0]) == 0 ? Integer.compare(b[1], a[1]) : 0));
-    for (int i = 0; i < n; i++)
-      duels.add(new int[] { in.nextInt(), in.nextInt() });
-
-    while (!duels.isEmpty()) {
-      int[] match = duels.poll();
-      if (s > match[0]) {
-        s += match[1];
-      } else {
-        out.append("NO").appendNewLine();
-        out.flush();
-        return;
-      }
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
+      int[] array = in.readIntegerArray(n);
+      Array.sort(array);
+      for (int i = n - 1; i > -1; i--)
+        out.append(array[i]).append(i == 0 ? "" : " ");
+      out.appendNewLine();
     }
-
-    out.append("YES").appendNewLine();
     out.flush();
   }
 }
@@ -37,6 +25,192 @@ interface Procedure {
 @FunctionalInterface
 interface LongFunction {
   long apply(long t);
+}
+
+class Random {
+  private static long seed = System.nanoTime() ^ 8682522807148012L;
+
+  private Random() {
+  }
+
+  public static void nextBytes(byte[] bytes) {
+    for (int i = 0, len = bytes.length; i < len;) {
+      for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE); n-- > 0; rnd >>= Byte.SIZE)
+        bytes[i++] = (byte) rnd;
+    }
+  }
+
+  public static int nextInt() {
+    return next(32);
+  }
+
+  public static int nextInt(int bound) {
+    int r = next(31);
+    int m = bound - 1;
+    if ((bound & m) == 0)
+      r = (int) (bound * (long) r >> 31);
+    else
+      for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
+        ;
+    return r;
+  }
+
+  public static long nextLong() {
+    return (long) next(32) << 32 | next(32);
+  }
+
+  public static boolean nextBoolean() {
+    return next(1) != 0;
+  }
+
+  public static float nextFloat() {
+    return next(24) / (float) (1 << 24);
+  }
+
+  public static double nextDouble() {
+    return ((long) next(26) << 27 | next(27)) * 0x1.0p-53;
+  }
+
+  private static int next(int bits) {
+    seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
+    return (int) (seed >>> 48 - bits);
+  }
+}
+
+class Array {
+
+  private Array() {
+  }
+
+  public static void sort(int[] array) {
+    int bits = 4;
+    int radix = 1 << bits;
+    int[][] buckets = new int[radix][array.length];
+    int[] size = new int[radix];
+    for (int e : array) {
+      int index = e & radix - 1;
+      buckets[index][size[index]++] = e;
+    }
+    int[][] newBuckets = new int[radix][array.length];
+    for (int i = bits; i < Integer.SIZE; i += bits) {
+      int[] newSize = new int[radix];
+      for (int j = 0; j < radix; j++) {
+        for (int k = 0; k < size[j]; k++) {
+          int index = buckets[j][k] >>> i & radix - 1;
+          newBuckets[index][newSize[index]++] = buckets[j][k];
+        }
+      }
+      int[][] temp = buckets;
+      buckets = newBuckets;
+      newBuckets = temp;
+      size = newSize;
+    }
+    {
+      int i = 0;
+      for (int j = radix >> 1; j < radix; j++) {
+        for (int k = 0; k < size[j]; k++)
+          array[i++] = buckets[j][k];
+      }
+      for (int j = 0; j < radix >> 1; j++) {
+        for (int k = 0; k < size[j]; k++)
+          array[i++] = buckets[j][k];
+      }
+    }
+  }
+
+  public static <T> void shuffle(int[] array) {
+    for (int i = array.length; i > 1; i--)
+      swap(array, Random.nextInt(i), i - 1);
+  }
+
+  public static <T> void shuffle(T[] array) {
+    for (int i = array.length; i > 1; i--)
+      swap(array, Random.nextInt(i), i - 1);
+  }
+
+  public static void swap(byte[] array, int i, int j) {
+    byte temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  public static void swap(int[] array, int i, int j) {
+    int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  public static <T> void swap(T[] array, int i, int j) {
+    T temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  public static void permute(byte[] array, Procedure procedure) {
+    permute(array, array.length, procedure);
+  }
+
+  private static void permute(byte[] array, int length, Procedure procedure) {
+    if (length == 1)
+      procedure.run();
+    else {
+      permute(array, --length, procedure);
+      for (int i = 0; i < length; i++) {
+        int index = (length & 1) == 0 ? 0 : i;
+        swap(array, index, length);
+        permute(array, length, procedure);
+      }
+    }
+  }
+
+  public static void permute(int[] array, Procedure procedure) {
+    permute(array, array.length, procedure);
+  }
+
+  private static void permute(int[] array, int length, Procedure procedure) {
+    if (length == 1)
+      procedure.run();
+    else {
+      permute(array, --length, procedure);
+      for (int i = 0; i < length; i++) {
+        int index = (length & 1) == 0 ? 0 : i;
+        swap(array, index, length);
+        permute(array, length, procedure);
+      }
+    }
+  }
+
+  public static int min(int[] array) {
+    int min = Integer.MAX_VALUE;
+    for (int e : array) {
+      min = Math.min(min, e);
+    }
+    return min;
+  }
+
+  public static int max(int[] array) {
+    int max = Integer.MIN_VALUE;
+    for (int e : array) {
+      max = Math.max(max, e);
+    }
+    return max;
+  }
+
+  public static long min(long[] array) {
+    long min = Long.MAX_VALUE;
+    for (long e : array) {
+      min = Math.min(e, min);
+    }
+    return min;
+  }
+
+  public static long max(long[] array) {
+    long max = Long.MIN_VALUE;
+    for (long e : array) {
+      max = Math.max(e, max);
+    }
+    return max;
+  }
 }
 
 class StandardInputReader {

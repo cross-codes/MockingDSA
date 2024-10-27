@@ -1,30 +1,43 @@
 import java.util.PriorityQueue;
 
-public class _230A {
+public class _1614B {
 
   public static void main(String[] args) {
     final StandardInputReader in = new StandardInputReader();
     final StandardOutputWriter out = new StandardOutputWriter();
 
-    int s = in.nextInt(), n = in.nextInt();
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
 
-    PriorityQueue<int[]> duels = new PriorityQueue<>(
-        (a, b) -> (Integer.compare(a[0], b[0]) == 0 ? Integer.compare(b[1], a[1]) : 0));
-    for (int i = 0; i < n; i++)
-      duels.add(new int[] { in.nextInt(), in.nextInt() });
+      PriorityQueue<long[]> heap = new PriorityQueue<>((a, b) -> Long.compare(b[1], a[1]));
+      for (long i = 1; i <= n; i++)
+        heap.add(new long[] { i, in.nextInt() });
 
-    while (!duels.isEmpty()) {
-      int[] match = duels.poll();
-      if (s > match[0]) {
-        s += match[1];
-      } else {
-        out.append("NO").appendNewLine();
-        out.flush();
-        return;
+      long[] coordinates = new long[n + 1];
+      long totalTime = 0L, counter = 1L;
+      boolean flip = false;
+
+      while (!heap.isEmpty()) {
+        long[] building = heap.poll();
+        int number = (int) building[0];
+        long visits = building[1];
+        if (!flip) {
+          coordinates[number] = counter;
+          flip = true;
+        } else {
+          coordinates[number] = -counter;
+          flip = false;
+          counter++;
+        }
+        totalTime += visits * Math.abs(coordinates[number]) << 1L;
       }
-    }
 
-    out.append("YES").appendNewLine();
+      out.append(totalTime).appendNewLine();
+      for (int i = 0; i <= n; i++)
+        out.append(coordinates[i]).append((i == n) ? "" : " ");
+      out.appendNewLine();
+    }
     out.flush();
   }
 }

@@ -31,7 +31,8 @@ public class _455A implements Runnable {
   }
 
   int readByte() {
-    if (lenbuf == -1) throw new InputMismatchException();
+    if (lenbuf == -1)
+      throw new InputMismatchException();
     if (ptrbuf >= lenbuf) {
       ptrbuf = 0;
       try {
@@ -39,7 +40,8 @@ public class _455A implements Runnable {
       } catch (IOException e) {
         throw new InputMismatchException();
       }
-      if (lenbuf <= 0) return -1;
+      if (lenbuf <= 0)
+        return -1;
     }
     return inbuf[ptrbuf++];
   }
@@ -110,13 +112,15 @@ public class _455A implements Runnable {
 
   int[] ra(int n) {
     int[] a = new int[n];
-    for (int i = 0; i < n; i++) a[i] = ri();
+    for (int i = 0; i < n; i++)
+      a[i] = ri();
     return a;
   }
 
   long[] ral(int n) {
     long[] a = new long[n];
-    for (int i = 0; i < n; i++) a[i] = rl();
+    for (int i = 0; i < n; i++)
+      a[i] = rl();
     return a;
   }
 
@@ -124,7 +128,8 @@ public class _455A implements Runnable {
     int n = ri();
     int[] cnt = new int[(int) 1e5 + 1];
 
-    for (int i = 0; i < n; i++) cnt[ri()]++;
+    for (int i = 0; i < n; i++)
+      cnt[ri()]++;
 
     // dp[i] answers the subproblem which has an upper limit of i instead of 1e5
     long[] dp = new long[(int) 1e5 + 1];
@@ -160,7 +165,8 @@ public class _455A implements Runnable {
 
     public StandardOutputWriter write(byte b) {
       buf[ptr++] = b;
-      if (ptr == BUFFER_SIZE) innerflush();
+      if (ptr == BUFFER_SIZE)
+        innerflush();
       return this;
     }
 
@@ -171,7 +177,8 @@ public class _455A implements Runnable {
     public StandardOutputWriter write(char[] s) {
       for (char c : s) {
         buf[ptr++] = (byte) c;
-        if (ptr == BUFFER_SIZE) innerflush();
+        if (ptr == BUFFER_SIZE)
+          innerflush();
       }
       return this;
     }
@@ -181,21 +188,31 @@ public class _455A implements Runnable {
           .forEach(
               c -> {
                 buf[ptr++] = (byte) c;
-                if (ptr == BUFFER_SIZE) innerflush();
+                if (ptr == BUFFER_SIZE)
+                  innerflush();
               });
       return this;
     }
 
     private static int countDigits(int l) {
-      if (l >= 1000000000) return 10;
-      if (l >= 100000000) return 9;
-      if (l >= 10000000) return 8;
-      if (l >= 1000000) return 7;
-      if (l >= 100000) return 6;
-      if (l >= 10000) return 5;
-      if (l >= 1000) return 4;
-      if (l >= 100) return 3;
-      if (l >= 10) return 2;
+      if (l >= 1000000000)
+        return 10;
+      if (l >= 100000000)
+        return 9;
+      if (l >= 10000000)
+        return 8;
+      if (l >= 1000000)
+        return 7;
+      if (l >= 100000)
+        return 6;
+      if (l >= 10000)
+        return 5;
+      if (l >= 1000)
+        return 4;
+      if (l >= 100)
+        return 3;
+      if (l >= 10)
+        return 2;
       return 1;
     }
 
@@ -203,7 +220,8 @@ public class _455A implements Runnable {
       if (x == Integer.MIN_VALUE) {
         return write((long) x);
       }
-      if (ptr + 12 >= BUFFER_SIZE) innerflush();
+      if (ptr + 12 >= BUFFER_SIZE)
+        innerflush();
       if (x < 0) {
         write((byte) '-');
         x = -x;
@@ -218,24 +236,42 @@ public class _455A implements Runnable {
     }
 
     private static int countDigits(long l) {
-      if (l >= 1000000000000000000L) return 19;
-      if (l >= 100000000000000000L) return 18;
-      if (l >= 10000000000000000L) return 17;
-      if (l >= 1000000000000000L) return 16;
-      if (l >= 100000000000000L) return 15;
-      if (l >= 10000000000000L) return 14;
-      if (l >= 1000000000000L) return 13;
-      if (l >= 100000000000L) return 12;
-      if (l >= 10000000000L) return 11;
-      if (l >= 1000000000L) return 10;
-      if (l >= 100000000L) return 9;
-      if (l >= 10000000L) return 8;
-      if (l >= 1000000L) return 7;
-      if (l >= 100000L) return 6;
-      if (l >= 10000L) return 5;
-      if (l >= 1000L) return 4;
-      if (l >= 100L) return 3;
-      if (l >= 10L) return 2;
+      if (l >= 1000000000000000000L)
+        return 19;
+      if (l >= 100000000000000000L)
+        return 18;
+      if (l >= 10000000000000000L)
+        return 17;
+      if (l >= 1000000000000000L)
+        return 16;
+      if (l >= 100000000000000L)
+        return 15;
+      if (l >= 10000000000000L)
+        return 14;
+      if (l >= 1000000000000L)
+        return 13;
+      if (l >= 100000000000L)
+        return 12;
+      if (l >= 10000000000L)
+        return 11;
+      if (l >= 1000000000L)
+        return 10;
+      if (l >= 100000000L)
+        return 9;
+      if (l >= 10000000L)
+        return 8;
+      if (l >= 1000000L)
+        return 7;
+      if (l >= 100000L)
+        return 6;
+      if (l >= 10000L)
+        return 5;
+      if (l >= 1000L)
+        return 4;
+      if (l >= 100L)
+        return 3;
+      if (l >= 10L)
+        return 2;
       return 1;
     }
 
@@ -243,7 +279,8 @@ public class _455A implements Runnable {
       if (x == Long.MIN_VALUE) {
         return write("" + x);
       }
-      if (ptr + 21 >= BUFFER_SIZE) innerflush();
+      if (ptr + 21 >= BUFFER_SIZE)
+        innerflush();
       if (x < 0) {
         write((byte) '-');
         x = -x;
@@ -292,7 +329,8 @@ public class _455A implements Runnable {
     public StandardOutputWriter write(int... xs) {
       boolean first = true;
       for (int x : xs) {
-        if (!first) write(' ');
+        if (!first)
+          write(' ');
         first = false;
         write(x);
       }
@@ -302,7 +340,8 @@ public class _455A implements Runnable {
     public StandardOutputWriter write(long... xs) {
       boolean first = true;
       for (long x : xs) {
-        if (!first) write(' ');
+        if (!first)
+          write(' ');
         first = false;
         write(x);
       }
@@ -326,7 +365,8 @@ public class _455A implements Runnable {
     }
 
     public StandardOutputWriter writeln(char[]... map) {
-      for (char[] line : map) write(line).writeln();
+      for (char[] line : map)
+        write(line).writeln();
       return this;
     }
 

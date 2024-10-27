@@ -1,30 +1,16 @@
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+public class BinomialCoefficients {
 
-public class BinomialCoefficients implements Runnable {
-
-  InputReader in;
-  OutputWriter out;
+  private static StandardInputReader in;
+  private static StandardOutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new BinomialCoefficients(), "", 256 * (1L << 20)).start();
+    in = new StandardInputReader();
+    out = new StandardOutputWriter();
+    solve();
+    out.flush();
   }
 
-  @Override
-  public void run() {
-    try {
-      in = new InputReader(System.in);
-      out = new OutputWriter(System.out);
-      solve();
-      out.flush();
-    } catch (Throwable t) {
-      t.printStackTrace(System.err);
-      System.exit(-1);
-    }
-  }
-
-  void solve() throws IOException {
+  private static void solve() {
     final int MOD = (int) 1e9 + 7;
     final int maxVal = (int) 1e6;
 
@@ -50,16 +36,17 @@ public class BinomialCoefficients implements Runnable {
   }
 
   @FunctionalInterface
-  static interface Procedure {
+  private static interface Procedure {
     void run();
   }
 
   @FunctionalInterface
-  static interface LongFunction {
+  private static interface LongFunction {
     long apply(long t);
   }
 
-  static class Algebra {
+  @SuppressWarnings("unused")
+  private static class Algebra {
     private static final double EPSILON = 1E-6;
 
     private Algebra() {
@@ -214,18 +201,18 @@ public class BinomialCoefficients implements Runnable {
     }
   }
 
-  static class InputReader {
+  @SuppressWarnings("unused")
+  private static class StandardInputReader {
 
     private final byte[] buffer;
     private int pos;
-    private final InputStream in;
 
-    public InputReader(InputStream is) {
-      this.in = is;
+    public StandardInputReader() {
       try {
-        this.buffer = new byte[this.in.available() + 1];
+        this.pos = 0;
+        this.buffer = new byte[System.in.available() + 1];
         this.buffer[this.buffer.length - 1] = '\n';
-        this.in.read(this.buffer);
+        System.in.read(this.buffer);
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
@@ -234,7 +221,7 @@ public class BinomialCoefficients implements Runnable {
     public byte[] next(int n) {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != '\n') {
+        if (b != '\n' && b != '\r') {
           this.pos--;
           break;
         }
@@ -249,14 +236,14 @@ public class BinomialCoefficients implements Runnable {
       int from;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') {
+        if (b != ' ' && b != '\n' && b != '\r') {
           from = this.pos;
           break;
         }
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n')
+        if (b == ' ' || b == '\n' || b == '\r')
           break;
       }
       byte[] bytes = new byte[this.pos - from];
@@ -268,8 +255,11 @@ public class BinomialCoefficients implements Runnable {
       int from = this.pos;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == '\n')
+        if (b == '\n' || b == '\r') {
+          if (b == '\r' && this.buffer[this.pos] == '\n')
+            this.pos++;
           break;
+        }
       }
       byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
@@ -279,7 +269,7 @@ public class BinomialCoefficients implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n')
+        if (b != ' ' && b != '\n' && b != '\r')
           return b;
       }
     }
@@ -385,19 +375,19 @@ public class BinomialCoefficients implements Runnable {
     }
   }
 
-  static class OutputWriter {
+  @SuppressWarnings("unused")
+  private static class StandardOutputWriter {
 
     private static final int BUFFER_SIZE = 1048576;
     private final byte[] buffer;
-    private final OutputStream out;
     private int pos;
 
-    public OutputWriter(OutputStream os) {
-      this.out = os;
+    public StandardOutputWriter() {
+      this.pos = 0;
       this.buffer = new byte[BUFFER_SIZE];
     }
 
-    public OutputWriter append(String s) throws IOException {
+    public StandardOutputWriter append(String s) {
       int length = s.length();
       this.ensureCapacity(length);
       for (int i = 0; i < length; i++)
@@ -405,11 +395,11 @@ public class BinomialCoefficients implements Runnable {
       return this;
     }
 
-    public OutputWriter append(byte[] bytes) throws IOException {
+    public StandardOutputWriter append(byte[] bytes) {
       if (BUFFER_SIZE - this.pos < bytes.length) {
         this.flush();
         if (bytes.length > BUFFER_SIZE) {
-          this.out.write(bytes, 0, bytes.length);
+          System.out.write(bytes, 0, bytes.length);
           return this;
         }
       }
@@ -418,12 +408,12 @@ public class BinomialCoefficients implements Runnable {
       return this;
     }
 
-    public OutputWriter append(byte[] bytes, int from, int to) throws IOException {
+    public StandardOutputWriter append(byte[] bytes, int from, int to) {
       int length = to - from;
       if (BUFFER_SIZE - this.pos < length) {
         this.flush();
         if (length > BUFFER_SIZE) {
-          this.out.write(bytes, from, length);
+          System.out.write(bytes, from, length);
           return this;
         }
       }
@@ -432,35 +422,35 @@ public class BinomialCoefficients implements Runnable {
       return this;
     }
 
-    public OutputWriter append(char c) throws IOException {
+    public StandardOutputWriter append(char c) {
       this.ensureCapacity(1);
       this.buffer[this.pos++] = (byte) c;
       return this;
     }
 
-    public OutputWriter append(int i) throws IOException {
+    public StandardOutputWriter append(int i) {
       return this.append(Integer.toString(i));
     }
 
-    public OutputWriter append(long l) throws IOException {
+    public StandardOutputWriter append(long l) {
       return this.append(Long.toString(l));
     }
 
-    public OutputWriter append(double d) throws IOException {
+    public StandardOutputWriter append(double d) {
       return this.append(Double.toString(d));
     }
 
-    public void appendNewLine() throws IOException {
+    public void appendNewLine() {
       this.ensureCapacity(1);
       this.buffer[this.pos++] = '\n';
     }
 
-    public void flush() throws IOException {
-      this.out.write(this.buffer, 0, this.pos);
+    public void flush() {
+      System.out.write(this.buffer, 0, this.pos);
       this.pos = 0;
     }
 
-    private void ensureCapacity(int n) throws IOException {
+    private void ensureCapacity(int n) {
       if (BUFFER_SIZE - this.pos < n)
         this.flush();
     }
