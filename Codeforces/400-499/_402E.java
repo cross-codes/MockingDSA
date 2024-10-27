@@ -1,31 +1,11 @@
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 
-public class _402A implements Runnable {
+public class _402E {
 
-  InputReader in;
-  OutputWriter out;
+  private static final StandardInputReader in = new StandardInputReader();
+  private static final StandardOutputWriter out = new StandardOutputWriter();
 
-  public static void main(String[] args) {
-    new Thread(null, new _402A(), "", 256 * (1L << 20)).start();
-  }
-
-  @Override
-  public void run() {
-    try {
-      in = new InputReader(System.in);
-      out = new OutputWriter(System.out);
-      solve();
-      out.flush();
-    } catch (Throwable t) {
-      t.printStackTrace(System.err);
-      System.exit(-1);
-    }
-  }
-
-  int dfs(int j, boolean v, boolean[] u, int[][] arr) {
+  private static int dfs(int j, boolean v, boolean[] u, int[][] arr) {
     u[j] = true;
     int count = 1;
     for (int i = 0; i < u.length; i++) {
@@ -36,7 +16,7 @@ public class _402A implements Runnable {
     return count;
   }
 
-  void solve() throws IOException {
+  public static void main(String[] args) {
     int n = in.nextInt();
     boolean[] u = new boolean[n];
     int[][] arr = new int[n][n];
@@ -51,25 +31,31 @@ public class _402A implements Runnable {
     int cnt2 = dfs(0, false, u, arr);
 
     out.append(cnt1 + cnt2 == 2 * n ? "YES" : "NO").appendNewLine();
+    out.flush();
   }
 
   @FunctionalInterface
-  static interface Procedure {
+  private static interface Procedure {
     void run();
   }
 
-  static class InputReader {
+  @FunctionalInterface
+  private static interface LongFunction {
+    long apply(long t);
+  }
+
+  @SuppressWarnings("unused")
+  private static class StandardInputReader {
 
     private final byte[] buffer;
     private int pos;
-    private final InputStream in;
 
-    public InputReader(InputStream is) {
-      this.in = is;
+    public StandardInputReader() {
       try {
-        this.buffer = new byte[this.in.available() + 1];
+        this.pos = 0;
+        this.buffer = new byte[System.in.available() + 1];
         this.buffer[this.buffer.length - 1] = '\n';
-        this.in.read(this.buffer);
+        System.in.read(this.buffer);
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
@@ -78,7 +64,7 @@ public class _402A implements Runnable {
     public byte[] next(int n) {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != '\n') {
+        if (b != '\n' && b != '\r') {
           this.pos--;
           break;
         }
@@ -93,27 +79,32 @@ public class _402A implements Runnable {
       int from;
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') {
+        if (b != ' ' && b != '\n' && b != '\r') {
           from = this.pos;
           break;
         }
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b == ' ' || b == '\n') break;
+        if (b == ' ' || b == '\n' || b == '\r')
+          break;
       }
-      byte[] bytes = new byte[pos - from];
+      byte[] bytes = new byte[this.pos - from];
       System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
       return bytes;
     }
 
     public byte[] nextLine() {
-      int from = pos;
+      int from = this.pos;
       while (true) {
-        byte b = this.buffer[pos++];
-        if (b == '\n') break;
+        byte b = this.buffer[this.pos++];
+        if (b == '\n' || b == '\r') {
+          if (b == '\r' && this.buffer[this.pos] == '\n')
+            this.pos++;
+          break;
+        }
       }
-      byte[] bytes = new byte[pos - from - 1];
+      byte[] bytes = new byte[this.pos - from - 1];
       System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
       return bytes;
     }
@@ -121,7 +112,8 @@ public class _402A implements Runnable {
     public byte nextCharacter() {
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b != ' ' && b != '\n') return b;
+        if (b != ' ' && b != '\n' && b != '\r')
+          return b;
       }
     }
 
@@ -142,8 +134,10 @@ public class _402A implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -163,9 +157,11 @@ public class _402A implements Runnable {
         }
       }
       while (true) {
-        byte b = this.buffer[pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else return positive ? n : -n;
+        byte b = this.buffer[this.pos++];
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else
+          return positive ? n : -n;
       }
     }
 
@@ -186,9 +182,12 @@ public class _402A implements Runnable {
       }
       while (true) {
         byte b = this.buffer[this.pos++];
-        if (b >= '0' && b <= '9') n = n * 10 + b - '0';
-        else if (b == '.') break;
-        else return positive ? n : -n;
+        if (b >= '0' && b <= '9')
+          n = n * 10 + b - '0';
+        else if (b == '.')
+          break;
+        else
+          return positive ? n : -n;
       }
       long m = 0;
       long o = 1;
@@ -206,91 +205,97 @@ public class _402A implements Runnable {
 
     public int[] readIntegerArray(int n) {
       int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
+      for (int i = 0; i < n; i++)
+        a[i] = nextInt();
       return a;
     }
 
     public long[] readLongArray(int n) {
       long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
+      for (int i = 0; i < n; i++)
+        a[i] = nextLong();
       return a;
     }
   }
 
-  static class OutputWriter {
+  @SuppressWarnings("unused")
+  private static class StandardOutputWriter {
 
     private static final int BUFFER_SIZE = 1048576;
     private final byte[] buffer;
-    private final OutputStream out;
     private int pos;
 
-    public OutputWriter(OutputStream os) {
-      this.out = os;
+    public StandardOutputWriter() {
+      this.pos = 0;
       this.buffer = new byte[BUFFER_SIZE];
     }
 
-    public OutputWriter append(String s) throws IOException {
+    public StandardOutputWriter append(String s) {
       int length = s.length();
       this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      for (int i = 0; i < length; i++)
+        this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
-    public OutputWriter append(byte[] bytes) throws IOException {
+    public StandardOutputWriter append(byte[] bytes) {
       if (BUFFER_SIZE - this.pos < bytes.length) {
         this.flush();
         if (bytes.length > BUFFER_SIZE) {
-          this.out.write(bytes, 0, bytes.length);
+          System.out.write(bytes, 0, bytes.length);
           return this;
         }
       }
-      for (byte b : bytes) this.buffer[this.pos++] = b;
+      for (byte b : bytes)
+        this.buffer[this.pos++] = b;
       return this;
     }
 
-    public OutputWriter append(byte[] bytes, int from, int to) throws IOException {
+    public StandardOutputWriter append(byte[] bytes, int from, int to) {
       int length = to - from;
       if (BUFFER_SIZE - this.pos < length) {
         this.flush();
         if (length > BUFFER_SIZE) {
-          this.out.write(bytes, from, length);
+          System.out.write(bytes, from, length);
           return this;
         }
       }
-      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
+      for (int i = from; i < to; i++)
+        this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
-    public OutputWriter append(char c) throws IOException {
+    public StandardOutputWriter append(char c) {
       this.ensureCapacity(1);
       this.buffer[this.pos++] = (byte) c;
       return this;
     }
 
-    public OutputWriter append(int i) throws IOException {
+    public StandardOutputWriter append(int i) {
       return this.append(Integer.toString(i));
     }
 
-    public OutputWriter append(long l) throws IOException {
+    public StandardOutputWriter append(long l) {
       return this.append(Long.toString(l));
     }
 
-    public OutputWriter append(double d) throws IOException {
+    public StandardOutputWriter append(double d) {
       return this.append(Double.toString(d));
     }
 
-    public void appendNewLine() throws IOException {
+    public void appendNewLine() {
       this.ensureCapacity(1);
       this.buffer[this.pos++] = '\n';
     }
 
-    public void flush() throws IOException {
-      this.out.write(this.buffer, 0, this.pos);
+    public void flush() {
+      System.out.write(this.buffer, 0, this.pos);
       this.pos = 0;
     }
 
-    private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+    private void ensureCapacity(int n) {
+      if (BUFFER_SIZE - this.pos < n)
+        this.flush();
     }
   }
 }
