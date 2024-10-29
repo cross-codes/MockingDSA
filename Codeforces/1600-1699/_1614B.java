@@ -12,7 +12,7 @@ public class _1614B {
 
       PriorityQueue<long[]> heap = new PriorityQueue<>((a, b) -> Long.compare(b[1], a[1]));
       for (long i = 1; i <= n; i++)
-        heap.add(new long[] { i, in.nextInt() });
+        heap.add(new long[] { i, in.nextLong() });
 
       long[] coordinates = new long[n + 1];
       long totalTime = 0L, counter = 1L;

@@ -1,29 +1,23 @@
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.math.BigDecimal;
 
-public class _402E {
+public class _1418A {
 
   public static void main(String[] args) {
     final StandardInputReader in = new StandardInputReader();
     final StandardOutputWriter out = new StandardOutputWriter();
 
-    int n = in.nextInt();
-    int[][] a = new int[n][];
-    for (int i = 0; i < n; i++)
-      a[i] = in.readIntegerArray(n);
+    int t = in.nextInt();
+    while (t-- > 0) {
+      final BigDecimal x = BigDecimal.valueOf(in.nextLong());
+      final BigDecimal y = BigDecimal.valueOf(in.nextLong());
+      final BigDecimal k = BigDecimal.valueOf(in.nextLong());
 
-    SCC scc = new SCC(n);
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        if (a[i][j] > 0 && i != j) {
-          scc.add(i, j);
-        }
-      }
+      final BigDecimal numerator = k.multiply(y.add(BigDecimal.ONE)).subtract(BigDecimal.ONE);
+      final BigDecimal denominator = x.subtract(BigDecimal.ONE);
+      final BigDecimal res = numerator.divide(denominator, BigDecimal.ROUND_CEILING).add(k);
+
+      out.append(res.longValueExact()).appendNewLine();
     }
-    scc.go();
-
-    out.append(scc.cs == 1 ? "YES" : "NO");
     out.flush();
   }
 }
@@ -36,86 +30,6 @@ interface Procedure {
 @FunctionalInterface
 interface LongFunction {
   long apply(long t);
-}
-
-class SCC {
-  public ArrayList<Integer>[] adj;
-  public ArrayList<Integer>[] comp;
-  public int n;
-  public int idx, cs;
-  public boolean[] u;
-  public int[] pre, low, map;
-  public ArrayDeque<Integer> s;
-
-  public SCC(int nn) {
-    adj = new ArrayList[n = nn];
-    for (int curr = 0; curr < n; ++curr)
-      adj[curr] = new ArrayList<>();
-  }
-
-  public void add(int v1, int v2) {
-    adj[v1].add(v2);
-  }
-
-  public int[] go() {
-    comp = new ArrayList[n];
-    idx = 1;
-    cs = 0;
-    pre = new int[n];
-    low = new int[n];
-    map = new int[n];
-    u = new boolean[n];
-    s = new ArrayDeque<Integer>();
-    for (int i = 0; i < n; ++i)
-      if (pre[i] == 0)
-        dfs(i);
-    return map;
-  }
-
-  public void dfs(int v) {
-    pre[v] = low[v] = idx++;
-    s.push(v);
-    u[v] = true;
-    for (int to : adj[v]) {
-      if (pre[to] == 0) {
-        dfs(to);
-        low[v] = Math.min(low[v], low[to]);
-      } else if (u[to]) {
-        low[v] = Math.min(low[v], pre[to]);
-      }
-    }
-    if (low[v] == pre[v]) {
-      int next;
-      comp[cs] = new ArrayList<>();
-      do {
-        next = s.pop();
-        u[next] = false;
-        map[next] = cs;
-        comp[cs].add(next);
-      } while (next != v);
-      cs++;
-    }
-  }
-
-  public ArrayList<Integer>[] compressSCC() {
-    ArrayList<Integer>[] g = new ArrayList[cs];
-    for (int i = 0; i < cs; i++)
-      g[i] = new ArrayList<Integer>();
-    int[] added = new int[cs];
-    Arrays.fill(added, -1);
-    for (int i = 0; i < cs; i++) {
-      for (int v : comp[i]) {
-        for (int to : adj[v]) {
-          int mapTo = map[to];
-          if (mapTo != i && added[mapTo] != i) {
-            g[i].add(mapTo);
-            added[mapTo] = i;
-          }
-        }
-      }
-    }
-    return g;
-  }
 }
 
 class StandardInputReader {
@@ -182,7 +96,7 @@ class StandardInputReader {
     return bytes;
   }
 
-  public byte nextCharacter() {
+  public byte nextByte() {
     while (true) {
       byte b = this.buffer[this.pos++];
       if (b != ' ' && b != '\n' && b != '\r')
