@@ -1,22 +1,51 @@
-import java.io.InputStream;
+import java.util.Map;
+import java.util.TreeMap;
 
-/**
- * Note: This class relies on the input stream not being buffered. It expects
- * that the InputStream provided is in a state that allows immediate reading of
- * the available bytes.
- */
-public class InputReader {
+public class _1155A {
+
+  public static void main(String[] args) {
+    final StandardInputReader in = new StandardInputReader();
+    final StandardOutputWriter out = new StandardOutputWriter();
+
+    final int n = in.nextInt();
+    TreeMap<Byte, Integer> map = new TreeMap<>();
+    for (int i = 0; i < n; i++) {
+      final byte c = in.nextByte();
+      final Map.Entry<Byte, Integer> entry = map.higherEntry(c);
+      if (entry != null) {
+        out.append("YES").appendNewLine();
+        out.append(entry.getValue()).append(" ").append(i + 1).appendNewLine();
+        out.flush();
+        return;
+      }
+      map.put(c, i + 1);
+    }
+    out.append("NO").appendNewLine();
+    out.flush();
+  }
+}
+
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
+}
+
+class StandardInputReader {
 
   private final byte[] buffer;
   private int pos;
-  private final InputStream in;
 
-  public InputReader(InputStream is) {
-    this.in = is;
+  public StandardInputReader() {
     try {
-      this.buffer = new byte[this.in.available() + 1];
+      this.pos = 0;
+      this.buffer = new byte[System.in.available() + 1];
       this.buffer[this.buffer.length - 1] = '\n';
-      this.in.read(this.buffer);
+      System.in.read(this.buffer);
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
@@ -176,5 +205,85 @@ public class InputReader {
     for (int i = 0; i < n; i++)
       a[i] = nextLong();
     return a;
+  }
+}
+
+class StandardOutputWriter {
+
+  private static final int BUFFER_SIZE = 1048576;
+  private final byte[] buffer;
+  private int pos;
+
+  public StandardOutputWriter() {
+    this.pos = 0;
+    this.buffer = new byte[BUFFER_SIZE];
+  }
+
+  public StandardOutputWriter append(String s) {
+    int length = s.length();
+    this.ensureCapacity(length);
+    for (int i = 0; i < length; i++)
+      this.buffer[this.pos++] = (byte) s.charAt(i);
+    return this;
+  }
+
+  public StandardOutputWriter append(byte[] bytes) {
+    if (BUFFER_SIZE - this.pos < bytes.length) {
+      this.flush();
+      if (bytes.length > BUFFER_SIZE) {
+        System.out.write(bytes, 0, bytes.length);
+        return this;
+      }
+    }
+    for (byte b : bytes)
+      this.buffer[this.pos++] = b;
+    return this;
+  }
+
+  public StandardOutputWriter append(byte[] bytes, int from, int to) {
+    int length = to - from;
+    if (BUFFER_SIZE - this.pos < length) {
+      this.flush();
+      if (length > BUFFER_SIZE) {
+        System.out.write(bytes, from, length);
+        return this;
+      }
+    }
+    for (int i = from; i < to; i++)
+      this.buffer[this.pos++] = bytes[i];
+    return this;
+  }
+
+  public StandardOutputWriter append(char c) {
+    this.ensureCapacity(1);
+    this.buffer[this.pos++] = (byte) c;
+    return this;
+  }
+
+  public StandardOutputWriter append(int i) {
+    return this.append(Integer.toString(i));
+  }
+
+  public StandardOutputWriter append(long l) {
+    return this.append(Long.toString(l));
+  }
+
+  public StandardOutputWriter append(double d) {
+    return this.append(Double.toString(d));
+  }
+
+  public void appendNewLine() {
+    this.ensureCapacity(1);
+    this.buffer[this.pos++] = '\n';
+  }
+
+  public void flush() {
+    System.out.write(this.buffer, 0, this.pos);
+    this.pos = 0;
+  }
+
+  private void ensureCapacity(int n) {
+    if (BUFFER_SIZE - this.pos < n)
+      this.flush();
   }
 }
