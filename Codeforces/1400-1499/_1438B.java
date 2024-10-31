@@ -1,22 +1,6 @@
-public class _1374B {
+import java.util.HashSet;
 
-  static int powerOfTwo(int j) {
-    int cnt = 0;
-    while (j != 1 && j % 2 == 0) {
-      j /= 2;
-      cnt++;
-    }
-    return cnt;
-  }
-
-  static int powerOfThree(int j) {
-    int cnt = 0;
-    while (j != 1 && j % 3 == 0) {
-      j /= 3;
-      cnt++;
-    }
-    return cnt;
-  }
+public class _1438B {
 
   public static void main(String[] args) {
     final StandardInputReader in = new StandardInputReader();
@@ -24,19 +8,17 @@ public class _1374B {
 
     int t = in.nextInt();
     while (t-- > 0) {
-      final int n = in.nextInt(), l = powerOfThree(n), m = powerOfTwo(n);
-      if (n / (Math.pow(3, l) * (1 << m)) != 1D) {
-        out.append(-1).appendNewLine();
-        continue;
-      }
-      if (l >= 0 && l - m >= 0)
-        out.append((l << 1) - m).appendNewLine();
-      else
-        out.append(-1).appendNewLine();
-    }
+      final int n = in.nextInt();
+      final HashSet<Integer> set = new HashSet<>();
 
+      for (int i = 0; i < n; i++)
+        set.add(in.nextInt());
+
+      out.append(set.size() < n ? "YES" : "NO").appendNewLine();
+    }
     out.flush();
   }
+
 }
 
 @FunctionalInterface
