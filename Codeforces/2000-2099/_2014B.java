@@ -1,451 +1,302 @@
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.InputMismatchException;
-
-public class _2014B implements Runnable {
-
-  InputReader in;
-  OutputWriter out;
+public class _2014B {
 
   public static void main(String[] args) {
-    new Thread(null, new _2014B(), "", 256 * (1L << 20)).start();
-  }
+    final StandardInputReader in = new StandardInputReader();
+    final StandardOutputWriter out = new StandardOutputWriter();
 
-  @Override
-  public void run() {
-    try {
-      in = new InputReader(System.in);
-      out = new OutputWriter(System.out);
-      solve();
-      in.close();
-      out.flush();
-    } catch (Throwable t) {
-      t.printStackTrace(System.err);
-      System.exit(-1);
-    }
-  }
-
-  void solve() {
     int t = in.nextInt();
-    final StringBuilder sb = new StringBuilder(t);
     while (t-- > 0) {
       int n = in.nextInt(), k = in.nextInt();
       if ((n & 1) == 0) {
         if ((k & 1) == 0) {
-          if (((k / 2) + k) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+          if (((k / 2) + k) % 2 == 0)
+            out.append("YES").appendNewLine();
+          else
+            out.append("NO").appendNewLine();
         } else {
-          if ((((k - 1) / 2) + k + 1) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+          if ((((k - 1) / 2) + k + 1) % 2 == 0)
+            out.append("YES").appendNewLine();
+          else
+            out.append("NO").appendNewLine();
         }
       } else {
         if ((k & 1) == 0) {
-          if (((k / 2) + k) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+          if (((k / 2) + k) % 2 == 0)
+            out.append("YES").appendNewLine();
+          else
+            out.append("NO").appendNewLine();
         } else {
-          if ((((k + 1) / 2) + k - 1) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+          if ((((k + 1) / 2) + k - 1) % 2 == 0)
+            out.append("YES").appendNewLine();
+          else
+            out.append("NO").appendNewLine();
         }
       }
     }
-    out.print(sb.toString());
+
+    out.flush();
+  }
+}
+
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
+}
+
+class StandardInputReader {
+
+  private final byte[] buffer;
+  private int pos;
+
+  public StandardInputReader() {
+    try {
+      this.pos = 0;
+      this.buffer = new byte[System.in.available() + 1];
+      this.buffer[this.buffer.length - 1] = '\n';
+      System.in.read(this.buffer);
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
-  interface Procedure {
-    void run();
+  public byte[] next(int n) {
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b != '\n' && b != '\r') {
+        this.pos--;
+        break;
+      }
+    }
+    byte[] bytes = new byte[n];
+    System.arraycopy(buffer, this.pos, bytes, 0, n);
+    this.pos += n;
+    return bytes;
   }
 
-  static class InputReader {
-    private static final int BUFFER_SIZE = 1 << 13;
-    private final InputStream in;
-    private byte[] inbuf;
-    private int lenbuf;
-    private int ptrbuf;
-
-    public InputReader(InputStream is) {
-      this.in = is;
-      this.inbuf = new byte[BUFFER_SIZE];
-      this.lenbuf = 0;
-      this.ptrbuf = 0;
-    }
-
-    public void close() throws IOException {
-      this.in.close();
-    }
-
-    private int readByte() {
-      if (this.lenbuf == -1) throw new InputMismatchException();
-      if (this.ptrbuf >= this.lenbuf) {
-        this.ptrbuf = 0;
-        try {
-          this.lenbuf = this.in.read(this.inbuf);
-        } catch (IOException e) {
-          throw new InputMismatchException();
-        }
-        if (this.lenbuf <= 0) return -1;
+  public byte[] next() {
+    int from;
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b != ' ' && b != '\n' && b != '\r') {
+        from = this.pos;
+        break;
       }
-      return this.inbuf[this.ptrbuf++];
     }
-
-    private boolean isSpaceChar(int c) {
-      return !(c >= 33 && c <= 126);
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b == ' ' || b == '\n' || b == '\r')
+        break;
     }
+    byte[] bytes = new byte[this.pos - from];
+    System.arraycopy(this.buffer, from - 1, bytes, 0, bytes.length);
+    return bytes;
+  }
 
-    private int skip() {
-      int b;
-      while ((b = this.readByte()) != -1 && this.isSpaceChar(b))
-        ;
-      return b;
-    }
-
-    public char nextCharacter() {
-      return (char) this.skip();
-    }
-
-    public String nextLine() {
-      int b = this.skip();
-      StringBuilder sb = new StringBuilder();
-      while (!(this.isSpaceChar(b))) {
-        sb.appendCodePoint(b);
-        b = this.readByte();
+  public byte[] nextLine() {
+    int from = this.pos;
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b == '\n' || b == '\r') {
+        if (b == '\r' && this.buffer[this.pos] == '\n')
+          this.pos++;
+        break;
       }
-      return sb.toString();
     }
+    byte[] bytes = new byte[this.pos - from - 1];
+    System.arraycopy(this.buffer, from, bytes, 0, bytes.length);
+    return bytes;
+  }
 
-    public long nextLong() {
-      long num = 0;
-      int b;
-      boolean minus = false;
-      while ((b = this.readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
-        ;
+  public byte nextByte() {
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b != ' ' && b != '\n' && b != '\r')
+        return b;
+    }
+  }
+
+  public int nextInt() {
+    int n;
+    boolean positive;
+    while (true) {
+      byte b = this.buffer[this.pos++];
       if (b == '-') {
-        minus = true;
-        b = this.readByte();
-      }
-
-      while (true) {
-        if (b >= '0' && b <= '9') {
-          num = num * 10 + (b - '0');
-        } else {
-          return minus ? -num : num;
-        }
-        b = this.readByte();
+        positive = false;
+        n = this.buffer[this.pos++] - '0';
+        break;
+      } else if (b >= '0' && b <= '9') {
+        positive = true;
+        n = b - '0';
+        break;
       }
     }
-
-    public int nextInt() {
-      return (int) this.nextLong();
-    }
-
-    public double nextDouble() {
-      return Double.parseDouble(this.nextLine());
-    }
-
-    public int[] readIntegerArray(int n) {
-      int[] a = new int[n];
-      for (int i = 0; i < n; i++) a[i] = nextInt();
-      return a;
-    }
-
-    public long[] readLongArray(int n) {
-      long[] a = new long[n];
-      for (int i = 0; i < n; i++) a[i] = nextLong();
-      return a;
-    }
-
-    public char[] readCharacterArray(int n) {
-      char[] buf = new char[n];
-      int b = this.skip(), p = 0;
-      while (p < n && !(this.isSpaceChar(b))) {
-        buf[p++] = (char) b;
-        b = this.readByte();
-      }
-      return n == p ? buf : Arrays.copyOf(buf, p);
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b >= '0' && b <= '9')
+        n = n * 10 + b - '0';
+      else
+        return positive ? n : -n;
     }
   }
 
-  static class OutputWriter {
-    private static final int BUFFER_SIZE = 1 << 16;
-    private final byte[] buf;
-    private final OutputStream out;
-    private int ptr;
-
-    public OutputWriter(OutputStream os) {
-      this.out = os;
-      this.buf = new byte[BUFFER_SIZE];
-      this.ptr = 0;
-    }
-
-    public OutputWriter write(byte b) {
-      this.buf[this.ptr++] = b;
-      if (this.ptr == BUFFER_SIZE) this.innerflush();
-      return this;
-    }
-
-    public OutputWriter write(char c) {
-      return this.write((byte) c);
-    }
-
-    public OutputWriter write(char[] s) {
-      for (char c : s) {
-        this.buf[this.ptr++] = (byte) c;
-        if (this.ptr == BUFFER_SIZE) this.innerflush();
-      }
-      return this;
-    }
-
-    public OutputWriter write(String s) {
-      s.chars()
-          .forEach(
-              c -> {
-                this.buf[this.ptr++] = (byte) c;
-                if (this.ptr == BUFFER_SIZE) this.innerflush();
-              });
-      return this;
-    }
-
-    private static int countDigits(int l) {
-      if (l >= 1000000000) return 10;
-      if (l >= 100000000) return 9;
-      if (l >= 10000000) return 8;
-      if (l >= 1000000) return 7;
-      if (l >= 100000) return 6;
-      if (l >= 10000) return 5;
-      if (l >= 1000) return 4;
-      if (l >= 100) return 3;
-      if (l >= 10) return 2;
-      return 1;
-    }
-
-    public OutputWriter write(int x) {
-      if (x == Integer.MIN_VALUE) {
-        return this.write((long) x);
-      }
-      if (this.ptr + 12 >= BUFFER_SIZE) this.innerflush();
-      if (x < 0) {
-        this.write((byte) '-');
-        x = -x;
-      }
-      int d = countDigits(x);
-      for (int i = this.ptr + d - 1; i >= this.ptr; i--) {
-        this.buf[i] = (byte) ('0' + x % 10);
-        x /= 10;
-      }
-      this.ptr += d;
-      return this;
-    }
-
-    private static int countDigits(long l) {
-      if (l >= 1000000000000000000L) return 19;
-      if (l >= 100000000000000000L) return 18;
-      if (l >= 10000000000000000L) return 17;
-      if (l >= 1000000000000000L) return 16;
-      if (l >= 100000000000000L) return 15;
-      if (l >= 10000000000000L) return 14;
-      if (l >= 1000000000000L) return 13;
-      if (l >= 100000000000L) return 12;
-      if (l >= 10000000000L) return 11;
-      if (l >= 1000000000L) return 10;
-      if (l >= 100000000L) return 9;
-      if (l >= 10000000L) return 8;
-      if (l >= 1000000L) return 7;
-      if (l >= 100000L) return 6;
-      if (l >= 10000L) return 5;
-      if (l >= 1000L) return 4;
-      if (l >= 100L) return 3;
-      if (l >= 10L) return 2;
-      return 1;
-    }
-
-    public OutputWriter write(long x) {
-      if (x == Long.MIN_VALUE) {
-        return this.write("" + x);
-      }
-      if (this.ptr + 21 >= BUFFER_SIZE) this.innerflush();
-      if (x < 0) {
-        this.write((byte) '-');
-        x = -x;
-      }
-      int d = countDigits(x);
-      for (int i = this.ptr + d - 1; i >= this.ptr; i--) {
-        this.buf[i] = (byte) ('0' + x % 10);
-        x /= 10;
-      }
-      this.ptr += d;
-      return this;
-    }
-
-    public OutputWriter write(double x, int precision) {
-      if (x < 0) {
-        this.write('-');
-        x = -x;
-      }
-      x += Math.pow(10, -precision) / 2;
-      this.write((long) x).write(".");
-      x -= (long) x;
-      for (int i = 0; i < precision; i++) {
-        x *= 10;
-        this.write((char) ('0' + (int) x));
-        x -= (int) x;
-      }
-      return this;
-    }
-
-    public OutputWriter writeln(char c) {
-      return this.write(c).writeln();
-    }
-
-    public OutputWriter writeln(int x) {
-      return this.write(x).writeln();
-    }
-
-    public OutputWriter writeln(long x) {
-      return this.write(x).writeln();
-    }
-
-    public OutputWriter writeln(double x, int precision) {
-      return this.write(x, precision).writeln();
-    }
-
-    public OutputWriter write(int... xs) {
-      boolean first = true;
-      for (int x : xs) {
-        if (!first) write(' ');
-        first = false;
-        this.write(x);
-      }
-      return this;
-    }
-
-    public OutputWriter write(long... xs) {
-      boolean first = true;
-      for (long x : xs) {
-        if (!first) this.write(' ');
-        first = false;
-        this.write(x);
-      }
-      return this;
-    }
-
-    public OutputWriter writeln() {
-      return this.write((byte) '\n');
-    }
-
-    public OutputWriter writeln(int... xs) {
-      return this.write(xs).writeln();
-    }
-
-    public OutputWriter writeln(long... xs) {
-      return this.write(xs).writeln();
-    }
-
-    public OutputWriter writeln(char[] line) {
-      return this.write(line).writeln();
-    }
-
-    public OutputWriter writeln(char[]... map) {
-      for (char[] line : map) this.write(line).writeln();
-      return this;
-    }
-
-    public OutputWriter writeln(String s) {
-      return this.write(s).writeln();
-    }
-
-    private void innerflush() {
-      try {
-        this.out.write(this.buf, 0, this.ptr);
-        this.ptr = 0;
-      } catch (IOException e) {
-        throw new RuntimeException("innerflush");
+  public long nextLong() {
+    long n;
+    boolean positive;
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b == '-') {
+        positive = false;
+        n = this.buffer[this.pos++] - '0';
+        break;
+      } else if (b >= '0' && b <= '9') {
+        positive = true;
+        n = b - '0';
+        break;
       }
     }
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b >= '0' && b <= '9')
+        n = n * 10 + b - '0';
+      else
+        return positive ? n : -n;
+    }
+  }
 
-    public void flush() {
-      this.innerflush();
-      try {
-        this.out.flush();
-      } catch (IOException e) {
-        throw new RuntimeException("flush");
+  public double nextDouble() {
+    long n;
+    boolean positive;
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b == '-') {
+        positive = false;
+        n = this.buffer[this.pos++] - '0';
+        break;
+      } else if (b >= '0' && b <= '9') {
+        positive = true;
+        n = b - '0';
+        break;
       }
     }
-
-    public OutputWriter print(byte b) {
-      return this.write(b);
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b >= '0' && b <= '9')
+        n = n * 10 + b - '0';
+      else if (b == '.')
+        break;
+      else
+        return positive ? n : -n;
     }
-
-    public OutputWriter print(char c) {
-      return this.write(c);
+    long m = 0;
+    long o = 1;
+    while (true) {
+      byte b = this.buffer[this.pos++];
+      if (b >= '0' && b <= '9') {
+        m = m * 10 + b - '0';
+        o *= 10;
+      } else {
+        double d = n + (double) m / o;
+        return positive ? d : -d;
+      }
     }
+  }
 
-    public OutputWriter print(char[] s) {
-      return this.write(s);
-    }
+  public int[] readIntegerArray(int n) {
+    int[] a = new int[n];
+    for (int i = 0; i < n; i++)
+      a[i] = nextInt();
+    return a;
+  }
 
-    public OutputWriter print(String s) {
-      return this.write(s);
-    }
+  public long[] readLongArray(int n) {
+    long[] a = new long[n];
+    for (int i = 0; i < n; i++)
+      a[i] = nextLong();
+    return a;
+  }
+}
 
-    public OutputWriter print(int x) {
-      return this.write(x);
-    }
+class StandardOutputWriter {
 
-    public OutputWriter print(long x) {
-      return this.write(x);
-    }
+  private static final int BUFFER_SIZE = 1048576;
+  private final byte[] buffer;
+  private int pos;
 
-    public OutputWriter print(double x, int precision) {
-      return this.write(x, precision);
-    }
+  public StandardOutputWriter() {
+    this.pos = 0;
+    this.buffer = new byte[BUFFER_SIZE];
+  }
 
-    public OutputWriter println(char c) {
-      return this.writeln(c);
-    }
+  public StandardOutputWriter append(String s) {
+    int length = s.length();
+    this.ensureCapacity(length);
+    for (int i = 0; i < length; i++)
+      this.buffer[this.pos++] = (byte) s.charAt(i);
+    return this;
+  }
 
-    public OutputWriter println(int x) {
-      return this.writeln(x);
+  public StandardOutputWriter append(byte[] bytes) {
+    if (BUFFER_SIZE - this.pos < bytes.length) {
+      this.flush();
+      if (bytes.length > BUFFER_SIZE) {
+        System.out.write(bytes, 0, bytes.length);
+        return this;
+      }
     }
+    for (byte b : bytes)
+      this.buffer[this.pos++] = b;
+    return this;
+  }
 
-    public OutputWriter println(long x) {
-      return this.writeln(x);
+  public StandardOutputWriter append(byte[] bytes, int from, int to) {
+    int length = to - from;
+    if (BUFFER_SIZE - this.pos < length) {
+      this.flush();
+      if (length > BUFFER_SIZE) {
+        System.out.write(bytes, from, length);
+        return this;
+      }
     }
+    for (int i = from; i < to; i++)
+      this.buffer[this.pos++] = bytes[i];
+    return this;
+  }
 
-    public OutputWriter println(double x, int precision) {
-      return this.writeln(x, precision);
-    }
+  public StandardOutputWriter append(char c) {
+    this.ensureCapacity(1);
+    this.buffer[this.pos++] = (byte) c;
+    return this;
+  }
 
-    public OutputWriter print(int... xs) {
-      return this.write(xs);
-    }
+  public StandardOutputWriter append(int i) {
+    return this.append(Integer.toString(i));
+  }
 
-    public OutputWriter print(long... xs) {
-      return this.write(xs);
-    }
+  public StandardOutputWriter append(long l) {
+    return this.append(Long.toString(l));
+  }
 
-    public OutputWriter println(int... xs) {
-      return this.writeln(xs);
-    }
+  public StandardOutputWriter append(double d) {
+    return this.append(Double.toString(d));
+  }
 
-    public OutputWriter println(long... xs) {
-      return this.writeln(xs);
-    }
+  public void appendNewLine() {
+    this.ensureCapacity(1);
+    this.buffer[this.pos++] = '\n';
+  }
 
-    public OutputWriter println(char[] line) {
-      return this.writeln(line);
-    }
+  public void flush() {
+    System.out.write(this.buffer, 0, this.pos);
+    this.pos = 0;
+  }
 
-    public OutputWriter println(char[]... map) {
-      return this.writeln(map);
-    }
-
-    public OutputWriter println(String s) {
-      return this.writeln(s);
-    }
-
-    public OutputWriter println() {
-      return this.writeln();
-    }
+  private void ensureCapacity(int n) {
+    if (BUFFER_SIZE - this.pos < n)
+      this.flush();
   }
 }

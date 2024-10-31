@@ -1,21 +1,32 @@
-public class _1374B {
+public class _1474B {
 
-  static int powerOfTwo(int j) {
-    int cnt = 0;
-    while (j != 1 && j % 2 == 0) {
-      j /= 2;
-      cnt++;
+  private static int nextPrime(int d) {
+    if (d <= 2)
+      return 2;
+    int prime = d;
+    boolean found = false;
+    while (!found) {
+      if (isPrime(prime)) {
+        found = true;
+        break;
+      }
+      prime++;
     }
-    return cnt;
+    return prime;
   }
 
-  static int powerOfThree(int j) {
-    int cnt = 0;
-    while (j != 1 && j % 3 == 0) {
-      j /= 3;
-      cnt++;
-    }
-    return cnt;
+  private static boolean isPrime(int n) {
+    if (n <= 1)
+      return false;
+    if (n <= 3)
+      return true;
+    if (n % 2 == 0 || n % 3 == 0)
+      return false;
+
+    for (int i = 5; i * i <= n; i = i + 6)
+      if (n % i == 0 || n % (i + 2) == 0)
+        return false;
+    return true;
   }
 
   public static void main(String[] args) {
@@ -24,19 +35,15 @@ public class _1374B {
 
     int t = in.nextInt();
     while (t-- > 0) {
-      final int n = in.nextInt(), l = powerOfThree(n), m = powerOfTwo(n);
-      if (n / (Math.pow(3, l) * (1 << m)) != 1D) {
-        out.append(-1).appendNewLine();
-        continue;
-      }
-      if (l >= 0 && l - m >= 0)
-        out.append((l << 1) - m).appendNewLine();
-      else
-        out.append(-1).appendNewLine();
+      int d = in.nextInt();
+      int a = nextPrime(d + 1);
+      int b = nextPrime(a + d);
+      out.append((long) a * b).appendNewLine();
     }
 
     out.flush();
   }
+
 }
 
 @FunctionalInterface
@@ -47,6 +54,162 @@ interface Procedure {
 @FunctionalInterface
 interface LongFunction {
   long apply(long t);
+}
+
+class Algebra {
+
+  private static final double EPSILON = 1E-6;
+
+  private Algebra() {
+  }
+
+  public static int modPow(int n, int exponent, int m) {
+    long result = 1;
+    for (long i = 1, j = n; i <= exponent; i <<= 1, j = j * j % m) {
+      if ((i & exponent) != 0)
+        result = result * j % m;
+    }
+    return (int) result;
+  }
+
+  public static int modInverse(int n, int p) {
+    return modPow(n, p - 2, p);
+  }
+
+  public static int[] modInverses(int n, int p) {
+    int[] inverses = new int[n + 1];
+    inverses[1] = 1;
+    for (int i = 2; i <= n; i++)
+      inverses[i] = (int) ((long) (p - p / i) * inverses[p % i] % p);
+    return inverses;
+  }
+
+  public static int gcd(int a, int b) {
+    if (a < b) {
+      int temp = a;
+      a = b;
+      b = temp;
+    }
+    while (true) {
+      a %= b;
+      if (a == 0)
+        return b;
+      else {
+        int temp = a;
+        a = b;
+        b = temp;
+      }
+    }
+  }
+
+  public static long gcd(long a, long b) {
+    if (a < b) {
+      long temp = a;
+      a = b;
+      b = temp;
+    }
+    while (true) {
+      a %= b;
+      if (a == 0)
+        return b;
+      else {
+        long temp = a;
+        a = b;
+        b = temp;
+      }
+    }
+  }
+
+  public static int log2(int n) {
+    return 31 - Integer.numberOfLeadingZeros(n);
+  }
+
+  public static int ceilLog2(int n) {
+    return 32 - Integer.numberOfLeadingZeros(n - 1);
+  }
+
+  public static boolean equal(double a, double b) {
+    return Math.abs(a - b) < EPSILON;
+  }
+
+  public static boolean equal0(double a) {
+    return Math.abs(a) < EPSILON;
+  }
+
+  public static double[] solveLinear(double a, double b, double c, double d, double e, double f) {
+    double D = a * e - b * d;
+    double Dx = c * e - b * f;
+    double Dy = a * f - c * d;
+    if (D == 0)
+      return new double[Dx == 0 && Dy == 0 ? 1 : 0];
+    else
+      return new double[] { Dx / D, Dy / D };
+  }
+
+  public static double[] solveQuadratic(double a, double b, double c) {
+    double delta = b * b - a * c * 4;
+    if (Algebra.equal0(delta))
+      return new double[] { -b / (a * 2) };
+    else if (delta < 0)
+      return new double[0];
+    else {
+      double a2 = a * 2;
+      double x = -b / a2;
+      double y = Math.sqrt(delta) / a2;
+      return new double[] { x + y, x - y };
+    }
+  }
+
+  public static void permute(byte[] array, Procedure procedure) {
+    permute(array, array.length, procedure);
+  }
+
+  private static void permute(byte[] array, int length, Procedure procedure) {
+    if (length == 1)
+      procedure.run();
+    else {
+      permute(array, --length, procedure);
+      for (int i = 0; i < length; i++) {
+        int index = (length & 1) == 0 ? 0 : i;
+        byte temp = array[index];
+        array[index] = array[length];
+        array[length] = temp;
+        permute(array, length, procedure);
+      }
+    }
+  }
+
+  public static void permute(int[] array, Procedure procedure) {
+    permute(array, array.length, procedure);
+  }
+
+  private static void permute(int[] array, int length, Procedure procedure) {
+    if (length == 1)
+      procedure.run();
+    else {
+      permute(array, --length, procedure);
+      for (int i = 0; i < length; i++) {
+        int index = (length & 1) == 0 ? 0 : i;
+        int temp = array[index];
+        array[index] = array[length];
+        array[length] = temp;
+        permute(array, length, procedure);
+      }
+    }
+  }
+
+  public static long binarySearchOnAnswerSpace(
+      LongFunction function, long target, long lowerBound, long upperBound) {
+    while (lowerBound < upperBound) {
+      long mid = lowerBound + upperBound >> 1;
+      long result = function.apply(mid);
+      if (result < target)
+        lowerBound = mid + 1;
+      else
+        upperBound = mid;
+    }
+    return lowerBound;
+  }
 }
 
 class StandardInputReader {
