@@ -43,6 +43,11 @@ public class Array {
       swap(array, Random.nextInt(i), i - 1);
   }
 
+  public static <T> void shuffle(long[] array) {
+    for (int i = array.length; i > 1; i--)
+      swap(array, Random.nextInt(i), i - 1);
+  }
+
   public static <T> void shuffle(T[] array) {
     for (int i = array.length; i > 1; i--)
       swap(array, Random.nextInt(i), i - 1);
@@ -56,6 +61,12 @@ public class Array {
 
   public static void swap(int[] array, int i, int j) {
     int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  public static void swap(long[] array, int i, int j) {
+    long temp = array[i];
     array[i] = array[j];
     array[j] = temp;
   }

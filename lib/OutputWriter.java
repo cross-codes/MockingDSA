@@ -66,6 +66,12 @@ public class OutputWriter {
     return this.append(Double.toString(d));
   }
 
+  public OutputWriter appendAll(Object... varargs) throws IOException {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
+  }
+
   public void appendNewLine() throws IOException {
     this.ensureCapacity(1);
     this.buffer[this.pos++] = '\n';

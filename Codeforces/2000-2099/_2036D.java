@@ -5,7 +5,7 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-class Codechef extends Functions implements Debug {
+public class _2036D extends Functions implements Debug {
 
   private static final StandardInputReader in = new StandardInputReader();
   private static final StandardOutputWriter out = new StandardOutputWriter();
@@ -13,24 +13,136 @@ class Codechef extends Functions implements Debug {
   public static void main(String[] args) {
     int t = in.nextInt();
     while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
-      for (int i = 0; i < n; i++) {
-        int currNum = in.nextInt();
-        if (currNum <= k) {
-          out.append("1");
-          k -= currNum;
-        } else {
-          out.append("0");
+      int numRows = in.nextInt(), numCols = in.nextInt();
+      int[][] matrix = new int[numRows][numCols];
+
+      for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
+          matrix[i][j] = in.nextByte() - 48;
         }
       }
-      out.appendNewLine();
+
+      int rowStartIdx = 0, rowEndIdx = numRows - 1, colStartIdx = 0, colEndIdx = numCols - 1;
+      StringBuilder current = new StringBuilder("");
+      int cnt = 0;
+      while (rowStartIdx < rowEndIdx && colStartIdx < colEndIdx) {
+        for (int i = colStartIdx; i < colEndIdx; i++) {
+          if (Functions.update(current, matrix[rowStartIdx][i], false)) {
+            cnt++;
+          }
+        }
+
+        for (int i = rowStartIdx; i < rowEndIdx; i++) {
+          if (Functions.update(current, matrix[i][colEndIdx], false)) {
+            cnt++;
+          }
+        }
+
+        for (int i = colEndIdx; i > colStartIdx; i--) {
+          if (Functions.update(current, matrix[rowEndIdx][i], false)) {
+            cnt++;
+          }
+        }
+
+        for (int i = rowEndIdx; i > rowStartIdx; i--) {
+          if (Functions.update(current, matrix[i][colStartIdx], false)) {
+            cnt++;
+          }
+        }
+
+        secondPass: if (current.length() > 0) {
+          for (int i = colStartIdx; i < colEndIdx; i++) {
+            boolean res = Functions.update(current, matrix[rowStartIdx][i], true);
+            if (res) {
+              cnt++;
+              break secondPass;
+            } else if (current.length() == 0)
+              break secondPass;
+          }
+
+          for (int i = rowStartIdx; i < rowEndIdx; i++) {
+            boolean res = Functions.update(current, matrix[i][colEndIdx], true);
+            if (res) {
+              cnt++;
+              break secondPass;
+            } else if (current.length() == 0)
+              break secondPass;
+          }
+
+          for (int i = colEndIdx; i > colStartIdx; i--) {
+            boolean res = Functions.update(current, matrix[rowEndIdx][i], true);
+            if (res) {
+              cnt++;
+              break secondPass;
+            } else if (current.length() == 0)
+              break secondPass;
+          }
+
+          for (int i = rowEndIdx; i > rowStartIdx; i--) {
+            boolean res = Functions.update(current, matrix[i][colStartIdx], true);
+            if (res) {
+              cnt++;
+              break secondPass;
+            } else if (current.length() == 0)
+              break secondPass;
+          }
+        }
+
+        rowStartIdx += 1;
+        rowEndIdx -= 1;
+        colStartIdx += 1;
+        colEndIdx -= 1;
+        current.setLength(0);
+      }
+      out.append(cnt).appendNewLine();
     }
     out.flush();
   }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "Codechef")
+@MultipleInheritanceDisallowed(inheritor = "_2036D")
 abstract class Functions {
+  static boolean update(StringBuilder current, int num, boolean inSecondPass) {
+    switch (current.toString()) {
+      case "":
+        if (num == 1) {
+          current.append("1");
+        }
+        return false;
+
+      case "1":
+        if (num == 5) {
+          current.append("5");
+        } else if (num != 1 || inSecondPass) {
+          current.setLength(0);
+        }
+        return false;
+
+      case "15":
+        if (num == 4) {
+          current.append("4");
+        } else if (num == 1 && !inSecondPass) {
+          current.setLength(0);
+          current.append("1");
+        } else {
+          current.setLength(0);
+        }
+        return false;
+
+      case "154":
+        current.setLength(0);
+        if (num == 3) {
+          return true;
+        } else if (num == 1 && !inSecondPass) {
+          current.append("1");
+        }
+        return false;
+
+      default:
+        current.setLength(0);
+        return false;
+    }
+  }
 }
 
 class StandardInputReader {

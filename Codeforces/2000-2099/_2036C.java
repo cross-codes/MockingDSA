@@ -2,35 +2,82 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-class Codechef extends Functions implements Debug {
-
-  private static final StandardInputReader in = new StandardInputReader();
-  private static final StandardOutputWriter out = new StandardOutputWriter();
+public class _2036C {
 
   public static void main(String[] args) {
+    final StandardInputReader in = new StandardInputReader();
+    final StandardOutputWriter out = new StandardOutputWriter();
+
     int t = in.nextInt();
     while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
+      StringBuilder s = new StringBuilder(new String(in.next(), StandardCharsets.US_ASCII));
+      final int n = s.length();
+      TreeSet<Integer> substringPositions = new TreeSet<>();
+
+      // First find all positions of 1100
+      int startIdx = 0;
       for (int i = 0; i < n; i++) {
-        int currNum = in.nextInt();
-        if (currNum <= k) {
-          out.append("1");
-          k -= currNum;
-        } else {
-          out.append("0");
-        }
+        int position = s.indexOf("1100", startIdx);
+        if (position != -1) {
+          startIdx = position;
+          substringPositions.add(position);
+        } else
+          break;
       }
-      out.appendNewLine();
+
+      int q = in.nextInt();
+      for (int i = 0; i < q; i++) {
+        int idx = in.nextInt(), v = in.nextByte();
+        s.setCharAt(idx - 1, (char) v);
+        for (int j = idx - 4; j <= idx - 1; j++) {
+          int checkPos = s.indexOf("1100", j - 1);
+          if (checkPos != -1)
+            substringPositions.add(checkPos);
+        }
+
+        // XXXX worst case last and front caused problems
+        NavigableSet<Integer> checks = substringPositions.subSet(idx - 4, true, idx - 1, true);
+        Iterator<Integer> it = checks.iterator();
+
+        while (it.hasNext()) {
+          int pos = it.next(), newPos = s.indexOf("1100", pos);
+          if (newPos != pos) {
+            it.remove();
+          }
+        }
+
+        if (substringPositions.size() >= 1)
+          out.append("YES").appendNewLine();
+        else
+          out.append("NO").appendNewLine();
+      }
     }
     out.flush();
   }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "Codechef")
-abstract class Functions {
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface Launchable {
+  String author();
+
+  String judge();
 }
 
 class StandardInputReader {
@@ -284,105 +331,4 @@ class StandardOutputWriter {
     if (BUFFER_SIZE - this.pos < n)
       this.flush();
   }
-}
-
-interface Debug {
-  public final boolean isLocal = getLocal();
-
-  public static boolean getLocal() {
-    try {
-      return System.getProperty("Cross") != null;
-    } catch (SecurityException ex) {
-      return false;
-    }
-  }
-
-  public static <T> String convStr(T t) {
-    if (t == null)
-      return "null";
-    if (t instanceof Iterable)
-      return convStr((Iterable<?>) t);
-    else if (t instanceof int[]) {
-      String s = Arrays.toString((int[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof long[]) {
-      String s = Arrays.toString((long[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof char[]) {
-      String s = Arrays.toString((char[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof double[]) {
-      String s = Arrays.toString((double[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof boolean[]) {
-      String s = Arrays.toString((boolean[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof Object[])
-      return convStr((Object[]) t);
-    return t.toString();
-  }
-
-  public static <T> String convStr(T[] arr) {
-    StringBuilder ret = new StringBuilder();
-    ret.append("{");
-    boolean first = true;
-    for (T t : arr) {
-      if (!first)
-        ret.append(", ");
-      first = false;
-      ret.append(convStr(t));
-    }
-    ret.append("}");
-    return ret.toString();
-  }
-
-  public static <T> String convStr(Iterable<T> iter) {
-    StringBuilder ret = new StringBuilder();
-    ret.append("{");
-    boolean first = true;
-    for (T t : iter) {
-      if (!first)
-        ret.append(", ");
-      first = false;
-      ret.append(convStr(t));
-    }
-    ret.append("}");
-    return ret.toString();
-  }
-
-  public static void print(Object... VAR_ARGS) {
-    if (isLocal) {
-      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
-        if (i != 0)
-          System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
-      }
-      System.err.println("]");
-    }
-  }
-}
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@interface Launchable {
-  String author();
-
-  String judge();
-}
-
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-@interface MultipleInheritanceDisallowed {
-  String inheritor();
-}
-
-@FunctionalInterface
-interface Procedure {
-  void run();
-}
-
-@FunctionalInterface
-interface LongFunction {
-  long apply(long t);
 }
