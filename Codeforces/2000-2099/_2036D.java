@@ -101,7 +101,7 @@ public class _2036D extends Functions implements Debug {
 }
 
 @MultipleInheritanceDisallowed(inheritor = "_2036D")
-abstract class Functions {
+abstract strictfp class Functions {
   static boolean update(StringBuilder current, int num, boolean inSecondPass) {
     switch (current.toString()) {
       case "":

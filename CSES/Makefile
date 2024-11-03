@@ -1,6 +1,6 @@
 # Compilers
-JC = javac
-JAR = jar
+JC = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.432.b06-1.fc40.x86_64/bin/javac
+JAR = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.432.b06-1.fc40.x86_64/bin/jar
 
 # To be passed as an argument
 JAVA_FILE ?= Main.java
