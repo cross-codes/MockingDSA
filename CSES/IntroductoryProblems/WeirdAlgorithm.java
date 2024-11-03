@@ -2,35 +2,44 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Arrays;
 
-@Launchable(author = "Cross12KBow249", judge = "Codeforces")
-class Codechef extends Functions implements Debug {
-
-  private static final StandardInputReader in = new StandardInputReader();
-  private static final StandardOutputWriter out = new StandardOutputWriter();
+@Launchable(author = "Cross", judge = "CSES")
+public class WeirdAlgorithm {
 
   public static void main(String[] args) {
-    int t = in.nextInt();
-    while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
-      for (int i = 0; i < n; i++) {
-        int currNum = in.nextInt();
-        if (currNum <= k) {
-          out.append("1");
-          k -= currNum;
-        } else {
-          out.append("0");
-        }
-      }
-      out.appendNewLine();
+    final StandardInputReader in = new StandardInputReader();
+    final StandardOutputWriter out = new StandardOutputWriter();
+
+    long n = in.nextLong();
+    out.append(n).append(" ");
+    while (n != 1) {
+      if ((n & 1) != 0)
+        n = 3 * n + 1;
+      else
+        n >>= 1;
+      out.append(n).append(" ");
     }
+
     out.flush();
   }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "Codechef")
-abstract class Functions {
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface Launchable {
+  String author() default "Cross12KBow249";
+
+  String judge() default "Codeforces";
 }
 
 class StandardInputReader {
@@ -284,105 +293,4 @@ class StandardOutputWriter {
     if (BUFFER_SIZE - this.pos < n)
       this.flush();
   }
-}
-
-interface Debug {
-  public final boolean isLocal = getLocal();
-
-  public static boolean getLocal() {
-    try {
-      return System.getProperty("Cross") != null;
-    } catch (SecurityException ex) {
-      return false;
-    }
-  }
-
-  public static <T> String convStr(T t) {
-    if (t == null)
-      return "null";
-    if (t instanceof Iterable)
-      return convStr((Iterable<?>) t);
-    else if (t instanceof int[]) {
-      String s = Arrays.toString((int[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof long[]) {
-      String s = Arrays.toString((long[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof char[]) {
-      String s = Arrays.toString((char[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof double[]) {
-      String s = Arrays.toString((double[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof boolean[]) {
-      String s = Arrays.toString((boolean[]) t);
-      return "{" + s.substring(1, s.length() - 1) + "}";
-    } else if (t instanceof Object[])
-      return convStr((Object[]) t);
-    return t.toString();
-  }
-
-  public static <T> String convStr(T[] arr) {
-    StringBuilder ret = new StringBuilder();
-    ret.append("{");
-    boolean first = true;
-    for (T t : arr) {
-      if (!first)
-        ret.append(", ");
-      first = false;
-      ret.append(convStr(t));
-    }
-    ret.append("}");
-    return ret.toString();
-  }
-
-  public static <T> String convStr(Iterable<T> iter) {
-    StringBuilder ret = new StringBuilder();
-    ret.append("{");
-    boolean first = true;
-    for (T t : iter) {
-      if (!first)
-        ret.append(", ");
-      first = false;
-      ret.append(convStr(t));
-    }
-    ret.append("}");
-    return ret.toString();
-  }
-
-  public static void print(Object... VAR_ARGS) {
-    if (isLocal) {
-      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
-        if (i != 0)
-          System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
-      }
-      System.err.println("]");
-    }
-  }
-}
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@interface Launchable {
-  String author();
-
-  String judge();
-}
-
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-@interface MultipleInheritanceDisallowed {
-  String inheritor();
-}
-
-@FunctionalInterface
-interface Procedure {
-  void run();
-}
-
-@FunctionalInterface
-interface LongFunction {
-  long apply(long t);
 }

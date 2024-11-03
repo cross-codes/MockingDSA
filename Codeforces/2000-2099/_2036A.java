@@ -5,31 +5,31 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-class Codechef extends Functions implements Debug {
+public class _2036A extends Functions implements Debug {
 
   private static final StandardInputReader in = new StandardInputReader();
   private static final StandardOutputWriter out = new StandardOutputWriter();
 
   public static void main(String[] args) {
+
     int t = in.nextInt();
-    while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
-      for (int i = 0; i < n; i++) {
-        int currNum = in.nextInt();
-        if (currNum <= k) {
-          out.append("1");
-          k -= currNum;
-        } else {
-          out.append("0");
+    iter: while (t-- > 0) {
+      int n = in.nextInt();
+      int[] array = in.readIntegerArray(n);
+
+      for (int i = 1; i < n; i++) {
+        if (Math.abs(array[i] - array[i - 1]) != 5 && Math.abs(array[i] - array[i - 1]) != 7) {
+          out.append("NO").appendNewLine();
+          continue iter;
         }
       }
-      out.appendNewLine();
+      out.append("YES").appendNewLine();
     }
     out.flush();
   }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "Codechef")
+@MultipleInheritanceDisallowed(inheritor = "_2036A")
 abstract class Functions {
 }
 
@@ -291,7 +291,7 @@ interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("Cross") != null;
+      return System.getProperty("LOCAL") != null;
     } catch (SecurityException ex) {
       return false;
     }

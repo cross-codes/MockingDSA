@@ -4,32 +4,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
 
-@Launchable(author = "Cross12KBow249", judge = "Codeforces")
-class Codechef extends Functions implements Debug {
+@Launchable(author = "Cross", judge = "CSES")
+public class BitStrings extends Functions implements Debug {
 
   private static final StandardInputReader in = new StandardInputReader();
   private static final StandardOutputWriter out = new StandardOutputWriter();
 
   public static void main(String[] args) {
-    int t = in.nextInt();
-    while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
-      for (int i = 0; i < n; i++) {
-        int currNum = in.nextInt();
-        if (currNum <= k) {
-          out.append("1");
-          k -= currNum;
-        } else {
-          out.append("0");
-        }
-      }
-      out.appendNewLine();
+    final int n = in.nextInt();
+    long val = 1;
+    for (int i = 0; i < n; i++) {
+      val = (val << 1L) % (long) (1e9 + 7);
     }
+    out.append(val).appendNewLine();
     out.flush();
   }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "Codechef")
+@MultipleInheritanceDisallowed(inheritor = "BitStrings")
 abstract class Functions {
 }
 
@@ -291,7 +283,7 @@ interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("Cross") != null;
+      return System.getProperty("CROSS_DEBUG") != null;
     } catch (SecurityException ex) {
       return false;
     }
@@ -350,13 +342,13 @@ interface Debug {
     return ret.toString();
   }
 
-  public static void print(Object... VAR_ARGS) {
+  public static void print(Object... __VA_ARGS__) {
     if (isLocal) {
       System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
         if (i != 0)
           System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
+        System.err.print(convStr(__VA_ARGS__[i]));
       }
       System.err.println("]");
     }

@@ -1,120 +1,46 @@
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 
-public class _402E {
+@Launchable(author = "Cross12KBow249", judge = "Codeforces")
+public class _402E extends Functions {
+
+  private static final StandardInputReader in = new StandardInputReader();
+  private static final StandardOutputWriter out = new StandardOutputWriter();
 
   public static void main(String[] args) {
-    final StandardInputReader in = new StandardInputReader();
-    final StandardOutputWriter out = new StandardOutputWriter();
 
     int n = in.nextInt();
-    int[][] a = new int[n][];
-    for (int i = 0; i < n; i++)
-      a[i] = in.readIntegerArray(n);
-
-    SCC scc = new SCC(n);
+    boolean[] u = new boolean[n];
+    int[][] arr = new int[n][n];
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        if (a[i][j] > 0 && i != j) {
-          scc.add(i, j);
-        }
+        arr[i][j] = in.nextInt();
       }
     }
-    scc.go();
 
-    out.append(scc.cs == 1 ? "YES" : "NO");
+    int cnt1 = Functions.dfs(0, true, u, arr);
+    Arrays.fill(u, false);
+    int cnt2 = Functions.dfs(0, false, u, arr);
+
+    out.append(cnt1 + cnt2 == 2 * n ? "YES" : "NO").appendNewLine();
     out.flush();
   }
 }
 
-@FunctionalInterface
-interface Procedure {
-  void run();
-}
-
-@FunctionalInterface
-interface LongFunction {
-  long apply(long t);
-}
-
-class SCC {
-  public ArrayList<Integer>[] adj;
-  public ArrayList<Integer>[] comp;
-  public int n;
-  public int idx, cs;
-  public boolean[] u;
-  public int[] pre, low, map;
-  public ArrayDeque<Integer> s;
-
-  public SCC(int nn) {
-    adj = new ArrayList[n = nn];
-    for (int curr = 0; curr < n; ++curr)
-      adj[curr] = new ArrayList<>();
-  }
-
-  public void add(int v1, int v2) {
-    adj[v1].add(v2);
-  }
-
-  public int[] go() {
-    comp = new ArrayList[n];
-    idx = 1;
-    cs = 0;
-    pre = new int[n];
-    low = new int[n];
-    map = new int[n];
-    u = new boolean[n];
-    s = new ArrayDeque<Integer>();
-    for (int i = 0; i < n; ++i)
-      if (pre[i] == 0)
-        dfs(i);
-    return map;
-  }
-
-  public void dfs(int v) {
-    pre[v] = low[v] = idx++;
-    s.push(v);
-    u[v] = true;
-    for (int to : adj[v]) {
-      if (pre[to] == 0) {
-        dfs(to);
-        low[v] = Math.min(low[v], low[to]);
-      } else if (u[to]) {
-        low[v] = Math.min(low[v], pre[to]);
+@MultipleInheritanceDisallowed(inheritor = "_402E")
+abstract class Functions {
+  static int dfs(int j, boolean v, boolean[] u, int[][] arr) {
+    u[j] = true;
+    int count = 1;
+    for (int i = 0; i < u.length; i++) {
+      if (!u[i] && ((v && arr[i][j] != 0) || (!v && arr[j][i] != 0))) {
+        count += dfs(i, v, u, arr);
       }
     }
-    if (low[v] == pre[v]) {
-      int next;
-      comp[cs] = new ArrayList<>();
-      do {
-        next = s.pop();
-        u[next] = false;
-        map[next] = cs;
-        comp[cs].add(next);
-      } while (next != v);
-      cs++;
-    }
-  }
-
-  public ArrayList<Integer>[] compressSCC() {
-    ArrayList<Integer>[] g = new ArrayList[cs];
-    for (int i = 0; i < cs; i++)
-      g[i] = new ArrayList<Integer>();
-    int[] added = new int[cs];
-    Arrays.fill(added, -1);
-    for (int i = 0; i < cs; i++) {
-      for (int v : comp[i]) {
-        for (int to : adj[v]) {
-          int mapTo = map[to];
-          if (mapTo != i && added[mapTo] != i) {
-            g[i].add(mapTo);
-            added[mapTo] = i;
-          }
-        }
-      }
-    }
-    return g;
+    return count;
   }
 }
 
@@ -182,7 +108,7 @@ class StandardInputReader {
     return bytes;
   }
 
-  public byte nextCharacter() {
+  public byte nextByte() {
     while (true) {
       byte b = this.buffer[this.pos++];
       if (b != ' ' && b != '\n' && b != '\r')
@@ -369,4 +295,28 @@ class StandardOutputWriter {
     if (BUFFER_SIZE - this.pos < n)
       this.flush();
   }
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface Launchable {
+  String author();
+
+  String judge();
+}
+
+@Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@interface MultipleInheritanceDisallowed {
+  String inheritor();
+}
+
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
 }

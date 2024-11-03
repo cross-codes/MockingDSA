@@ -5,7 +5,7 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-class Codechef extends Functions implements Debug {
+public class _2032B extends Functions implements Debug {
 
   private static final StandardInputReader in = new StandardInputReader();
   private static final StandardOutputWriter out = new StandardOutputWriter();
@@ -13,23 +13,33 @@ class Codechef extends Functions implements Debug {
   public static void main(String[] args) {
     int t = in.nextInt();
     while (t-- > 0) {
-      int n = in.nextInt(), k = in.nextInt();
-      for (int i = 0; i < n; i++) {
-        int currNum = in.nextInt();
-        if (currNum <= k) {
-          out.append("1");
-          k -= currNum;
-        } else {
-          out.append("0");
+      final int n = in.nextInt(), k = in.nextInt();
+
+      if (n == 1) {
+        if (k != 1)
+          out.append(-1).appendNewLine();
+        else {
+          out.append(1).appendNewLine();
+          out.append(1).appendNewLine();
+        }
+      } else {
+        if (k == 1 || k == n)
+          out.append(-1).appendNewLine();
+        else {
+          out.append(3).appendNewLine();
+          if (((n - k) & 1) == 0) {
+            out.appendAll(1, " ", k - 1, " ", k + 2).appendNewLine();
+          } else {
+            out.appendAll(1, " ", k, " ", k + 1).appendNewLine();
+          }
         }
       }
-      out.appendNewLine();
     }
     out.flush();
   }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "Codechef")
+@MultipleInheritanceDisallowed(inheritor = "_2032B")
 abstract class Functions {
 }
 
@@ -270,6 +280,12 @@ class StandardOutputWriter {
     return this.append(Double.toString(d));
   }
 
+  public StandardOutputWriter appendAll(Object... varargs) {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
+  }
+
   public void appendNewLine() {
     this.ensureCapacity(1);
     this.buffer[this.pos++] = '\n';
@@ -291,7 +307,7 @@ interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("Cross") != null;
+      return System.getProperty("CROSS_DEBUG") != null;
     } catch (SecurityException ex) {
       return false;
     }
@@ -350,13 +366,13 @@ interface Debug {
     return ret.toString();
   }
 
-  public static void print(Object... VAR_ARGS) {
+  public static void print(Object... __VA_ARGS__) {
     if (isLocal) {
       System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
         if (i != 0)
           System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
+        System.err.print(convStr(__VA_ARGS__[i]));
       }
       System.err.println("]");
     }
