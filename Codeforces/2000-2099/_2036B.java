@@ -5,12 +5,12 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _2036B {
+public class _2036B extends Functions implements Debug {
 
-  public static void main(String[] args) {
-    final StandardInputReader in = new StandardInputReader();
-    final StandardOutputWriter out = new StandardOutputWriter();
+  private static final StandardInputReader in = new StandardInputReader();
+  private static final StandardOutputWriter out = new StandardOutputWriter();
 
+  public static void main(String... args) {
     int t = in.nextInt();
     while (t-- > 0) {
       int n = in.nextInt(), k = in.nextInt();
@@ -36,22 +36,8 @@ public class _2036B {
   }
 }
 
-@FunctionalInterface
-interface Procedure {
-  void run();
-}
-
-@FunctionalInterface
-interface LongFunction {
-  long apply(long t);
-}
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@interface Launchable {
-  String author();
-
-  String judge();
+@MultipleInheritanceDisallowed(inheritor = "_2036B")
+abstract strictfp class Functions {
 }
 
 class StandardInputReader {
@@ -291,6 +277,12 @@ class StandardOutputWriter {
     return this.append(Double.toString(d));
   }
 
+  public StandardOutputWriter appendAll(Object... varargs) {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
+  }
+
   public void appendNewLine() {
     this.ensureCapacity(1);
     this.buffer[this.pos++] = '\n';
@@ -305,4 +297,105 @@ class StandardOutputWriter {
     if (BUFFER_SIZE - this.pos < n)
       this.flush();
   }
+}
+
+interface Debug {
+  public final boolean isLocal = getLocal();
+
+  public static boolean getLocal() {
+    try {
+      return System.getProperty("CROSS_DEBUG") != null;
+    } catch (SecurityException ex) {
+      return false;
+    }
+  }
+
+  public static <T> String convStr(T t) {
+    if (t == null)
+      return "null";
+    if (t instanceof Iterable)
+      return convStr((Iterable<?>) t);
+    else if (t instanceof int[]) {
+      String s = Arrays.toString((int[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof long[]) {
+      String s = Arrays.toString((long[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof char[]) {
+      String s = Arrays.toString((char[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof double[]) {
+      String s = Arrays.toString((double[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof boolean[]) {
+      String s = Arrays.toString((boolean[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof Object[])
+      return convStr((Object[]) t);
+    return t.toString();
+  }
+
+  public static <T> String convStr(T[] arr) {
+    StringBuilder ret = new StringBuilder();
+    ret.append("{");
+    boolean first = true;
+    for (T t : arr) {
+      if (!first)
+        ret.append(", ");
+      first = false;
+      ret.append(convStr(t));
+    }
+    ret.append("}");
+    return ret.toString();
+  }
+
+  public static <T> String convStr(Iterable<T> iter) {
+    StringBuilder ret = new StringBuilder();
+    ret.append("{");
+    boolean first = true;
+    for (T t : iter) {
+      if (!first)
+        ret.append(", ");
+      first = false;
+      ret.append(convStr(t));
+    }
+    ret.append("}");
+    return ret.toString();
+  }
+
+  public static void print(Object... __VA_ARGS__) {
+    if (isLocal) {
+      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
+        if (i != 0)
+          System.err.print(", ");
+        System.err.print(convStr(__VA_ARGS__[i]));
+      }
+      System.err.println("]");
+    }
+  }
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface Launchable {
+  String author();
+
+  String judge();
+}
+
+@Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@interface MultipleInheritanceDisallowed {
+  String inheritor();
+}
+
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
 }
