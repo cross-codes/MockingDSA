@@ -5,12 +5,22 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _2032B extends Functions implements Debug {
+public class _2032B extends Modules implements Debug, Runnable {
 
-  private static final StandardInputReader in = new StandardInputReader();
-  private static final StandardOutputWriter out = new StandardOutputWriter();
+  private final StandardInputReader in = new StandardInputReader();
+  private final StandardOutputWriter out = new StandardOutputWriter();
 
-  public static void main(String[] args) {
+  @Override
+  public void run() {
+    this.consolidateOutput();
+    this.out.flush();
+  }
+
+  public static void main(String... args) {
+    new Thread(null, new _2032B(), "LaunchableDriver", 1048576).start();
+  }
+
+  void consolidateOutput() {
     int t = in.nextInt();
     while (t-- > 0) {
       final int n = in.nextInt(), k = in.nextInt();
@@ -35,12 +45,12 @@ public class _2032B extends Functions implements Debug {
         }
       }
     }
-    out.flush();
   }
+
 }
 
 @MultipleInheritanceDisallowed(inheritor = "_2032B")
-abstract class Functions {
+abstract strictfp class Modules {
 }
 
 class StandardInputReader {

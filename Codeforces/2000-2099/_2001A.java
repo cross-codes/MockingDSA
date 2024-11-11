@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _2001A extends Functions implements Debug {
+public class _2001A extends Modules implements Debug {
 
   private static final StandardInputReader in = new StandardInputReader();
   private static final StandardOutputWriter out = new StandardOutputWriter();
