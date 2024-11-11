@@ -1,3 +1,8 @@
+package util;
+
+import functionalInterfaces.LongFunction;
+import functionalInterfaces.Procedure;
+
 public class Algebra {
   private static final double EPSILON = 1E-6;
 
@@ -139,7 +144,7 @@ public class Algebra {
     }
   }
 
-  public static long binarySearchOnAnswerSpace(
+  public static long monotonicBinarySearch(
       LongFunction function, long target, long lowerBound, long upperBound) {
     while (lowerBound < upperBound) {
       long mid = lowerBound + upperBound >> 1;

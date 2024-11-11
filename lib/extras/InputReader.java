@@ -1,7 +1,9 @@
+package extras;
+
 import java.io.InputStream;
 
 /**
- * Note: This class relies on the input stream not being buffered. It expects
+ * NOTE: This class relies on the input stream not being buffered. It expects
  * that the InputStream provided is in a state that allows immediate reading of
  * the available bytes.
  */

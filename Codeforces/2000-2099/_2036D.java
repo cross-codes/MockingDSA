@@ -5,12 +5,22 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _2036D extends Functions implements Debug {
+public class _2036D extends Functions implements Debug, Runnable {
 
-  private static final StandardInputReader in = new StandardInputReader();
-  private static final StandardOutputWriter out = new StandardOutputWriter();
+  private final StandardInputReader in = new StandardInputReader();
+  private final StandardOutputWriter out = new StandardOutputWriter();
+
+  @Override
+  public void run() {
+    this.solve();
+    this.out.flush();
+  }
 
   public static void main(String[] args) {
+    new Thread(null, new _2036D(), "Solution", 1048576).start();
+  }
+
+  void solve() {
     int t = in.nextInt();
     while (t-- > 0) {
       int numRows = in.nextInt(), numCols = in.nextInt();
@@ -27,32 +37,32 @@ public class _2036D extends Functions implements Debug {
       int cnt = 0;
       while (rowStartIdx < rowEndIdx && colStartIdx < colEndIdx) {
         for (int i = colStartIdx; i < colEndIdx; i++) {
-          if (Functions.update(current, matrix[rowStartIdx][i], false)) {
+          if (update(current, matrix[rowStartIdx][i], false)) {
             cnt++;
           }
         }
 
         for (int i = rowStartIdx; i < rowEndIdx; i++) {
-          if (Functions.update(current, matrix[i][colEndIdx], false)) {
+          if (update(current, matrix[i][colEndIdx], false)) {
             cnt++;
           }
         }
 
         for (int i = colEndIdx; i > colStartIdx; i--) {
-          if (Functions.update(current, matrix[rowEndIdx][i], false)) {
+          if (update(current, matrix[rowEndIdx][i], false)) {
             cnt++;
           }
         }
 
         for (int i = rowEndIdx; i > rowStartIdx; i--) {
-          if (Functions.update(current, matrix[i][colStartIdx], false)) {
+          if (update(current, matrix[i][colStartIdx], false)) {
             cnt++;
           }
         }
 
         secondPass: if (current.length() > 0) {
           for (int i = colStartIdx; i < colEndIdx; i++) {
-            boolean res = Functions.update(current, matrix[rowStartIdx][i], true);
+            boolean res = update(current, matrix[rowStartIdx][i], true);
             if (res) {
               cnt++;
               break secondPass;
@@ -61,7 +71,7 @@ public class _2036D extends Functions implements Debug {
           }
 
           for (int i = rowStartIdx; i < rowEndIdx; i++) {
-            boolean res = Functions.update(current, matrix[i][colEndIdx], true);
+            boolean res = update(current, matrix[i][colEndIdx], true);
             if (res) {
               cnt++;
               break secondPass;
@@ -70,7 +80,7 @@ public class _2036D extends Functions implements Debug {
           }
 
           for (int i = colEndIdx; i > colStartIdx; i--) {
-            boolean res = Functions.update(current, matrix[rowEndIdx][i], true);
+            boolean res = update(current, matrix[rowEndIdx][i], true);
             if (res) {
               cnt++;
               break secondPass;
@@ -79,7 +89,7 @@ public class _2036D extends Functions implements Debug {
           }
 
           for (int i = rowEndIdx; i > rowStartIdx; i--) {
-            boolean res = Functions.update(current, matrix[i][colStartIdx], true);
+            boolean res = update(current, matrix[i][colStartIdx], true);
             if (res) {
               cnt++;
               break secondPass;
@@ -96,13 +106,9 @@ public class _2036D extends Functions implements Debug {
       }
       out.append(cnt).appendNewLine();
     }
-    out.flush();
   }
-}
 
-@MultipleInheritanceDisallowed(inheritor = "_2036D")
-abstract strictfp class Functions {
-  static boolean update(StringBuilder current, int num, boolean inSecondPass) {
+  boolean update(StringBuilder current, int num, boolean inSecondPass) {
     switch (current.toString()) {
       case "":
         if (num == 1) {
@@ -143,6 +149,11 @@ abstract strictfp class Functions {
         return false;
     }
   }
+}
+
+@MultipleInheritanceDisallowed(inheritor = "_2036D")
+abstract strictfp class Functions {
+  abstract boolean update(StringBuilder current, int num, boolean inSecondPass);
 }
 
 class StandardInputReader {

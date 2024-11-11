@@ -1,3 +1,5 @@
+package primitiveCollections;
+
 import java.util.Arrays;
 
 interface LongEntryIterator {

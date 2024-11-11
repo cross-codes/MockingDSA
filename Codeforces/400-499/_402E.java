@@ -5,13 +5,22 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _402E extends Functions {
+public class _402E extends Modules implements Debug, Runnable {
 
-  private static final StandardInputReader in = new StandardInputReader();
-  private static final StandardOutputWriter out = new StandardOutputWriter();
+  private final StandardInputReader in = new StandardInputReader();
+  private final StandardOutputWriter out = new StandardOutputWriter();
+
+  @Override
+  public void run() {
+    this.solve();
+    this.out.flush();
+  }
 
   public static void main(String[] args) {
+    new Thread(null, new _402E(), "Solution", 1048576).start();
+  }
 
+  void solve() {
     int n = in.nextInt();
     boolean[] u = new boolean[n];
     int[][] arr = new int[n][n];
@@ -21,18 +30,14 @@ public class _402E extends Functions {
       }
     }
 
-    int cnt1 = Functions.dfs(0, true, u, arr);
+    int cnt1 = this.dfs(0, true, u, arr);
     Arrays.fill(u, false);
-    int cnt2 = Functions.dfs(0, false, u, arr);
+    int cnt2 = this.dfs(0, false, u, arr);
 
     out.append(cnt1 + cnt2 == 2 * n ? "YES" : "NO").appendNewLine();
-    out.flush();
   }
-}
 
-@MultipleInheritanceDisallowed(inheritor = "_402E")
-abstract class Functions {
-  static int dfs(int j, boolean v, boolean[] u, int[][] arr) {
+  int dfs(int j, boolean v, boolean[] u, int[][] arr) {
     u[j] = true;
     int count = 1;
     for (int i = 0; i < u.length; i++) {
@@ -42,6 +47,11 @@ abstract class Functions {
     }
     return count;
   }
+}
+
+@MultipleInheritanceDisallowed(inheritor = "_402E")
+abstract class Modules {
+  abstract int dfs(int j, boolean v, boolean[] u, int[][] arr);
 }
 
 class StandardInputReader {
@@ -294,6 +304,83 @@ class StandardOutputWriter {
   private void ensureCapacity(int n) {
     if (BUFFER_SIZE - this.pos < n)
       this.flush();
+  }
+}
+
+interface Debug {
+  public final boolean isLocal = getLocal();
+
+  public static boolean getLocal() {
+    try {
+      return System.getProperty("Cross") != null;
+    } catch (SecurityException ex) {
+      return false;
+    }
+  }
+
+  public static <T> String convStr(T t) {
+    if (t == null)
+      return "null";
+    if (t instanceof Iterable)
+      return convStr((Iterable<?>) t);
+    else if (t instanceof int[]) {
+      String s = Arrays.toString((int[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof long[]) {
+      String s = Arrays.toString((long[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof char[]) {
+      String s = Arrays.toString((char[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof double[]) {
+      String s = Arrays.toString((double[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof boolean[]) {
+      String s = Arrays.toString((boolean[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof Object[])
+      return convStr((Object[]) t);
+    return t.toString();
+  }
+
+  public static <T> String convStr(T[] arr) {
+    StringBuilder ret = new StringBuilder();
+    ret.append("{");
+    boolean first = true;
+    for (T t : arr) {
+      if (!first)
+        ret.append(", ");
+      first = false;
+      ret.append(convStr(t));
+    }
+    ret.append("}");
+    return ret.toString();
+  }
+
+  public static <T> String convStr(Iterable<T> iter) {
+    StringBuilder ret = new StringBuilder();
+    ret.append("{");
+    boolean first = true;
+    for (T t : iter) {
+      if (!first)
+        ret.append(", ");
+      first = false;
+      ret.append(convStr(t));
+    }
+    ret.append("}");
+    return ret.toString();
+  }
+
+  public static void print(Object... VAR_ARGS) {
+    if (isLocal) {
+      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
+      for (int i = 0; i < VAR_ARGS.length; i++) {
+        if (i != 0)
+          System.err.print(", ");
+        System.err.print(convStr(VAR_ARGS[i]));
+      }
+      System.err.println("]");
+    }
   }
 }
 

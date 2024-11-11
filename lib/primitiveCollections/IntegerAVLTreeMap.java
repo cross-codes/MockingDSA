@@ -1,3 +1,5 @@
+package primitiveCollections;
+
 @FunctionalInterface
 interface IntegerBiConsumer {
   void accept(int t, int u);

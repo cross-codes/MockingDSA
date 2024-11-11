@@ -1,3 +1,5 @@
+package util;
+
 public class Random {
   private static long seed = System.nanoTime() ^ 8682522807148012L;
 

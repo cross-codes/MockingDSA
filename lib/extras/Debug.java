@@ -1,3 +1,5 @@
+package extras;
+
 import java.util.Arrays;
 
 public interface Debug {
@@ -5,7 +7,7 @@ public interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("LOCAL") != null;
+      return System.getProperty("CROSS_DEBUG") != null;
     } catch (SecurityException ex) {
       return false;
     }

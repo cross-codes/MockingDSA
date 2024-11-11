@@ -1,3 +1,7 @@
+package util;
+
+import functionalInterfaces.Procedure;
+
 public class Array {
   private Array() {
   }
