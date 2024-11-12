@@ -1,48 +1,8 @@
-package primitiveCollections;
+package primitives;
 
-@FunctionalInterface
-interface IntegerBiConsumer {
-  void accept(int t, int u);
-}
-
-@FunctionalInterface
-interface IntegerBiFunction {
-  int apply(int a, int b);
-}
-
-@FunctionalInterface
-interface IntegerXBiConsumer<U> {
-  void accept(int t, U u);
-}
-
-class OptionalInteger {
-  private int value;
-  private boolean present;
-
-  public OptionalInteger() {
-  }
-
-  public OptionalInteger(int value) {
-    set(value);
-  }
-
-  public int get() {
-    return value;
-  }
-
-  public boolean isPresent() {
-    return present;
-  }
-
-  public void set(int value) {
-    this.value = value;
-    present = true;
-  }
-
-  public void clear() {
-    present = false;
-  }
-}
+import interfaces.IntegerBiConsumer;
+import interfaces.IntegerBiFunction;
+import interfaces.IntegerXBiConsumer;
 
 public class IntegerAVLTreeMap {
   private Entry root;
@@ -361,5 +321,34 @@ public class IntegerAVLTreeMap {
       this.value = value;
       this.parent = parent;
     }
+  }
+}
+
+class OptionalInteger {
+  private int value;
+  private boolean present;
+
+  public OptionalInteger() {
+  }
+
+  public OptionalInteger(int value) {
+    set(value);
+  }
+
+  public int get() {
+    return value;
+  }
+
+  public boolean isPresent() {
+    return present;
+  }
+
+  public void set(int value) {
+    this.value = value;
+    present = true;
+  }
+
+  public void clear() {
+    present = false;
   }
 }

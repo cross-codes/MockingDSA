@@ -1,4 +1,4 @@
-package primitiveCollections;
+package primitives;
 
 import java.util.Arrays;
 

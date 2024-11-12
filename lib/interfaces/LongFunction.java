@@ -1,4 +1,4 @@
-package functionalInterfaces;
+package interfaces;
 
 @FunctionalInterface
 public interface LongFunction {
