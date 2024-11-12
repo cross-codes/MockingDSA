@@ -24,11 +24,11 @@ public class PolygonArea extends ModuleSignatures implements Debug, Runnable {
     int n = in.nextInt();
     long area = 0L;
 
-    TwoDimensionalVector first = new TwoDimensionalVector(in.nextInt(), in.nextInt());
-    TwoDimensionalVector prev = first;
+    Vector2D first = new Vector2D(in.nextInt(), in.nextInt());
+    Vector2D prev = first;
 
     for (int i = 1; i < n; i++) {
-      TwoDimensionalVector vector = new TwoDimensionalVector(in.nextInt(), in.nextInt());
+      Vector2D vector = new Vector2D(in.nextInt(), in.nextInt());
       area += prev.cross(vector);
       prev = vector;
     }
@@ -43,20 +43,20 @@ public class PolygonArea extends ModuleSignatures implements Debug, Runnable {
 abstract strictfp class ModuleSignatures {
 }
 
-class TwoDimensionalVector {
-  private final int x;
-  private final int y;
+class Vector2D {
+  public final int x;
+  public final int y;
 
-  public TwoDimensionalVector(int x, int y) {
+  public Vector2D(int x, int y) {
     this.x = x;
     this.y = y;
   }
 
-  public long cross(TwoDimensionalVector vector) {
+  public long cross(Vector2D vector) {
     return (long) this.x * vector.y - (long) this.y * vector.x;
   }
 
-  public long dot(TwoDimensionalVector vector) {
+  public long dot(Vector2D vector) {
     return (long) this.x * vector.x + (long) this.y * vector.y;
   }
 
@@ -64,19 +64,19 @@ class TwoDimensionalVector {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
-  public TwoDimensionalVector add(TwoDimensionalVector vector) {
-    return new TwoDimensionalVector(this.x + vector.x, this.y + vector.y);
+  public Vector2D add(Vector2D vector) {
+    return new Vector2D(this.x + vector.x, this.y + vector.y);
   }
 
-  public TwoDimensionalVector subtract(TwoDimensionalVector vector) {
-    return new TwoDimensionalVector(this.x - vector.x, this.y - vector.y);
+  public Vector2D subtract(Vector2D vector) {
+    return new Vector2D(this.x - vector.x, this.y - vector.y);
   }
 
-  public TwoDimensionalVector perpendicularVector() {
-    return new TwoDimensionalVector(-this.y, this.x);
+  public Vector2D perpendicularVector() {
+    return new Vector2D(-this.y, this.x);
   }
 
-  public double angleBetween(TwoDimensionalVector vector) {
+  public double angleBetween(Vector2D vector) {
     double dotProduct = this.dot(vector);
     double normProduct = this.norm() * vector.norm();
     if (normProduct == 0)
@@ -94,10 +94,10 @@ class TwoDimensionalVector {
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (obj == null || !(obj instanceof TwoDimensionalVector))
+    if (obj == null || !(obj instanceof Vector2D))
       return false;
 
-    TwoDimensionalVector vector = (TwoDimensionalVector) obj;
+    Vector2D vector = (Vector2D) obj;
     return this.x == vector.x && this.y == vector.y;
   }
 
