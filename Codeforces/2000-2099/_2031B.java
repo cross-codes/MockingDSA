@@ -3,10 +3,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.HashMap;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class SubarraySumsII extends ModuleSignatures implements Debug, Runnable {
+public class _2031B extends ModuleSignatures implements Debug, Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -18,28 +17,52 @@ public class SubarraySumsII extends ModuleSignatures implements Debug, Runnable 
   }
 
   public static void main(String... args) {
-    new Thread(null, new SubarraySumsII(), "LaunchableDriver", 1048576).start();
+    new Thread(null, new _2031B(), "LaunchableDriver", 1048576).start();
   }
 
   private void consolidateOutput() {
-    int n = in.nextInt();
-    long x = in.nextLong();
-    HashMap<Long, Integer> prefix = new HashMap<>();
-    prefix.put(0L, 1);
+    int t = in.nextInt();
+    iter: while (t-- > 0) {
+      int n = in.nextInt();
+      int[] array = in.readIntegerArray(n);
 
-    long curSum = 0, ans = 0;
-    for (int i = 0; i < n; i++) {
-      curSum += in.nextLong();
-      ans += prefix.getOrDefault(curSum - x, 0);
-      prefix.put(curSum, prefix.getOrDefault(curSum, 0) + 1);
+      for (int i = 0; i < n - 1; i++) {
+        int element = array[i];
+        if (element != i + 1) {
+          if (Math.abs(element - i - 1) == 1) {
+            if (i != 0) {
+              if (Math.abs(element - array[i - 1]) != 1
+                  && Math.abs(element - array[i + 1]) != 1) {
+                out.append("NO").appendNewLine();
+                continue iter;
+              }
+            } else {
+              if (Math.abs(element - array[i + 1]) != 1) {
+                out.append("NO").appendNewLine();
+                continue iter;
+              }
+            }
+          } else {
+            out.append("NO").appendNewLine();
+            continue iter;
+          }
+        }
+      }
+
+      if (n >= 2 && array[n - 1] != n) {
+        if (Math.abs(array[n - 1] - array[n - 2]) != 1) {
+          out.append("NO").appendNewLine();
+          continue iter;
+        }
+      }
+
+      out.append("YES").appendNewLine();
     }
-
-    out.append(ans).appendNewLine();
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = "SubarraySumsII")
+@MultipleInheritanceDisallowed(inheritor = "_2031B")
 abstract strictfp class ModuleSignatures {
 }
 

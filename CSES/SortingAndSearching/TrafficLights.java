@@ -4,6 +4,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.TreeSet;
+import java.util.stream.IntStream;
 
 @Launchable(author = "Cross", judge = "CSES")
 public class TrafficLights extends Modules implements Debug, Runnable {
@@ -25,18 +26,18 @@ public class TrafficLights extends Modules implements Debug, Runnable {
     int x = in.nextInt(), n = in.nextInt();
     int[] positionArray = new int[n];
     int[] outputs = new int[n];
-    TreeSet<Integer> positionSet = new TreeSet<>() {
+    TreeSet<Integer> positionSet = new TreeSet<Integer>() {
       {
         add(0);
         add(x);
       }
     };
 
-    for (int i = 0; i < n; i++) {
+    IntStream.range(0, n).forEach(i -> {
       int num = in.nextInt();
       positionArray[i] = num;
       positionSet.add(num);
-    }
+   });
 
     int maxGap = 0, prev = 0;
     for (int e : positionSet) {

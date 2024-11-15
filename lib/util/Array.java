@@ -1,8 +1,8 @@
 package util;
 
-import functionalInterfaces.Procedure;
+import interfaces.Procedure;
 
-public class Array {
+public final class Array {
   private Array() {
   }
 
@@ -145,5 +145,10 @@ public class Array {
       max = Math.max(e, max);
     }
     return max;
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 }

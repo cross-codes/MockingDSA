@@ -3,10 +3,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.TreeSet;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class SubarraySumsII extends ModuleSignatures implements Debug, Runnable {
+public class _2031C extends ModuleSignatures implements Debug, Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -18,28 +18,54 @@ public class SubarraySumsII extends ModuleSignatures implements Debug, Runnable 
   }
 
   public static void main(String... args) {
-    new Thread(null, new SubarraySumsII(), "LaunchableDriver", 1048576).start();
+    new Thread(null, new _2031C(), "LaunchableDriver", 1048576).start();
   }
 
   private void consolidateOutput() {
-    int n = in.nextInt();
-    long x = in.nextLong();
-    HashMap<Long, Integer> prefix = new HashMap<>();
-    prefix.put(0L, 1);
+    TreeSet<Long> squares = new TreeSet<>();
+    for (long i = 1; i <= 100_000; i++)
+      squares.add(i * i);
 
-    long curSum = 0, ans = 0;
-    for (int i = 0; i < n; i++) {
-      curSum += in.nextLong();
-      ans += prefix.getOrDefault(curSum - x, 0);
-      prefix.put(curSum, prefix.getOrDefault(curSum, 0) + 1);
+    int t = in.nextInt();
+    iter: while (t-- > 0) {
+      int n = in.nextInt();
+      if ((n & 1) == 0) {
+        for (int i = 1, j = 1; i <= n; i += 2, j++) {
+          out.appendAll(j, " ", j, (i == n - 1) ? "" : " ");
+        }
+        out.appendNewLine();
+      } else {
+        if (n < 18) {
+          out.append(-1).appendNewLine();
+          continue iter;
+        }
+        for (long square : squares) {
+          if (n - square < 0) {
+            out.append(-1).appendNewLine();
+            continue iter;
+          }
+          if (squares.contains(n - 1 - square) && square % 2 != 0 && (n - 1 - square) % 2 != 0) {
+            int j = 1;
+            out.append(1000_000).append(" ");
+            for (long i = 1; i < square; i += 2, j++) {
+              out.appendAll(j, " ", j, " ");
+            }
+            out.append(1000_000).append(" ");
+            for (long i = square + 1; i < n - 1; i += 2, j++) {
+              out.appendAll(j, " ", j, " ");
+            }
+            out.append(1000_000).appendNewLine();
+            continue iter;
+          }
+        }
+        out.append(-1).appendNewLine();
+      }
     }
-
-    out.append(ans).appendNewLine();
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = "SubarraySumsII")
+@MultipleInheritanceDisallowed(inheritor = "_2031C")
 abstract strictfp class ModuleSignatures {
 }
 

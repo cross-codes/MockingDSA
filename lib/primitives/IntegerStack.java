@@ -1,6 +1,7 @@
 package primitives;
 
 import java.util.Arrays;
+import java.util.EmptyStackException;
 
 public class IntegerStack {
   private int[] stack;
@@ -17,27 +18,16 @@ public class IntegerStack {
   }
 
   public void push(int element) {
-    if (!this.isUnbound && pos >= this.STACK_SIZE - 1)
-      throw new RuntimeException();
+    if (!this.isUnbound && this.pos >= this.STACK_SIZE - 1)
+      throw new IllegalStateException();
     this.ensureCapacity();
     this.stack[++this.pos] = element;
   }
 
   public int pop() {
     if (this.pos == -1)
-      throw new RuntimeException();
+      throw new EmptyStackException();
     return this.stack[this.pos--];
-  }
-
-  public void ensureCapacity() {
-    if (this.isUnbound) {
-      if (pos == this.STACK_SIZE - 1) {
-        int[] newStack = new int[this.STACK_SIZE << 1];
-        System.arraycopy(this.stack, 0, newStack, 0, this.STACK_SIZE);
-        this.stack = newStack;
-        this.STACK_SIZE <<= 1;
-      }
-    }
   }
 
   public boolean isEmpty() {
@@ -49,11 +39,13 @@ public class IntegerStack {
   }
 
   public void clear() {
-    this.pos = -1;
     Arrays.fill(this.stack, 0);
+    this.pos = -1;
   }
 
   public int peek() {
+    if (this.pos == -1)
+      throw new EmptyStackException();
     return this.stack[this.pos];
   }
 
@@ -63,5 +55,16 @@ public class IntegerStack {
     for (int i = 0; i <= this.pos; i++)
       sb.append(this.stack[i]).append(i == this.pos ? "" : ", ");
     return sb.append("]").toString();
+  }
+
+  private void ensureCapacity() {
+    if (this.isUnbound) {
+      if (pos == this.STACK_SIZE - 1) {
+        int[] newStack = new int[this.STACK_SIZE << 1];
+        System.arraycopy(this.stack, 0, newStack, 0, this.STACK_SIZE);
+        this.stack = newStack;
+        this.STACK_SIZE <<= 1;
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 package util;
 
-public class Random {
+public final class Random {
   private static long seed = System.nanoTime() ^ 8682522807148012L;
 
   private Random() {
@@ -47,5 +47,10 @@ public class Random {
   private static int next(int bits) {
     seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
     return (int) (seed >>> 48 - bits);
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 }

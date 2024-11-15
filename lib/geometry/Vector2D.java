@@ -9,14 +9,6 @@ public class Vector2D {
     this.y = y;
   }
 
-  public long cross(Vector2D vector) {
-    return (long) this.x * vector.y - (long) this.y * vector.x;
-  }
-
-  public long dot(Vector2D vector) {
-    return (long) this.x * vector.x + (long) this.y * vector.y;
-  }
-
   public double norm() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
@@ -29,22 +21,30 @@ public class Vector2D {
     return new Vector2D(this.x - vector.x, this.y - vector.y);
   }
 
-  public Vector2D perpendicularVector() {
-    return new Vector2D(-this.y, this.x);
+  public long dot(Vector2D vector) {
+    return (long) this.x * vector.x + (long) this.y * vector.y;
   }
 
-  public double angleBetween(Vector2D vector) {
-    double dotProduct = this.dot(vector);
-    double normProduct = this.norm() * vector.norm();
-    if (normProduct == 0)
-      return (dotProduct < 0D) ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
-    return Math.acos(dotProduct / normProduct);
+  public long cross(Vector2D vector) {
+    return (long) this.x * vector.y - (long) this.y * vector.x;
+  }
+
+  public Vector2D perpendicularVector() {
+    return new Vector2D(-this.y, this.x);
   }
 
   public double angle() {
     if (this.x == 0)
       return this.y > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
     return Math.atan2(this.y, this.x);
+  }
+
+  public double angleBetween(Vector2D vector) {
+    double dotProduct = this.dot(vector);
+    double normProduct = this.norm() * vector.norm();
+    if (normProduct == 0)
+      return (dotProduct > 0D) ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+    return Math.acos(dotProduct / normProduct);
   }
 
   @Override
@@ -60,6 +60,6 @@ public class Vector2D {
 
   @Override
   public String toString() {
-    return "<" + this.x + ", " + this.y + ">";
+    return this.x + "i" + " + " + this.y + "j";
   }
 }

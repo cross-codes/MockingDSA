@@ -2,37 +2,38 @@ package collections;
 
 import java.util.Objects;
 
-public class OrderedPair<K extends Comparable<K>, V extends Comparable<V>>
-    implements Comparable<OrderedPair<K, V>> {
-  public K key;
-  public V value;
+public class OrderedPair<F extends Comparable<F>, S extends Comparable<S>>
+    implements Comparable<OrderedPair<F, S>> {
+  public F first;
+  public S second;
 
-  public OrderedPair(K key, V value) {
-    this.key = key;
-    this.value = value;
+  public OrderedPair(F first, S second) {
+    this.first = first;
+    this.second = second;
   }
 
   @Override
-  public int compareTo(OrderedPair<K, V> other) {
-    int cmp = this.key.compareTo(other.key);
+  public int compareTo(OrderedPair<F, S> other) {
+    int cmp = this.first.compareTo(other.first);
     if (cmp == 0)
-      return this.value.compareTo(other.value);
+      return this.second.compareTo(other.second);
     else
       return cmp;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object obj) {
+    if (this == obj)
       return true;
-    if (!(o instanceof OrderedPair))
+    if (!(obj instanceof OrderedPair))
       return false;
-    OrderedPair<?, ?> pair = (OrderedPair<?, ?>) o;
-    return Objects.equals(this.key, pair.key) && Objects.equals(this.value, pair.value);
+    OrderedPair<F, S> pair = (OrderedPair<F, S>) obj;
+    return Objects.equals(this.first, pair.first) && Objects.equals(this.second, pair.second);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.key, this.value);
+    return Objects.hash(this.first, this.second);
   }
 }

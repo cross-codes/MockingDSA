@@ -1,9 +1,9 @@
 package util;
 
-import functionalInterfaces.LongFunction;
-import functionalInterfaces.Procedure;
+import interfaces.LongFunction;
+import interfaces.Procedure;
 
-public class Algebra {
+public final class Algebra {
   private static final double EPSILON = 1E-6;
 
   private Algebra() {
@@ -155,5 +155,10 @@ public class Algebra {
         upperBound = mid;
     }
     return lowerBound;
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 }
