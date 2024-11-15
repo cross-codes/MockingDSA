@@ -17,7 +17,7 @@ public class _402E extends Modules implements Debug, Runnable {
   }
 
   public static void main(String[] args) {
-    new Thread(null, new _402E(), "Solution", 1048576).start();
+    new Thread(null, new _402E(), "LaunchableDriver", 256 * 256 * 1048576).start();
   }
 
   void solve() {

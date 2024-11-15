@@ -3,10 +3,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.HashMap;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class SubarraySumsII extends ModuleSignatures implements Debug, Runnable {
+public class _2031A extends ModuleSignatures implements Debug, Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -18,28 +17,33 @@ public class SubarraySumsII extends ModuleSignatures implements Debug, Runnable 
   }
 
   public static void main(String... args) {
-    new Thread(null, new SubarraySumsII(), "LaunchableDriver", 1048576).start();
+    new Thread(null, new _2031A(), "LaunchableDriver", 1048576).start();
   }
 
   private void consolidateOutput() {
-    int n = in.nextInt();
-    long x = in.nextLong();
-    HashMap<Long, Integer> prefix = new HashMap<>();
-    prefix.put(0L, 1);
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
 
-    long curSum = 0, ans = 0;
-    for (int i = 0; i < n; i++) {
-      curSum += in.nextLong();
-      ans += prefix.getOrDefault(curSum - x, 0);
-      prefix.put(curSum, prefix.getOrDefault(curSum, 0) + 1);
+      int maxOccurences = -1, currentElement = -1, currentOccurences = -1;
+      for (int i = 0; i < n; i++) {
+        int element = in.nextInt();
+        if (element != currentElement) {
+          maxOccurences = Math.max(currentOccurences, maxOccurences);
+          currentOccurences = 1;
+          currentElement = element;
+        } else {
+          currentOccurences++;
+        }
+      }
+      maxOccurences = Math.max(currentOccurences, maxOccurences);
+      out.append(n - maxOccurences).appendNewLine();
     }
-
-    out.append(ans).appendNewLine();
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = "SubarraySumsII")
+@MultipleInheritanceDisallowed(inheritor = "_2031A")
 abstract strictfp class ModuleSignatures {
 }
 

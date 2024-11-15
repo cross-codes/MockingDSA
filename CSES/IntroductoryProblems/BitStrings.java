@@ -3,26 +3,36 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
+import java.util.stream.LongStream;
 
-@Launchable(author = "Cross", judge = "CSES")
-public class BitStrings extends Functions implements Debug {
+@Launchable(author = "Cross12KBow249", judge = "Codeforces")
+public class BitStrings extends ModuleSignatures implements Debug, Runnable {
 
-  private static final StandardInputReader in = new StandardInputReader();
-  private static final StandardOutputWriter out = new StandardOutputWriter();
+  private final StandardInputReader in = new StandardInputReader();
+  private final StandardOutputWriter out = new StandardOutputWriter();
 
-  public static void main(String[] args) {
-    final int n = in.nextInt();
-    long val = 1;
-    for (int i = 0; i < n; i++) {
-      val = (val << 1L) % (long) (1e9 + 7);
-    }
-    out.append(val).appendNewLine();
-    out.flush();
+  @Override
+  public void run() {
+    this.consolidateOutput();
+    this.out.flush();
   }
+
+  public static void main(String... args) {
+    new Thread(null, new BitStrings(), "LaunchableDriver", 1048576).start();
+  }
+
+  private void consolidateOutput() {
+    final long mod = (long) 1e9 + 7;
+    final int n = in.nextInt();
+
+    long val = LongStream.range(0, n).reduce(1L, (acc, i) -> (acc << 1L) % mod);
+    out.append(val).appendNewLine();
+  }
+
 }
 
 @MultipleInheritanceDisallowed(inheritor = "BitStrings")
-abstract class Functions {
+abstract strictfp class ModuleSignatures {
 }
 
 class StandardInputReader {
@@ -260,6 +270,12 @@ class StandardOutputWriter {
 
   public StandardOutputWriter append(double d) {
     return this.append(Double.toString(d));
+  }
+
+  public StandardOutputWriter appendAll(Object... varargs) {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
   }
 
   public void appendNewLine() {

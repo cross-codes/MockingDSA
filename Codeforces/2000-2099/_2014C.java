@@ -1,19 +1,32 @@
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.Arrays;
+import java.util.stream.LongStream;
 
-public class _2014C {
+@Launchable(author = "Cross12KBow249", judge = "Codeforces")
+public class _2014C extends ModuleSignatures implements Debug, Runnable {
 
-  public static void main(String[] args) {
-    final StandardInputReader in = new StandardInputReader();
-    final StandardOutputWriter out = new StandardOutputWriter();
+  private final StandardInputReader in = new StandardInputReader();
+  private final StandardOutputWriter out = new StandardOutputWriter();
 
+  @Override
+  public void run() {
+    this.consolidateOutput();
+    this.out.flush();
+  }
+
+  public static void main(String... args) {
+    new Thread(null, new _2014C(), "LaunchableDriver", 1048576).start();
+  }
+
+  private void consolidateOutput() {
     int t = in.nextInt();
     while (t-- > 0) {
       final int n = in.nextInt();
       final int[] arr = new int[n];
-      long sum = 0L;
-      for (int i = 0; i < n; i++) {
-        arr[i] = in.nextInt();
-        sum += arr[i];
-      }
+      long sum = LongStream.range(0, n).map(i -> arr[(int) i] = in.nextInt()).sum();
 
       Array.sort(arr);
 
@@ -31,22 +44,15 @@ public class _2014C {
         out.append(-1).appendNewLine();
       }
     }
-
-    out.flush();
   }
+
 }
 
-@FunctionalInterface
-interface Procedure {
-  void run();
+@MultipleInheritanceDisallowed(inheritor = "_2014C")
+abstract strictfp class ModuleSignatures {
 }
 
-@FunctionalInterface
-interface LongFunction {
-  long apply(long t);
-}
-
-class Random {
+final class Random {
   private static long seed = System.nanoTime() ^ 8682522807148012L;
 
   private Random() {
@@ -94,10 +100,14 @@ class Random {
     seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
     return (int) (seed >>> 48 - bits);
   }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
+  }
 }
 
-class Array {
-
+final class Array {
   private Array() {
   }
 
@@ -142,6 +152,11 @@ class Array {
       swap(array, Random.nextInt(i), i - 1);
   }
 
+  public static <T> void shuffle(long[] array) {
+    for (int i = array.length; i > 1; i--)
+      swap(array, Random.nextInt(i), i - 1);
+  }
+
   public static <T> void shuffle(T[] array) {
     for (int i = array.length; i > 1; i--)
       swap(array, Random.nextInt(i), i - 1);
@@ -155,6 +170,12 @@ class Array {
 
   public static void swap(int[] array, int i, int j) {
     int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+
+  public static void swap(long[] array, int i, int j) {
+    long temp = array[i];
     array[i] = array[j];
     array[j] = temp;
   }
@@ -229,6 +250,11 @@ class Array {
       max = Math.max(e, max);
     }
     return max;
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 }
 
@@ -469,6 +495,12 @@ class StandardOutputWriter {
     return this.append(Double.toString(d));
   }
 
+  public StandardOutputWriter appendAll(Object... varargs) {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
+  }
+
   public void appendNewLine() {
     this.ensureCapacity(1);
     this.buffer[this.pos++] = '\n';
@@ -483,4 +515,105 @@ class StandardOutputWriter {
     if (BUFFER_SIZE - this.pos < n)
       this.flush();
   }
+}
+
+interface Debug {
+  public final boolean isLocal = getLocal();
+
+  public static boolean getLocal() {
+    try {
+      return System.getProperty("CROSS_DEBUG") != null;
+    } catch (SecurityException ex) {
+      return false;
+    }
+  }
+
+  public static <T> String convStr(T t) {
+    if (t == null)
+      return "null";
+    if (t instanceof Iterable)
+      return convStr((Iterable<?>) t);
+    else if (t instanceof int[]) {
+      String s = Arrays.toString((int[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof long[]) {
+      String s = Arrays.toString((long[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof char[]) {
+      String s = Arrays.toString((char[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof double[]) {
+      String s = Arrays.toString((double[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof boolean[]) {
+      String s = Arrays.toString((boolean[]) t);
+      return "{" + s.substring(1, s.length() - 1) + "}";
+    } else if (t instanceof Object[])
+      return convStr((Object[]) t);
+    return t.toString();
+  }
+
+  public static <T> String convStr(T[] arr) {
+    StringBuilder ret = new StringBuilder();
+    ret.append("{");
+    boolean first = true;
+    for (T t : arr) {
+      if (!first)
+        ret.append(", ");
+      first = false;
+      ret.append(convStr(t));
+    }
+    ret.append("}");
+    return ret.toString();
+  }
+
+  public static <T> String convStr(Iterable<T> iter) {
+    StringBuilder ret = new StringBuilder();
+    ret.append("{");
+    boolean first = true;
+    for (T t : iter) {
+      if (!first)
+        ret.append(", ");
+      first = false;
+      ret.append(convStr(t));
+    }
+    ret.append("}");
+    return ret.toString();
+  }
+
+  public static void print(Object... __VA_ARGS__) {
+    if (isLocal) {
+      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
+        if (i != 0)
+          System.err.print(", ");
+        System.err.print(convStr(__VA_ARGS__[i]));
+      }
+      System.err.println("]");
+    }
+  }
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@interface Launchable {
+  String author();
+
+  String judge();
+}
+
+@Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
+@interface MultipleInheritanceDisallowed {
+  String inheritor();
+}
+
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
 }
