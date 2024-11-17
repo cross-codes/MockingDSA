@@ -1,59 +1,98 @@
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.BitSet;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _402E extends Modules implements Debug, Runnable {
+public class _2037C extends ModuleSignatures implements Debug, Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
 
   @Override
   public void run() {
-    this.solve();
+    this.consolidateOutput();
     this.out.flush();
   }
 
-  public static void main(String[] args) {
-    new Thread(null, new _402E(), "LaunchableDriver", 256 * 256 * 1048576).start();
+  public static void main(String... args) {
+    new Thread(null, new _2037C(), "LaunchableDriver", 1048576).start();
   }
 
-  void solve() {
-    int n = in.nextInt();
-    BitSet u = new BitSet(n);
-    int[][] arr = new int[n][n];
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        arr[i][j] = in.nextInt();
+  private void consolidateOutput() {
+    int t = in.nextInt();
+    while (t-- > 0) {
+      int n = in.nextInt();
+      boolean found = false;
+      // Odd numbers + Even numbers
+      // If the bridge adds up to a prime, find nearest & greater & odd comp. number
+      if ((n & 1) != 0) {
+        // Odd : You have even numbers from 2 ... n - 1
+        // Bridge: 2 + last number
+        BigInteger lastOdd = new BigInteger(String.valueOf(n));
+        BigInteger bridge = lastOdd.add(new BigInteger("2"));
+        if (bridge.isProbablePrime(20)) {
+          for (int i = n - 1; i > 2; i -= 2) {
+            bridge = lastOdd.add(new BigInteger(String.valueOf(i)));
+            if (!bridge.isProbablePrime(20)) {
+              for (int j = 1; j <= n; j += 2)
+                out.append(j).append(" ");
+              out.append(i).append(" ");
+              for (int j = 2; j <= n - 1; j += 2) {
+                if (j == i)
+                  continue;
+                out.append(j).append(j == n - 1 ? "" : " ");
+              }
+              found = true;
+              break;
+            }
+          }
+        } else {
+          // Found
+          for (int i = 1; i <= n; i += 2)
+            out.append(i).append(" ");
+          for (int i = 2; i <= n - 1; i += 2)
+            out.append(i).append(i == n - 1 ? "" : " ");
+          found = true;
+        }
+      } else {
+        // Even : You have even numbers from 2 ... n + 1
+        BigInteger lastOdd = new BigInteger(String.valueOf(n - 1));
+        BigInteger bridge = lastOdd.add(new BigInteger("2"));
+        if (bridge.isProbablePrime(20)) {
+          for (int i = n; i > 2; i -= 2) {
+            bridge = lastOdd.add(new BigInteger(String.valueOf(i)));
+            if (!bridge.isProbablePrime(20)) {
+              for (int j = 1; j <= n - 1; j += 2)
+                out.append(j).append(" ");
+              out.append(i).append(" ");
+              for (int j = 2; j <= n; j += 2) {
+                if (j == i)
+                  continue;
+                out.append(j).append(j == n ? "" : " ");
+              }
+              found = true;
+              break;
+            }
+          }
+        } else {
+          // Found
+          for (int i = 1; i <= n - 1; i += 2)
+            out.append(i).append(" ");
+          for (int i = 2; i <= n; i += 2)
+            out.append(i).append(i == n ? "" : " ");
+          found = true;
+        }
       }
+      if (!found)
+        out.append(-1);
+
+      out.appendNewLine();
     }
-
-    int cnt1 = this.dfs(0, true, u, n, arr);
-    u.clear();
-    int cnt2 = this.dfs(0, false, u, n, arr);
-
-    out.append(cnt1 + cnt2 == 2 * n ? "YES" : "NO").appendNewLine();
   }
 
-  @Override
-  int dfs(int j, boolean v, BitSet u, int n, int[][] arr) {
-    u.set(j);
-    int count = 1;
-    for (int i = 0; i < n; i++) {
-      if (!u.get(i) && ((v && arr[i][j] != 0) || (!v && arr[j][i] != 0))) {
-        count += dfs(i, v, u, n, arr);
-      }
-    }
-    return count;
-  }
 }
 
-@MultipleInheritanceDisallowed(inheritor = "_402E")
-abstract class Modules {
-  abstract int dfs(int j, boolean v, BitSet u, int n, int[][] arr);
+@MultipleInheritanceDisallowed(inheritor = "_2037C")
+abstract strictfp class ModuleSignatures {
 }
 
 class StandardInputReader {
@@ -293,6 +332,12 @@ class StandardOutputWriter {
     return this.append(Double.toString(d));
   }
 
+  public StandardOutputWriter appendAll(Object... varargs) {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
+  }
+
   public void appendNewLine() {
     this.ensureCapacity(1);
     this.buffer[this.pos++] = '\n';
@@ -314,7 +359,7 @@ interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("Cross") != null;
+      return System.getProperty("CROSS_DEBUG") != null;
     } catch (SecurityException ex) {
       return false;
     }
@@ -373,29 +418,29 @@ interface Debug {
     return ret.toString();
   }
 
-  public static void print(Object... VAR_ARGS) {
+  public static void print(Object... __VA_ARGS__) {
     if (isLocal) {
       System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
         if (i != 0)
           System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
+        System.err.print(convStr(__VA_ARGS__[i]));
       }
       System.err.println("]");
     }
   }
 }
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface Launchable {
   String author();
 
   String judge();
 }
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface MultipleInheritanceDisallowed {
   String inheritor();
 }

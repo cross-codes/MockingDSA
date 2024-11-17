@@ -5,7 +5,6 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.IntStream;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
 public class ConcertTickets extends ModuleSignatures implements Debug, Runnable {
@@ -27,12 +26,12 @@ public class ConcertTickets extends ModuleSignatures implements Debug, Runnable 
     int n = in.nextInt(), m = in.nextInt();
     TreeMap<Integer, Integer> tickets = new TreeMap<>();
 
-    IntStream.range(0, n).forEach(i -> {
+    for (int i = 0; i < n; i++) {
       int price = in.nextInt();
       tickets.put(price, tickets.getOrDefault(price, 0) + 1);
-    });
+    }
 
-    IntStream.range(0, m).forEach(i -> {
+    for (int i = 0; i < m; i++) {
       Map.Entry<Integer, Integer> det = tickets.floorEntry(in.nextInt());
       if (det == null)
         out.append("-1").appendNewLine();
@@ -45,7 +44,7 @@ public class ConcertTickets extends ModuleSignatures implements Debug, Runnable 
         else
           tickets.put(bestPrice, freq - 1);
       }
-    });
+    }
   }
 
 }

@@ -1,9 +1,5 @@
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.stream.IntStream;
+import java.util.Objects;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
 public class _456A extends ModuleSignatures implements Debug, Runnable {
@@ -21,16 +17,19 @@ public class _456A extends ModuleSignatures implements Debug, Runnable {
     new Thread(null, new _456A(), "LaunchableDriver", 1048576).start();
   }
 
+  @SuppressWarnings("unchecked")
   private void consolidateOutput() {
     int n = in.nextInt();
-    int[][] array = IntStream.range(0, n)
-        .mapToObj(i -> new int[] { in.nextInt(), in.nextInt() })
-        .toArray(int[][]::new);
+    OrderedPair<Integer, Integer>[] array = new OrderedPair[n];
 
-    Arrays.sort(array,
-        (a, b) -> (Integer.compare(a[0], b[0]) == 0) ? Integer.compare(a[1], b[1]) : Integer.compare(a[0], b[0]));
+    for (int i = 0; i < n; i++) {
+      array[i] = new OrderedPair<Integer, Integer>(in.nextInt(), in.nextInt());
+    }
+
+    Arrays.sort(array);
+
     for (int i = 0; i < n - 1; i++) {
-      if (array[i][1] > array[i + 1][1]) {
+      if (array[i].second > array[i + 1].second) {
         out.append("Happy Alex").appendNewLine();
         return;
       }
@@ -43,6 +42,42 @@ public class _456A extends ModuleSignatures implements Debug, Runnable {
 
 @MultipleInheritanceDisallowed(inheritor = "_456A")
 abstract strictfp class ModuleSignatures {
+}
+
+class OrderedPair<F extends Comparable<F>, S extends Comparable<S>>
+    implements Comparable<OrderedPair<F, S>> {
+  public F first;
+  public S second;
+
+  public OrderedPair(F first, S second) {
+    this.first = first;
+    this.second = second;
+  }
+
+  @Override
+  public int compareTo(OrderedPair<F, S> other) {
+    int cmp = this.first.compareTo(other.first);
+    if (cmp == 0)
+      return this.second.compareTo(other.second);
+    else
+      return cmp;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!(obj instanceof OrderedPair))
+      return false;
+    OrderedPair<F, S> pair = (OrderedPair<F, S>) obj;
+    return Objects.equals(this.first, pair.first) && Objects.equals(this.second, pair.second);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.first, this.second);
+  }
 }
 
 class StandardInputReader {
@@ -381,16 +416,16 @@ interface Debug {
   }
 }
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface Launchable {
   String author();
 
   String judge();
 }
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface MultipleInheritanceDisallowed {
   String inheritor();
 }
