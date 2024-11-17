@@ -1,59 +1,75 @@
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.BitSet;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _402E extends Modules implements Debug, Runnable {
+public class _2037D extends ModuleSignatures implements Debug, Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
 
   @Override
   public void run() {
-    this.solve();
+    this.consolidateOutput();
     this.out.flush();
   }
 
-  public static void main(String[] args) {
-    new Thread(null, new _402E(), "LaunchableDriver", 256 * 256 * 1048576).start();
+  public static void main(String... args) {
+    new Thread(null, new _2037D(), "LaunchableDriver", 256L * 1048576).start();
   }
 
-  void solve() {
-    int n = in.nextInt();
-    BitSet u = new BitSet(n);
-    int[][] arr = new int[n][n];
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        arr[i][j] = in.nextInt();
+  private void consolidateOutput() {
+    int t = in.nextInt();
+    iter: while (t-- > 0) {
+      int n = in.nextInt(), m = in.nextInt(), L = in.nextInt();
+
+      HashMap<Long, Long> hurdles = new HashMap<>();
+      for (int i = 0; i < n; i++) {
+        long l = in.nextLong(), r = in.nextLong();
+        hurdles.put(l, r);
       }
-    }
 
-    int cnt1 = this.dfs(0, true, u, n, arr);
-    u.clear();
-    int cnt2 = this.dfs(0, false, u, n, arr);
-
-    out.append(cnt1 + cnt2 == 2 * n ? "YES" : "NO").appendNewLine();
-  }
-
-  @Override
-  int dfs(int j, boolean v, BitSet u, int n, int[][] arr) {
-    u.set(j);
-    int count = 1;
-    for (int i = 0; i < n; i++) {
-      if (!u.get(i) && ((v && arr[i][j] != 0) || (!v && arr[j][i] != 0))) {
-        count += dfs(i, v, u, n, arr);
+      HashMap<Long, HashMap<Long, Long>> allPowerUps = new HashMap<>();
+      for (int i = 0; i < m; i++) {
+        long x = in.nextLong(), v = in.nextLong();
+        allPowerUps.computeIfAbsent(x, (k) -> new HashMap<>()).merge(v, 1L, Long::sum);
       }
+
+      TreeMap<Long, Long> availablePowerUps = new TreeMap<>();
+      int nPowerups = 0;
+      long currJumpPower = 1L;
+      for (long i = 1; i < L; i++) {
+        if (hurdles.containsKey(i)) {
+          long reqPower = hurdles.get(i) - i + 2L;
+          while (currJumpPower < reqPower && availablePowerUps.size() != 0) {
+            long key = availablePowerUps.lastKey();
+            availablePowerUps
+                .compute(availablePowerUps.lastKey(), (k, v) -> (v == 1L) ? null : v - 1L);
+            currJumpPower += key;
+            nPowerups++;
+          }
+          if (currJumpPower < reqPower && availablePowerUps.size() == 0) {
+            out.append(-1).appendNewLine();
+            continue iter;
+          } else {
+            i = hurdles.get(i);
+          }
+        } else if (allPowerUps.containsKey(i)) {
+          HashMap<Long, Long> powerUps = allPowerUps.get(i);
+          for (long powerUp : powerUps.keySet()) {
+            availablePowerUps.compute(powerUp,
+                (k, v) -> v == null ? powerUps.get(k) : v + powerUps.get(k));
+          }
+        }
+      }
+      out.append(nPowerups).appendNewLine();
     }
-    return count;
   }
+
 }
 
-@MultipleInheritanceDisallowed(inheritor = "_402E")
-abstract class Modules {
-  abstract int dfs(int j, boolean v, BitSet u, int n, int[][] arr);
+@MultipleInheritanceDisallowed(inheritor = "_2037D")
+abstract strictfp class ModuleSignatures {
 }
 
 class StandardInputReader {
@@ -293,6 +309,12 @@ class StandardOutputWriter {
     return this.append(Double.toString(d));
   }
 
+  public StandardOutputWriter appendAll(Object... varargs) {
+    for (Object obj : varargs)
+      this.append(obj != null ? obj.toString() : "null");
+    return this;
+  }
+
   public void appendNewLine() {
     this.ensureCapacity(1);
     this.buffer[this.pos++] = '\n';
@@ -314,7 +336,7 @@ interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("Cross") != null;
+      return System.getProperty("CROSS_DEBUG") != null;
     } catch (SecurityException ex) {
       return false;
     }
@@ -373,29 +395,29 @@ interface Debug {
     return ret.toString();
   }
 
-  public static void print(Object... VAR_ARGS) {
+  public static void print(Object... __VA_ARGS__) {
     if (isLocal) {
       System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
         if (i != 0)
           System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
+        System.err.print(convStr(__VA_ARGS__[i]));
       }
       System.err.println("]");
     }
   }
 }
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface Launchable {
   String author();
 
   String judge();
 }
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface MultipleInheritanceDisallowed {
   String inheritor();
 }

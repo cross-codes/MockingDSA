@@ -1,7 +1,3 @@
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Arrays;
 
 @Launchable(author = "Cross12KBow249", judge = "Codeforces")
@@ -402,16 +398,16 @@ interface Debug {
   }
 }
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface Launchable {
   String author();
 
   String judge();
 }
 
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface MultipleInheritanceDisallowed {
   String inheritor();
 }
