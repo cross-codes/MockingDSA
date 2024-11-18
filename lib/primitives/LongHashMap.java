@@ -13,6 +13,7 @@ interface LongEntryIterator {
 }
 
 class Hasher {
+
   private long time = System.nanoTime() + System.currentTimeMillis() * 31L;
 
   public int shuffle(long z) {
@@ -27,6 +28,7 @@ class Hasher {
 }
 
 public class LongHashMap {
+
   private int now;
   private int[] slot;
   private int[] version;

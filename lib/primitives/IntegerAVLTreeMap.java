@@ -5,6 +5,7 @@ import interfaces.IntegerBiFunction;
 import interfaces.IntegerXBiConsumer;
 
 public class IntegerAVLTreeMap {
+
   private Entry root;
   private int size;
   private final OptionalInteger optionalValue = new OptionalInteger();

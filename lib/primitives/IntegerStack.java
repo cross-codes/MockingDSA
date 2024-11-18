@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.EmptyStackException;
 
 public class IntegerStack {
+
   private int[] stack;
   private final boolean isUnbound;
   private int STACK_SIZE;

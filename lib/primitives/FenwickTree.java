@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class FenwickTree {
+
   public final long[] arr;
   private final long[] tree;
   private final int N;

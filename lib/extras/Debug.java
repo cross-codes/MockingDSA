@@ -2,18 +2,34 @@ package extras;
 
 import java.util.Arrays;
 
-public interface Debug {
-  public final boolean isLocal = getLocal();
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
+@interface Singleton {
+}
 
-  public static boolean getLocal() {
+@Singleton
+public class Debug {
+
+  private boolean local;
+  private static Debug instance;
+
+  private Debug() {
     try {
-      return System.getProperty("CROSS_DEBUG") != null;
+      if (System.getProperty("CROSS_DEBUG") != null)
+        this.local = true;
     } catch (SecurityException ex) {
-      return false;
+      this.local = false;
     }
   }
 
-  public static <T> String convStr(T t) {
+  public static Debug getInstance() {
+    if (instance == null)
+      instance = new Debug();
+
+    return instance;
+  }
+
+  private <T> String convStr(T t) {
     if (t == null)
       return "null";
     if (t instanceof Iterable)
@@ -38,7 +54,7 @@ public interface Debug {
     return t.toString();
   }
 
-  public static <T> String convStr(T[] arr) {
+  private <T> String convStr(T[] arr) {
     StringBuilder ret = new StringBuilder();
     ret.append("{");
     boolean first = true;
@@ -52,7 +68,7 @@ public interface Debug {
     return ret.toString();
   }
 
-  public static <T> String convStr(Iterable<T> iter) {
+  private <T> String convStr(Iterable<T> iter) {
     StringBuilder ret = new StringBuilder();
     ret.append("{");
     boolean first = true;
@@ -66,15 +82,20 @@ public interface Debug {
     return ret.toString();
   }
 
-  public static void print(Object... VAR_ARGS) {
-    if (isLocal) {
+  public void print(Object... __VA_ARGS__) {
+    if (this.local) {
       System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
-      for (int i = 0; i < VAR_ARGS.length; i++) {
+      for (int i = 0; i < __VA_ARGS__.length; i++) {
         if (i != 0)
           System.err.print(", ");
-        System.err.print(convStr(VAR_ARGS[i]));
+        System.err.print(convStr(__VA_ARGS__[i]));
       }
       System.err.println("]");
     }
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 }

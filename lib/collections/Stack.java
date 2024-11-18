@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.EmptyStackException;
 
 public class Stack<E> {
+
   private E[] stack;
   public final boolean isUnbound;
   private int STACK_SIZE;

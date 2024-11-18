@@ -3,6 +3,7 @@ package util;
 import interfaces.Procedure;
 
 public final class Array {
+
   private Array() {
   }
 

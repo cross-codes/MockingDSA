@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.TreeMap;
 
 public class TreeMultiSet<E> {
+
   public TreeMap<E, Integer> mult;
 
   public TreeMultiSet() {

@@ -1,6 +1,7 @@
 package util;
 
 public final class Random {
+
   private static long seed = System.nanoTime() ^ 8682522807148012L;
 
   private Random() {

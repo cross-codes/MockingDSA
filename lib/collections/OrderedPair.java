@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public class OrderedPair<F extends Comparable<F>, S extends Comparable<S>>
     implements Comparable<OrderedPair<F, S>> {
+
   public F first;
   public S second;
 
