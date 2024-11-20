@@ -1,12 +1,17 @@
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
-@Launchable(author = "Cross12KBow249", judge = "Codeforces")
-public class _2037D extends ModuleSignatures implements Debug, Runnable {
+@Launchable(author = "cross", hostname = "inspiron", judge = "Codeforces")
+public class _2037D extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
+  @SuppressWarnings("unused")
+  private final Debug dbg = Debug.getInstance();
 
   @Override
   public void run() {
@@ -15,61 +20,69 @@ public class _2037D extends ModuleSignatures implements Debug, Runnable {
   }
 
   public static void main(String... args) {
-    new Thread(null, new _2037D(), "LaunchableDriver", 256L * 1048576).start();
+    new Thread(null, new _2037D(), "LaunchableDriver", 1048576L).start();
   }
 
   private void consolidateOutput() {
     int t = in.nextInt();
     iter: while (t-- > 0) {
       int n = in.nextInt(), m = in.nextInt(), L = in.nextInt();
+      int currentJumpPower = 1, numberOfPowerUps = 0;
 
-      HashMap<Long, Long> hurdles = new HashMap<>();
+      PriorityQueue<Integer> powerUps = new PriorityQueue<>(Comparator.reverseOrder());
+      Queue<int[]> hurdles = new LinkedList<>();
+      Queue<int[]> powerPositions = new LinkedList<>();
+
       for (int i = 0; i < n; i++) {
-        long l = in.nextLong(), r = in.nextLong();
-        hurdles.put(l, r);
+        int l = in.nextInt(), r = in.nextInt();
+        hurdles.add(new int[] { l, r - l + 2 });
       }
 
-      HashMap<Long, HashMap<Long, Long>> allPowerUps = new HashMap<>();
-      for (int i = 0; i < m; i++) {
-        long x = in.nextLong(), v = in.nextLong();
-        allPowerUps.computeIfAbsent(x, (k) -> new HashMap<>()).merge(v, 1L, Long::sum);
-      }
+      for (int i = 0; i < m; i++)
+        powerPositions.add(new int[] { in.nextInt(), in.nextInt() });
 
-      TreeMap<Long, Long> availablePowerUps = new TreeMap<>();
-      int nPowerups = 0;
-      long currJumpPower = 1L;
-      for (long i = 1; i < L; i++) {
-        if (hurdles.containsKey(i)) {
-          long reqPower = hurdles.get(i) - i + 2L;
-          while (currJumpPower < reqPower && availablePowerUps.size() != 0) {
-            long key = availablePowerUps.lastKey();
-            availablePowerUps
-                .compute(availablePowerUps.lastKey(), (k, v) -> (v == 1L) ? null : v - 1L);
-            currJumpPower += key;
-            nPowerups++;
-          }
-          if (currJumpPower < reqPower && availablePowerUps.size() == 0) {
-            out.append(-1).appendNewLine();
-            continue iter;
-          } else {
-            i = hurdles.get(i);
-          }
-        } else if (allPowerUps.containsKey(i)) {
-          HashMap<Long, Long> powerUps = allPowerUps.get(i);
-          for (long powerUp : powerUps.keySet()) {
-            availablePowerUps.compute(powerUp,
-                (k, v) -> v == null ? powerUps.get(k) : v + powerUps.get(k));
-          }
+      for (int[] pair : hurdles) {
+        int hurdlePosition = pair[0], hurdleLength = pair[1];
+
+        Iterator<int[]> positionIterator = powerPositions.iterator();
+        while (positionIterator.hasNext()) {
+          int[] element = positionIterator.next();
+          if (element[0] < hurdlePosition) {
+            powerUps.add(element[1]);
+            positionIterator.remove();
+          } else
+            break;
+        }
+
+        while (currentJumpPower < hurdleLength && !powerUps.isEmpty()) {
+          currentJumpPower += powerUps.poll();
+          numberOfPowerUps++;
+        }
+
+        if (currentJumpPower < hurdleLength && powerUps.isEmpty()) {
+          out.append(-1).appendNewLine();
+          continue iter;
         }
       }
-      out.append(nPowerups).appendNewLine();
+
+      out.append(numberOfPowerUps).appendNewLine();
     }
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = "_2037D")
+@MultipleInheritanceDisallowed(inheritor = _2037D.class)
 abstract strictfp class ModuleSignatures {
+}
+
+@FunctionalInterface
+interface Procedure {
+  void run();
+}
+
+@FunctionalInterface
+interface LongFunction {
+  long apply(long t);
 }
 
 class StandardInputReader {
@@ -331,22 +344,33 @@ class StandardOutputWriter {
   }
 }
 
-interface Debug {
-  public final boolean isLocal = getLocal();
+@Singleton
+final class Debug {
 
-  public static boolean getLocal() {
+  private boolean local;
+  private static Debug instance;
+
+  private Debug() {
     try {
-      return System.getProperty("CROSS_DEBUG") != null;
+      if (System.getProperty("CROSS_DEBUG") != null)
+        this.local = true;
     } catch (SecurityException ex) {
-      return false;
+      this.local = false;
     }
   }
 
-  public static <T> String convStr(T t) {
+  public static Debug getInstance() {
+    if (instance == null)
+      instance = new Debug();
+
+    return instance;
+  }
+
+  private <T> String getStringRepresentation(T t) {
     if (t == null)
       return "null";
     if (t instanceof Iterable)
-      return convStr((Iterable<?>) t);
+      return getStringRepresentation((Iterable<?>) t);
     else if (t instanceof int[]) {
       String s = Arrays.toString((int[]) t);
       return "{" + s.substring(1, s.length() - 1) + "}";
@@ -363,11 +387,11 @@ interface Debug {
       String s = Arrays.toString((boolean[]) t);
       return "{" + s.substring(1, s.length() - 1) + "}";
     } else if (t instanceof Object[])
-      return convStr((Object[]) t);
+      return getStringRepresentation((Object[]) t);
     return t.toString();
   }
 
-  public static <T> String convStr(T[] arr) {
+  private <T> String getStringRepresentation(T[] arr) {
     StringBuilder ret = new StringBuilder();
     ret.append("{");
     boolean first = true;
@@ -375,13 +399,13 @@ interface Debug {
       if (!first)
         ret.append(", ");
       first = false;
-      ret.append(convStr(t));
+      ret.append(getStringRepresentation(t));
     }
     ret.append("}");
     return ret.toString();
   }
 
-  public static <T> String convStr(Iterable<T> iter) {
+  private <T> String getStringRepresentation(Iterable<T> iter) {
     StringBuilder ret = new StringBuilder();
     ret.append("{");
     boolean first = true;
@@ -389,22 +413,28 @@ interface Debug {
       if (!first)
         ret.append(", ");
       first = false;
-      ret.append(convStr(t));
+      ret.append(getStringRepresentation(t));
     }
     ret.append("}");
     return ret.toString();
   }
 
-  public static void print(Object... __VA_ARGS__) {
-    if (isLocal) {
-      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2].getLineNumber() + ": [");
+  public void print(Object... __VA_ARGS__) {
+    if (this.local) {
+      System.err.print("Line #" + Thread.currentThread().getStackTrace()[2]
+          .getLineNumber() + ": [");
       for (int i = 0; i < __VA_ARGS__.length; i++) {
         if (i != 0)
           System.err.print(", ");
-        System.err.print(convStr(__VA_ARGS__[i]));
+        System.err.print(getStringRepresentation(__VA_ARGS__[i]));
       }
       System.err.println("]");
     }
+  }
+
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 }
 
@@ -413,21 +443,18 @@ interface Debug {
 @interface Launchable {
   String author();
 
+  String hostname();
+
   String judge();
 }
 
 @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
 @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
 @interface MultipleInheritanceDisallowed {
-  String inheritor();
+  Class<?> inheritor();
 }
 
-@FunctionalInterface
-interface Procedure {
-  void run();
-}
-
-@FunctionalInterface
-interface LongFunction {
-  long apply(long t);
+@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
+@interface Singleton {
 }
