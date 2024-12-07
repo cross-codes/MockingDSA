@@ -1,18 +1,19 @@
 package neetcode.practice.Linked_List;
 
-public class _1_reverseLinkedList {
-  public static ListNode reverseList(ListNode head) {
-    if (head == null || head.next == null) return head;
+class Solution {
+  public ListNode reverseList(ListNode head) {
+    if (head == null || head.next == null)
+      return head;
 
-    ListNode prev = null, nextNode = head.next, current = head;
+    ListNode prevNode = null, currentNode = head, nextNode = head.next;
     while (nextNode != null) {
-      current.next = prev;
-      prev = current;
-      current = nextNode;
-      nextNode = nextNode.next;
+      currentNode.next = prevNode;
+      prevNode = currentNode;
+      currentNode = nextNode;
+      nextNode = currentNode.next;
     }
-    current.next = prev;
 
-    return current;
+    currentNode.next = prevNode;
+    return currentNode;
   }
 }

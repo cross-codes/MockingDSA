@@ -1,20 +1,16 @@
 package neetcode.practice.Two_Pointers;
 
-public class _1_isPalindrome {
-  public static boolean isPalindrome(String s) {
-    s = s.replaceAll("[^a-zA-Z0-9]", "");
-    int n = s.length();
-    if (n == 0) return true;
+class Solution {
+  public boolean isPalindrome(String s) {
+    char[] representation = s.replaceAll("[^a-zA-Z0-9]", "").toCharArray();
+    int l = 0, r = representation.length - 1;
+    while (l < r) {
+      char left = Character.toLowerCase(representation[l++]);
+      char right = Character.toLowerCase(representation[r--]);
 
-    for (int i = 0; i < n / 2 + 1; i++) {
-      char forward = s.charAt(i), backward = s.charAt(n - i - 1);
-      if (Character.toLowerCase(forward) != Character.toLowerCase(backward)) return false;
+      if (left != right)
+        return false;
     }
-
     return true;
-  }
-
-  public static void main(String[] args) {
-    System.out.println(isPalindrome("0P"));
   }
 }

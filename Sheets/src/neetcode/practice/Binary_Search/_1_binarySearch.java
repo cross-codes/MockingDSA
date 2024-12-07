@@ -1,18 +1,17 @@
 package neetcode.practice.Binary_Search;
 
-public class _1_binarySearch {
-  public static int search(int[] nums, int target) {
-    int n = nums.length;
-
-    int l = 0, r = n - 1;
-
-    while (l <= r) {
-      int m = (l + r) / 2;
-      if (nums[m] < target) l = m + 1;
-      else if (nums[m] > target) r = m - 1;
-      else return m;
+class Solution {
+  public int search(int[] nums, int target) {
+    int low = 0, high = nums.length - 1;
+    while (low <= high) {
+      int mid = low + high >> 1;
+      if (nums[mid] < target)
+        low = mid + 1;
+      else if (nums[mid] > target)
+        high = mid - 1;
+      else
+        return mid;
     }
-
     return -1;
   }
 }
