@@ -1,33 +1,45 @@
 package neetcode.practice.Arrays;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class _5_topKElementsInList {
-  public static int[] topKFrequent(int[] nums, int k) {
-    int n = nums.length;
+class Solution {
+  public int[] topKFrequent(int[] nums, int k) {
     HashMap<Integer, Integer> map = new HashMap<>();
+    for (int i = 0; i < nums.length; i++)
+      map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
 
-    for (int idx = 0; idx < n; idx++) {
-      int num = nums[idx];
-      if (map.containsKey(num)) {
-        int freq = map.get(num);
-        map.put(num, ++freq);
-      } else map.put(num, 1);
+    PriorityQueue<FrequencyAwareInteger> queue = new PriorityQueue<>();
+    int currentSize = 0;
+
+    for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+      int num = entry.getKey(), freq = entry.getValue();
+      FrequencyAwareInteger i = new FrequencyAwareInteger(num, freq);
+      if (currentSize != k) {
+        queue.add(i);
+        currentSize++;
+      } else if (i.frequency > queue.peek().frequency) {
+        queue.poll();
+        queue.add(i);
+      }
     }
 
-    PriorityQueue<Map.Entry<Integer, Integer>> queue =
-        new PriorityQueue<>(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-    queue.addAll(map.entrySet());
+    return queue.stream().mapToInt((x) -> x.value).toArray();
+  }
+}
 
-    int[] ans = new int[k];
-    while (k-- > 0) {
-      Map.Entry<Integer, Integer> entry = queue.poll();
-      ans[k] = entry.getKey();
-    }
+class FrequencyAwareInteger implements Comparable<FrequencyAwareInteger> {
+  public int value;
+  public int frequency;
 
-    return ans;
+  public FrequencyAwareInteger(int value, int frequency) {
+    this.value = value;
+    this.frequency = frequency;
+  }
+
+  @Override
+  public int compareTo(FrequencyAwareInteger i) {
+    return Integer.compare(this.frequency, i.frequency);
   }
 }

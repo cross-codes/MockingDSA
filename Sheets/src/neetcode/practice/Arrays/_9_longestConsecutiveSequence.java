@@ -1,26 +1,31 @@
 package neetcode.practice.Arrays;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.HashSet;
 
-public class _9_longestConsecutiveSequence {
-  public static int longestConsecutive(int[] nums) {
-    Set<Integer> set = new LinkedHashSet<>();
-
-    for (int num : nums) set.add(num);
-
-    int longest = 0;
-    for (int n : set) {
-      // Don't bother looking backwards
-      // Question: Why is this O(n)?
-      if (!set.contains(n - 1)) {
-        int length = 1;
-        // Keep checking if n, n + 1, n + 2 ... exists
-        while (set.contains(n + length)) length++;
-        longest = Math.max(length, longest);
+class Solution {
+  public int longestConsecutive(int[] nums) {
+    HashSet<Integer> uniqueElements = new HashSet<>() {
+      {
+        for (int i : nums)
+          this.add(i);
       }
+    };
+
+    int longestLength = 0, currentLength = 1;
+    for (int i = 0; i < nums.length; i++) {
+      int num = nums[i];
+      if (!uniqueElements.contains(num - 1)) {
+        while (true) {
+          if (uniqueElements.contains(++num))
+            currentLength++;
+          else
+            break;
+        }
+      }
+      longestLength = Math.max(currentLength, longestLength);
+      currentLength = 1;
     }
 
-    return longest;
+    return longestLength;
   }
 }

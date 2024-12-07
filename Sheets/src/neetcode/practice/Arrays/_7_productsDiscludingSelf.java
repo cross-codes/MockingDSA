@@ -1,33 +1,23 @@
 package neetcode.practice.Arrays;
 
-public class _7_productsDiscludingSelf {
-  public static int[] productExceptSelf(int[] nums) {
-    int zeroCount = 0, n = nums.length;
-    int firstZeroIndex = -1;
-    int product = 1;
-    for (int i = 0; i < n; i++) {
-      if (zeroCount > 1) return new int[n];
-      else {
-        if (nums[i] == 0) {
-          zeroCount++;
-          firstZeroIndex = i;
-        } else product *= nums[i];
-      }
-    }
+class Solution {
+  public int[] productExceptSelf(int[] nums) {
+    int n = nums.length;
+    int[] prefix = new int[n], suffix = new int[n];
+    prefix[0] = 1;
+    suffix[n - 1] = 1;
+
+    for (int i = 1; i < n; i++)
+      prefix[i] = prefix[i - 1] * nums[i - 1];
+
+    for (int i = n - 2; i >= 0; i--)
+      suffix[i] = suffix[i + 1] * nums[i + 1];
 
     int[] ans = new int[n];
-    if (zeroCount > 0 && zeroCount <= 1) ans[firstZeroIndex] = product;
-    else if (zeroCount < 2) {
-      for (int i = 0; i < n; i++) {
-        ans[i] = product / nums[i];
-      }
+    for (int i = 0; i < n; i++) {
+      ans[i] = prefix[i] * suffix[i];
     }
 
     return ans;
-  }
-
-  public static void main(String[] args) {
-    int[] arr = {1, 20, 0, 0};
-    System.out.println(productExceptSelf(arr));
   }
 }

@@ -1,25 +1,22 @@
 package neetcode.practice.Arrays;
 
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.HashMap;
 
-public class _3_twoSum {
-  public static int[] twoSum(int[] nums, int target) {
-    int[] ans = new int[2];
-    Map<Integer, Integer> map = new WeakHashMap<>();
+class Solution {
+  public int[] twoSum(int[] nums, int target) {
+    HashMap<Integer, Integer> map = new HashMap<>();
     int n = nums.length;
+    for (int i = 0; i < n; i++)
+      map.put(nums[i], i);
 
-    for (int idx = 0; idx < n; idx++) {
-      int num = nums[idx];
+    for (int i = 0; i < n; i++) {
+      int num = nums[i];
       if (map.containsKey(target - num)) {
-        int otherIdx = map.get(target - num);
-        if (otherIdx != idx) {
-          ans[0] = Math.min(idx, otherIdx);
-          ans[1] = Math.max(idx, otherIdx);
-        }
-      } else map.put(num, idx);
+        int index = map.get(target - num);
+        if (index != i)
+          return new int[] { Math.min(i, index), Math.max(i, index) };
+      }
     }
-
-    return ans;
+    return null;
   }
 }

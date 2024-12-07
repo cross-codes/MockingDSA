@@ -1,15 +1,16 @@
 package neetcode.practice.Arrays;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.HashSet;
 
-public class _1_containsDuplicate {
-  public static boolean hasDuplicate(int[] nums) {
-    Set<Integer> set = new LinkedHashSet<>();
-    for (int a : nums) {
-      if (set.contains(a)) return true;
-      else set.add(a);
+class Solution {
+  public boolean hasDuplicate(int[] nums) {
+    HashSet<Integer> set = new HashSet<>();
+    for (int i : nums) {
+      if (set.contains(i))
+        return true;
+      else
+        set.add(i);
     }
     return false;
-  }
+  } 
 }
