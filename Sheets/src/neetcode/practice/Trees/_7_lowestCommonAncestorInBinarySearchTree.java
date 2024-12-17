@@ -6,7 +6,7 @@ import java.util.Collections;
 class Solution {
   boolean[] checkTarget = new boolean[2];
 
-  void dfs(TreeNode root, TreeNode target, ArrayList<TreeNode> ancestors, int variant) {
+  public void dfs(TreeNode root, TreeNode target, ArrayList<TreeNode> ancestors, int variant) {
     if (root == null)
       return;
     if (root.val == target.val) {
@@ -16,9 +16,9 @@ class Solution {
     }
 
     if (!this.checkTarget[variant])
-      dfs(root.left, target, ancestors, variant);
+      this.dfs(root.left, target, ancestors, variant);
     if (!this.checkTarget[variant])
-      dfs(root.right, target, ancestors, variant);
+      this.dfs(root.right, target, ancestors, variant);
     if (this.checkTarget[variant]) {
       ancestors.add(root);
     }
@@ -26,8 +26,8 @@ class Solution {
 
   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
     ArrayList<TreeNode> ancestorsOfP = new ArrayList<>(), ancestorsOfQ = new ArrayList<>();
-    dfs(root, p, ancestorsOfP, 0);
-    dfs(root, q, ancestorsOfQ, 1);
+    this.dfs(root, p, ancestorsOfP, 0);
+    this.dfs(root, q, ancestorsOfQ, 1);
 
     Collections.reverse(ancestorsOfP);
     Collections.reverse(ancestorsOfQ);

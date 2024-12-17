@@ -6,21 +6,24 @@ class Solution {
   public ArrayList<Integer> pDescriptor = new ArrayList<>();
   public ArrayList<Integer> qDescriptor = new ArrayList<>();
 
-  public void dfs(TreeNode root, ArrayList<Integer> descriptor) {
-    if (root == null) {
-      descriptor.add(null);
+  public void dfs(TreeNode root, ArrayList<Integer> descriptor, Procedure proc) {
+    proc.run(root, descriptor);
+
+    if (root == null)
       return;
-    }
 
-    descriptor.add(root.val);
-
-    this.dfs(root.left, descriptor);
-    this.dfs(root.right, descriptor);
+    this.dfs(root.left, descriptor, proc);
+    this.dfs(root.right, descriptor, proc);
   }
 
   public boolean isSameTree(TreeNode p, TreeNode q) {
-    this.dfs(p, this.pDescriptor);
-    this.dfs(q, this.qDescriptor);
+    Procedure proc = (root, descriptor) -> descriptor.add(root == null ? null : root.val);
+    this.dfs(p, this.pDescriptor, proc);
+    this.dfs(q, this.qDescriptor, proc);
     return pDescriptor.equals(qDescriptor);
   }
+}
+
+interface Procedure {
+  public void run(TreeNode root, ArrayList<Integer> descriptor);
 }

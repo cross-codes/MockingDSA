@@ -25,7 +25,7 @@ class Solution {
       }
     }
 
-    return queue.stream().mapToInt((x) -> x.value).toArray();
+    return queue.stream().mapToInt(x -> x.value).toArray();
   }
 }
 
