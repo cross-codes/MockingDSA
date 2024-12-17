@@ -1,38 +1,26 @@
 package neetcode.practice.Sliding_Window;
 
 import java.util.HashMap;
-import java.util.Map;
 
-public class _2_longestSubstringWithoutDuplicates {
-  public static int lengthOfLongestSubstring(String s) {
-    if (s == null || s.length() == 0) return 0;
-
-    int n = s.length();
-    if (n == 1) return 1;
-
-    int ans = 1;
-    int l = 0, r = 1;
-    Map<Character, Integer> map = new HashMap<>();
-
-    while (r < n) {
-      if (map.isEmpty()) map.put(s.charAt(l), l);
-
-      char rc = s.charAt(r);
-      if (map.containsKey(rc)) {
-        ans = Math.max(ans, r - l);
-        int repeatIndex = map.get(rc);
-        for (int i = l; i <= repeatIndex; i++) map.remove(s.charAt(i));
-        l = repeatIndex + 1;
-        map.put(rc, r);
-        r++;
-      } else {
-        map.put(rc, r);
-        r++;
-      }
+class Solution {
+  public int lengthOfLongestSubstring(String s) {
+    HashMap<Character, Integer> uniqueCharToInt = new HashMap<>();
+    int leftMostBound = 0, currentPos = 0, n = s.length();
+    int maxSize = 0;
+    while (currentPos < n) {
+      char currentChar = s.charAt(currentPos);
+      if (uniqueCharToInt.containsKey(currentChar)) {
+        maxSize = Math.max(maxSize, uniqueCharToInt.size());
+        int matchingIndex = uniqueCharToInt.get(currentChar);
+        for (int i = leftMostBound; i <= matchingIndex; i++)
+          uniqueCharToInt.remove(s.charAt(i));
+        leftMostBound = matchingIndex + 1;
+        uniqueCharToInt.put(currentChar, currentPos);
+      } else
+        uniqueCharToInt.put(currentChar, currentPos);
+      currentPos++;
     }
 
-    ans = Math.max(ans, r - l);
-
-    return ans;
+    return Math.max(uniqueCharToInt.size(), maxSize);
   }
 }

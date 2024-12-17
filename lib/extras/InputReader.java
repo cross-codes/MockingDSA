@@ -179,4 +179,8 @@ public class InputReader {
       a[i] = nextLong();
     return a;
   }
+
+  public boolean hasNextByte() {
+    return this.pos < this.buffer.length - 1;
+  }
 }
