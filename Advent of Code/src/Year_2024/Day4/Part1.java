@@ -30,57 +30,37 @@ public class Part1 extends ModuleSignatures implements Runnable {
 
     long totalOccurences = 0L;
 
-    totalOccurences += this.findHorizontalOccurences(grid, "XMAS", false);
-    totalOccurences += this.findHorizontalOccurences(grid, "XMAS", true);
+    totalOccurences += this.findRightwardOccurences(grid, "XMAS");
+    totalOccurences += this.findRightwardOccurences(grid, "SAMX");
 
-    totalOccurences += this.findVerticalOccurences(grid, "XMAS", false);
-    totalOccurences += this.findVerticalOccurences(grid, "XMAS", true);
+    totalOccurences += this.findDownwardOccurences(grid, "XMAS");
+    totalOccurences += this.findDownwardOccurences(grid, "SAMX");
 
-    totalOccurences += this.findDiagonalUpLeftOccurences(grid, "XMAS", false);
-    totalOccurences += this.findDiagonalUpLeftOccurences(grid, "XMAS", true);
+    totalOccurences += this.findDiagonalUpLeftOccurences(grid, "XMAS");
+    totalOccurences += this.findDiagonalUpLeftOccurences(grid, "SAMX");
 
-    totalOccurences += this.findDiagonalUpRightOccurences(grid, "XMAS", false);
-    totalOccurences += this.findDiagonalUpRightOccurences(grid, "XMAS", true);
-
-    totalOccurences += this.findDiagonalDownLeftOccurences(grid, "XMAS", false);
-    totalOccurences += this.findDiagonalDownLeftOccurences(grid, "XMAS", true);
-
-    totalOccurences += this.findDiagonalDownRightOccurences(grid, "XMAS", false);
-    totalOccurences += this.findDiagonalDownRightOccurences(grid, "XMAS", true);
+    totalOccurences += this.findDiagonalUpRightOccurences(grid, "XMAS");
+    totalOccurences += this.findDiagonalUpRightOccurences(grid, "SAMX");
 
     out.append(totalOccurences);
   }
 
   @Override
-  public long findHorizontalOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards) {
+  public long findRightwardOccurences(ArrayList<byte[]> grid,
+      String pattern) {
     long occurences = 0L;
     int rowLength = grid.get(0).length;
+    int colLength = grid.size();
     int patternLength = pattern.length();
 
-    if (!backwards) {
-      for (byte[] array : grid) {
-        traversal: for (int i = 0; i <= rowLength - patternLength; i++) {
-          if ((char) array[i] == pattern.charAt(0)) {
-            for (int j = 1; j < patternLength; j++) {
-              if ((char) array[i + j] != pattern.charAt(j))
-                continue traversal;
-            }
-            occurences++;
+    for (int i = 0; i < colLength; i++) {
+      traversal: for (int j = 0; j <= rowLength - patternLength; j++) {
+        if ((char) grid.get(i)[j] == pattern.charAt(0)) {
+          for (int k = 1; k < patternLength; k++) {
+            if ((char) grid.get(i)[j + k] != pattern.charAt(k))
+              continue traversal;
           }
-        }
-      }
-
-    } else {
-      for (byte[] array : grid) {
-        traversal: for (int i = 0; i <= rowLength - patternLength; i++) {
-          if ((char) array[i] == pattern.charAt(patternLength - 1)) {
-            for (int j = 1; j < patternLength; j++) {
-              if ((char) array[i + j] != pattern.charAt(patternLength - 1 - j))
-                continue traversal;
-            }
-            occurences++;
-          }
+          occurences++;
         }
       }
     }
@@ -89,56 +69,89 @@ public class Part1 extends ModuleSignatures implements Runnable {
   }
 
   @Override
-  public long findVerticalOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards) {
+  public long findDownwardOccurences(ArrayList<byte[]> grid,
+      String pattern) {
+    long occurences = 0L;
+    int rowLength = grid.get(0).length;
+    int colLength = grid.size();
+    int patternLength = pattern.length();
 
+    for (int i = 0; i <= colLength - patternLength; i++) {
+      traversal: for (int j = 0; j < rowLength; j++) {
+        if ((char) grid.get(i)[j] == pattern.charAt(0)) {
+          for (int k = 1; k < patternLength; k++) {
+            if ((char) grid.get(i + k)[j] != pattern.charAt(k))
+              continue traversal;
+          }
+          occurences++;
+        }
+      }
+    }
+
+    return occurences;
   }
 
   @Override
   public long findDiagonalUpRightOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards) {
+      String pattern) {
+    long occurences = 0L;
+    int rowLength = grid.get(0).length;
+    int colLength = grid.size();
+    int patternLength = pattern.length();
 
+    for (int i = patternLength - 1; i < colLength; i++) {
+      traversal: for (int j = 0; j <= rowLength - patternLength; j++) {
+        if ((char) grid.get(i)[j] == pattern.charAt(0)) {
+          for (int k = 1; k < patternLength; k++) {
+            if ((char) grid.get(i - k)[j + k] != pattern.charAt(k))
+              continue traversal;
+          }
+          occurences++;
+        }
+      }
+    }
+
+    return occurences;
   }
 
   @Override
   public long findDiagonalUpLeftOccurences(ArrayList<byte[]> grid,
-      String patteern, boolean backwards) {
+      String pattern) {
+    long occurences = 0L;
+    int rowLength = grid.get(0).length;
+    int colLength = grid.size();
+    int patternLength = pattern.length();
 
-  }
+    for (int i = patternLength - 1; i < colLength; i++) {
+      traversal: for (int j = patternLength - 1; j < rowLength; j++) {
+        if ((char) grid.get(i)[j] == pattern.charAt(0)) {
+          for (int k = 1; k < patternLength; k++) {
+            if ((char) grid.get(i - k)[j - k] != pattern.charAt(k))
+              continue traversal;
+          }
+          occurences++;
+        }
+      }
+    }
 
-  @Override
-  public long findDiagonalDownRightOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards) {
-
-  }
-
-  @Override
-  public long findDiagonalDownLeftOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards) {
-
+    return occurences;
   }
 
 }
 
 @MultipleInheritanceDisallowed(inheritor = Part1.class)
 abstract strictfp class ModuleSignatures {
-  abstract public long findHorizontalOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards);
+  abstract public long findRightwardOccurences(ArrayList<byte[]> grid,
+      String pattern);
 
-  abstract public long findVerticalOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards);
+  abstract public long findDownwardOccurences(ArrayList<byte[]> grid,
+      String pattern);
 
   abstract public long findDiagonalUpRightOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards);
+      String pattern);
 
   abstract public long findDiagonalUpLeftOccurences(ArrayList<byte[]> grid,
-      String patteern, boolean backwards);
-
-  abstract public long findDiagonalDownRightOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards);
-
-  abstract public long findDiagonalDownLeftOccurences(ArrayList<byte[]> grid,
-      String pattern, boolean backwards);
+      String pattern);
 }
 
 @FunctionalInterface
