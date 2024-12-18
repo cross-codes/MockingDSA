@@ -1,8 +1,8 @@
-package Year_2024.Day1;
+package Year_2024.Day2;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @Launchable(author = "cross", hostname = "inspiron", judge = "Advent of Code")
 public class Part2 extends ModuleSignatures implements Runnable {
@@ -23,30 +23,76 @@ public class Part2 extends ModuleSignatures implements Runnable {
   }
 
   private void consolidateOutput() {
-    HashMap<Integer, Integer> intToFrequency1 = new HashMap<>();
-    HashMap<Integer, Integer> intToFrequency2 = new HashMap<>();
+    int numberOfSafeLevels = 0;
 
     while (in.hasNextByte()) {
-      int num = in.nextInt();
-      intToFrequency1.put(num, intToFrequency1.getOrDefault(num, 0) + 1);
-      num = in.nextInt();
-      intToFrequency2.put(num, intToFrequency2.getOrDefault(num, 0) + 1);
+      ArrayList<String> stream = new ArrayList<>(
+          Arrays.asList(new String(in.nextLine(), StandardCharsets.US_ASCII).split(" ")));
+      if (this.isValidStream(stream, true))
+        numberOfSafeLevels++;
     }
 
-    long similarityScore = 0;
-    for (Map.Entry<Integer, Integer> entry : intToFrequency1.entrySet()) {
-      int number = entry.getKey(), occurencesInFirstList = entry.getValue();
-      int occurencesInSecondList = intToFrequency2.getOrDefault(number, 0);
-      similarityScore += (number * occurencesInSecondList) * occurencesInFirstList;
+    out.append(numberOfSafeLevels);
+  }
+
+  @Override
+  public boolean isValidStream(ArrayList<String> stream, boolean retryCheck) {
+    int size = stream.size();
+    if (size == 1)
+      return true;
+
+    boolean strictlyIncreasingStream = Integer.parseInt(stream.get(0)) < Integer.parseInt(stream.get(1));
+    for (int i = 1; i < size; i++) {
+      int first = Integer.parseInt(stream.get(i - 1));
+      int second = Integer.parseInt(stream.get(i));
+
+      if (strictlyIncreasingStream) {
+        if (second - first > 3 || second - first <= 0) {
+          if (retryCheck) {
+            ArrayList<String> cloneWithFirstRemoved = new ArrayList<>(stream);
+            cloneWithFirstRemoved.remove(i - 1);
+
+            ArrayList<String> cloneWithSecondRemoved = new ArrayList<>(stream);
+            cloneWithSecondRemoved.remove(i);
+
+            ArrayList<String> cloneWithoutFirstElement = new ArrayList<>(stream);
+            cloneWithoutFirstElement.remove(0);
+
+            return isValidStream(cloneWithFirstRemoved, false)
+                || isValidStream(cloneWithSecondRemoved, false)
+                || isValidStream(cloneWithoutFirstElement, false);
+          } else
+            return false;
+        }
+      } else {
+        if (first - second > 3 || first - second <= 0) {
+          if (retryCheck) {
+            ArrayList<String> cloneWithFirstRemoved = new ArrayList<>(stream);
+            cloneWithFirstRemoved.remove(i - 1);
+
+            ArrayList<String> cloneWithSecondRemoved = new ArrayList<>(stream);
+            cloneWithSecondRemoved.remove(i);
+
+            ArrayList<String> cloneWithoutFirstElement = new ArrayList<>(stream);
+            cloneWithoutFirstElement.remove(0);
+
+            return isValidStream(cloneWithFirstRemoved, false)
+                || isValidStream(cloneWithSecondRemoved, false)
+                || isValidStream(cloneWithoutFirstElement, false);
+          } else
+            return false;
+        }
+      }
     }
 
-    out.append(similarityScore);
+    return true;
   }
 
 }
 
 @MultipleInheritanceDisallowed(inheritor = Part2.class)
 abstract strictfp class ModuleSignatures {
+  abstract public boolean isValidStream(ArrayList<String> stream, boolean retryCheck);
 }
 
 @FunctionalInterface

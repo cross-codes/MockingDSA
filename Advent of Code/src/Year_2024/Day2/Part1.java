@@ -1,11 +1,10 @@
-package Year_2024.Day1;
+package Year_2024.Day2;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @Launchable(author = "cross", hostname = "inspiron", judge = "Advent of Code")
-public class Part2 extends ModuleSignatures implements Runnable {
+public class Part1 extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -19,33 +18,41 @@ public class Part2 extends ModuleSignatures implements Runnable {
   }
 
   public static void main(String... args) {
-    new Thread(null, new Part2(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new Part1(), "LaunchableDriver", 1048576L).start();
   }
 
   private void consolidateOutput() {
-    HashMap<Integer, Integer> intToFrequency1 = new HashMap<>();
-    HashMap<Integer, Integer> intToFrequency2 = new HashMap<>();
+    int numberOfSafeLevels = 0;
 
-    while (in.hasNextByte()) {
-      int num = in.nextInt();
-      intToFrequency1.put(num, intToFrequency1.getOrDefault(num, 0) + 1);
-      num = in.nextInt();
-      intToFrequency2.put(num, intToFrequency2.getOrDefault(num, 0) + 1);
+    iter: while (in.hasNextByte()) {
+      String[] stream = new String(in.nextLine(), StandardCharsets.US_ASCII).split(" ");
+      if (stream.length == 1) {
+        numberOfSafeLevels++;
+        continue;
+      }
+
+      boolean strictlyIncreasingStream = Integer.parseInt(stream[0]) < Integer.parseInt(stream[1]);
+      for (int i = 1; i < stream.length; i++) {
+        int first = Integer.parseInt(stream[i - 1]);
+        int second = Integer.parseInt(stream[i]);
+        if (strictlyIncreasingStream) {
+          if (second - first > 3 || second - first <= 0)
+            continue iter;
+        } else {
+          if (first - second > 3 || first - second <= 0)
+            continue iter;
+        }
+      }
+
+      numberOfSafeLevels++;
     }
 
-    long similarityScore = 0;
-    for (Map.Entry<Integer, Integer> entry : intToFrequency1.entrySet()) {
-      int number = entry.getKey(), occurencesInFirstList = entry.getValue();
-      int occurencesInSecondList = intToFrequency2.getOrDefault(number, 0);
-      similarityScore += (number * occurencesInSecondList) * occurencesInFirstList;
-    }
-
-    out.append(similarityScore);
+    out.append(numberOfSafeLevels);
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = Part2.class)
+@MultipleInheritanceDisallowed(inheritor = Part1.class)
 abstract strictfp class ModuleSignatures {
 }
 

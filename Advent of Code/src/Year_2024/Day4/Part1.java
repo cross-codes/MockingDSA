@@ -1,11 +1,10 @@
-package Year_2024.Day1;
+package Year_2024.Day4;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @Launchable(author = "cross", hostname = "inspiron", judge = "Advent of Code")
-public class Part2 extends ModuleSignatures implements Runnable {
+public class Part1 extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -19,34 +18,127 @@ public class Part2 extends ModuleSignatures implements Runnable {
   }
 
   public static void main(String... args) {
-    new Thread(null, new Part2(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new Part1(), "LaunchableDriver", 1048576L).start();
   }
 
   private void consolidateOutput() {
-    HashMap<Integer, Integer> intToFrequency1 = new HashMap<>();
-    HashMap<Integer, Integer> intToFrequency2 = new HashMap<>();
+    ArrayList<byte[]> grid = new ArrayList<>();
 
     while (in.hasNextByte()) {
-      int num = in.nextInt();
-      intToFrequency1.put(num, intToFrequency1.getOrDefault(num, 0) + 1);
-      num = in.nextInt();
-      intToFrequency2.put(num, intToFrequency2.getOrDefault(num, 0) + 1);
+      grid.add(in.nextLine());
     }
 
-    long similarityScore = 0;
-    for (Map.Entry<Integer, Integer> entry : intToFrequency1.entrySet()) {
-      int number = entry.getKey(), occurencesInFirstList = entry.getValue();
-      int occurencesInSecondList = intToFrequency2.getOrDefault(number, 0);
-      similarityScore += (number * occurencesInSecondList) * occurencesInFirstList;
+    long totalOccurences = 0L;
+
+    totalOccurences += this.findHorizontalOccurences(grid, "XMAS", false);
+    totalOccurences += this.findHorizontalOccurences(grid, "XMAS", true);
+
+    totalOccurences += this.findVerticalOccurences(grid, "XMAS", false);
+    totalOccurences += this.findVerticalOccurences(grid, "XMAS", true);
+
+    totalOccurences += this.findDiagonalUpLeftOccurences(grid, "XMAS", false);
+    totalOccurences += this.findDiagonalUpLeftOccurences(grid, "XMAS", true);
+
+    totalOccurences += this.findDiagonalUpRightOccurences(grid, "XMAS", false);
+    totalOccurences += this.findDiagonalUpRightOccurences(grid, "XMAS", true);
+
+    totalOccurences += this.findDiagonalDownLeftOccurences(grid, "XMAS", false);
+    totalOccurences += this.findDiagonalDownLeftOccurences(grid, "XMAS", true);
+
+    totalOccurences += this.findDiagonalDownRightOccurences(grid, "XMAS", false);
+    totalOccurences += this.findDiagonalDownRightOccurences(grid, "XMAS", true);
+
+    out.append(totalOccurences);
+  }
+
+  @Override
+  public long findHorizontalOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards) {
+    long occurences = 0L;
+    int rowLength = grid.get(0).length;
+    int patternLength = pattern.length();
+
+    if (!backwards) {
+      for (byte[] array : grid) {
+        traversal: for (int i = 0; i <= rowLength - patternLength; i++) {
+          if ((char) array[i] == pattern.charAt(0)) {
+            for (int j = 1; j < patternLength; j++) {
+              if ((char) array[i + j] != pattern.charAt(j))
+                continue traversal;
+            }
+            occurences++;
+          }
+        }
+      }
+
+    } else {
+      for (byte[] array : grid) {
+        traversal: for (int i = 0; i <= rowLength - patternLength; i++) {
+          if ((char) array[i] == pattern.charAt(patternLength - 1)) {
+            for (int j = 1; j < patternLength; j++) {
+              if ((char) array[i + j] != pattern.charAt(patternLength - 1 - j))
+                continue traversal;
+            }
+            occurences++;
+          }
+        }
+      }
     }
 
-    out.append(similarityScore);
+    return occurences;
+  }
+
+  @Override
+  public long findVerticalOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards) {
+
+  }
+
+  @Override
+  public long findDiagonalUpRightOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards) {
+
+  }
+
+  @Override
+  public long findDiagonalUpLeftOccurences(ArrayList<byte[]> grid,
+      String patteern, boolean backwards) {
+
+  }
+
+  @Override
+  public long findDiagonalDownRightOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards) {
+
+  }
+
+  @Override
+  public long findDiagonalDownLeftOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards) {
+
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = Part2.class)
+@MultipleInheritanceDisallowed(inheritor = Part1.class)
 abstract strictfp class ModuleSignatures {
+  abstract public long findHorizontalOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards);
+
+  abstract public long findVerticalOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards);
+
+  abstract public long findDiagonalUpRightOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards);
+
+  abstract public long findDiagonalUpLeftOccurences(ArrayList<byte[]> grid,
+      String patteern, boolean backwards);
+
+  abstract public long findDiagonalDownRightOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards);
+
+  abstract public long findDiagonalDownLeftOccurences(ArrayList<byte[]> grid,
+      String pattern, boolean backwards);
 }
 
 @FunctionalInterface
