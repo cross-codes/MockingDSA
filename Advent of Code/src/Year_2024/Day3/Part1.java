@@ -1,11 +1,12 @@
-package Year_2024.Day1;
+package Year_2024.Day3;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Launchable(author = "cross", hostname = "inspiron", judge = "Advent of Code")
-public class Part2 extends ModuleSignatures implements Runnable {
+public class Part1 extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -19,33 +20,33 @@ public class Part2 extends ModuleSignatures implements Runnable {
   }
 
   public static void main(String... args) {
-    new Thread(null, new Part2(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new Part1(), "LaunchableDriver", 1048576L).start();
   }
 
   private void consolidateOutput() {
-    HashMap<Integer, Integer> intToFrequency1 = new HashMap<>();
-    HashMap<Integer, Integer> intToFrequency2 = new HashMap<>();
+    final Pattern pattern = Pattern.compile("mul\\(-?\\d+,-?\\d+\\)");
 
+    long result = 0L;
     while (in.hasNextByte()) {
-      int num = in.nextInt();
-      intToFrequency1.put(num, intToFrequency1.getOrDefault(num, 0) + 1);
-      num = in.nextInt();
-      intToFrequency2.put(num, intToFrequency2.getOrDefault(num, 0) + 1);
+
+      Matcher matcher = pattern.matcher(new String(in.nextLine(), StandardCharsets.US_ASCII));
+      while (matcher.find()) {
+        String group = matcher.group();
+        int seperatorIndex = group.indexOf(",");
+
+        long firstNumber = Long.parseLong(group.substring(4, seperatorIndex));
+        long secondNumber = Long.parseLong(group.substring(seperatorIndex + 1, group.length() - 1));
+
+        result += firstNumber * secondNumber;
+      }
     }
 
-    long similarityScore = 0;
-    for (Map.Entry<Integer, Integer> entry : intToFrequency1.entrySet()) {
-      int number = entry.getKey(), occurencesInFirstList = entry.getValue();
-      int occurencesInSecondList = intToFrequency2.getOrDefault(number, 0);
-      similarityScore += (number * occurencesInSecondList) * occurencesInFirstList;
-    }
-
-    out.append(similarityScore);
+    out.append(result);
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = Part2.class)
+@MultipleInheritanceDisallowed(inheritor = Part1.class)
 abstract strictfp class ModuleSignatures {
 }
 
