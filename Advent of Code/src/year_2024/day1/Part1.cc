@@ -13,11 +13,9 @@ typedef int32_t i32;
 typedef uint64_t u64;
 typedef int64_t i64;
 
-i32 main(i32 argc, char **argv) {
-  ios::sync_with_stdio(false);
-  cin.tie(nullptr);
-  cout.tie(nullptr);
+namespace Part1 {
 
+void run() {
   priority_queue<i32> queue1{};
   priority_queue<i32> queue2{};
 
@@ -35,5 +33,14 @@ i32 main(i32 argc, char **argv) {
   }
 
   cout << distance << "\n";
+}
+
+} // namespace Part1
+
+i32 main(i32 argc, char **argv) {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+  Part1::run();
   return 0;
 }
