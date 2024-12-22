@@ -10,7 +10,7 @@ import commons.classes.StandardInputReader;
 import commons.classes.StandardOutputWriter;
 
 @Launchable(author = "Cross", hostname = "inspiron", judge = "Advent of Code")
-public class Part1 extends ModuleSignatures implements Runnable {
+public class Part2 extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -24,7 +24,7 @@ public class Part1 extends ModuleSignatures implements Runnable {
   }
 
   public static void main(String... args) {
-    new Thread(null, new Part1(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new Part2(), "LaunchableDriver", 1048576L).start();
   }
 
   private void consolidateOutput() {
@@ -175,11 +175,10 @@ public class Part1 extends ModuleSignatures implements Runnable {
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = Part1.class)
+@MultipleInheritanceDisallowed(inheritor = Part2.class)
 abstract strictfp class ModuleSignatures {
   abstract public long simulateGrid(ArrayList<ArrayList<Character>> map, int caretRow,
       int caretColumn, Directions direction);
 
   abstract public Directions rotateClockwise(Directions currentDirection);
 }
-

@@ -95,7 +95,7 @@ public class Part2 extends ModuleSignatures implements Runnable {
 
 }
 
-class Page implements Comparable<Page> {
+final class Page implements Comparable<Page> {
 
   final public int pageNumber;
   final private HashSet<Page> pagesInFront;

@@ -8,7 +8,7 @@ fi
 day=$1
 part=$2
 
-input_file="./inputs/Year_2024/Day${day}/Part${part}.txt"
+input_file="./inputs/year_2024/day${day}/Part${part}.txt"
 
 if [ ! -f "$input_file" ]; then
 	echo "Input file $input_file does not exist"
@@ -28,4 +28,4 @@ cat "$input_file" | /usr/lib/jvm/java-1.8.0/bin/java \
 -Dcom.sun.management.jmxremote.port=8080 \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=false \
-Year_2024.Day${day}.Part${part}
+year_2024.day${day}.Part${part}
