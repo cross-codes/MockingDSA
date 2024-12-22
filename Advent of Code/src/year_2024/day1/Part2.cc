@@ -13,6 +13,8 @@ typedef int32_t i32;
 typedef uint64_t u64;
 typedef int64_t i64;
 
+namespace Part2 {
+
 class HasherFunctor {
 private:
   static uint64_t random_address() {
@@ -45,13 +47,9 @@ public:
   }
 };
 
-i32 main(i32 argc, char **argv) {
-  ios::sync_with_stdio(false);
-  cin.tie(nullptr);
-  cout.tie(nullptr);
-
-  gp_hash_table<i32, i32, ::HasherFunctor> int_to_frequency_1{};
-  gp_hash_table<i32, i32, ::HasherFunctor> int_to_frequency_2{};
+void run() {
+  gp_hash_table<i32, i32, HasherFunctor> int_to_frequency_1{};
+  gp_hash_table<i32, i32, HasherFunctor> int_to_frequency_2{};
 
   i32 x, y;
   while (cin >> x >> y) {
@@ -67,5 +65,14 @@ i32 main(i32 argc, char **argv) {
   }
 
   cout << similarity_score << "\n";
+}
+
+} // namespace Part2
+
+i32 main(i32 argc, char **argv) {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+  Part2::run();
   return 0;
 }
