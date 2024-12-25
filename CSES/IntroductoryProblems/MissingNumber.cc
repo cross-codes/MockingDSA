@@ -1,16 +1,17 @@
-#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstring>
-#include <functional>
-#include <immintrin.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 #include <string>
-#include <vector>
+#include <tuple>
 
-// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
 #ifndef __linux__
 
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-disable-perfcrit-locks
 #define _CRT_DISABLE_PERFCRIT_LOCKS
+
+// https://stackoverflow.com/questions/48291991
 #define fread_unlocked fread
 #define fwrite_unlocked fwrite
 
@@ -23,6 +24,7 @@
 
 #endif
 
+// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
 struct IOPreProc {
 
   static constexpr int TEN = 10, SZ = TEN * TEN * TEN * TEN;
@@ -338,152 +340,18 @@ using u64 = unsigned long long;
 using u32 = unsigned;
 using u128 = unsigned __int128;
 
-// https://github.com/cross-codes/MockingDSA/blob/master/lib/util/Array.hpp
-class Array {
-private:
-  Array();
-
-  template <typename Procedure>
-  constexpr static void permute(std::vector<int> &vector, int length,
-                                Procedure &&procedure) {
-    if (length == 1)
-      std::invoke(std::forward<Procedure>(procedure));
-    else {
-      permute(vector, --length, std::forward<Procedure>(procedure));
-      for (int i = 0; i < length; i++) {
-        int index = (length & 1) == 0 ? 0 : i;
-        std::swap(vector[index], vector[length]);
-        permute(vector, length, std::forward<Procedure>(procedure));
-      }
-    }
-  }
-
-public:
-  constexpr static void sort(std::vector<int> &vector) {
-    int bits = 4;
-    int radix = 1 << bits;
-    std::vector<std::vector<int>> buckets(radix,
-                                          std::vector<int>(vector.size()));
-    std::vector<int> size(radix);
-    for (int e : vector) {
-      int index = e & radix - 1;
-      buckets[index][size[index]++] = e;
-    }
-    std::vector<std::vector<int>> newBuckets(radix,
-                                             std::vector<int>(vector.size()));
-    for (int i = bits; i < sizeof(int) * 8; i += bits) {
-      std::vector<int> newSize(radix);
-      for (int j = 0; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++) {
-          int index =
-              (static_cast<unsigned int>(buckets[j][k]) >> i) & (radix - 1);
-          newBuckets[index][newSize[index]++] = buckets[j][k];
-        }
-      }
-      std::swap(buckets, newBuckets);
-      size = newSize;
-    }
-    {
-      int i = 0;
-      for (int j = radix >> 1; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++)
-          vector[i++] = buckets[j][k];
-      }
-      for (int j = 0; j < radix >> 1; j++) {
-        for (int k = 0; k < size[j]; k++)
-          vector[i++] = buckets[j][k];
-      }
-    }
-  }
-
-  template <typename Procedure>
-  constexpr static void permute(std::vector<int> vector,
-                                Procedure &&procedure) {
-    permute(vector, vector.size(), std::forward<Procedure>(procedure));
-  }
-
-  template <typename T>
-    requires std::integral<T> || std::floating_point<T>
-  constexpr static int __jdk__binarySearch(std::vector<T> const &vec,
-                                           int fromIndex, int toIndex, T key) {
-    int low = fromIndex;
-    int high = toIndex - 1;
-    while (low <= high) {
-      int mid = (low + high) >> 1;
-      if (vec[mid] < key)
-        low = mid + 1;
-      else if (vec[mid] > key)
-        high = mid - 1;
-      else
-        return mid;
-    }
-
-    return -(low + 1);
-  }
-};
-
 int main() {
-  int t;
-  cin >> t;
-  while (t-- > 0) {
-    int n;
-    cin >> n;
-    i64 x, y;
-    cin >> x >> y;
+  i64 n;
+  cin >> n;
 
-    i64 sum = 0LL;
-    std::vector<i64> nums(n);
-    for (int i = 0; i < n; i++) {
-      i64 num;
-      cin >> num;
-      nums[i] = num;
-      sum += num;
-    }
-
-    std::sort(nums.begin(), nums.end());
-
-    i64 numberOfPairs = 0LL;
-    for (int i = 0; i < n; i++) {
-      i64 currDiff = sum - nums[i];
-      i64 lowerBound = currDiff - y, upperBound = currDiff - x;
-
-      int lowerIndex =
-          Array::__jdk__binarySearch<i64>(nums, i + 1, n, lowerBound);
-      if (lowerIndex < 0) {
-        lowerIndex = -(lowerIndex + 1);
-      }
-      if (lowerIndex == n)
-        continue;
-
-      i64 refVal = nums[lowerIndex];
-
-      for (int j = lowerIndex - 1; j > i; j--) {
-        if (nums[j] == refVal)
-          lowerIndex--;
-        else
-          break;
-      }
-
-      int upperIndex =
-          Array::__jdk__binarySearch<i64>(nums, i + 1, n, upperBound);
-      if (upperIndex < 0) {
-        upperIndex = -(upperIndex + 1) - 1;
-        if (upperIndex + 1 == lowerIndex)
-          continue;
-      }
-
-      refVal = nums[upperIndex];
-
-      for (int j = upperIndex + 1; j < n; j++) {
-        if (nums[j] == refVal)
-          upperIndex++;
-        else
-          break;
-      }
-
-      numberOfPairs += upperIndex - lowerIndex + 1;
-    }
-
-    cout << numberOfPairs << "\n";
+  i64 sum = 0LL;
+  for (int i = 0; i < n - 1; i++) {
+    i64 num;
+    cin >> num;
+    sum += num;
   }
+
+  cout << ((n * (n + 1)) >> 1) - sum << "\n";
+
+  return 0;
 }
