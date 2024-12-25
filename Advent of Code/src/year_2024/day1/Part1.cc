@@ -1,26 +1,32 @@
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <iostream>
+#include "../../include/BufferedIO.hpp"
+#include <cstdint>
+#include <cstring>
 #include <queue>
-
-#pragma float_control(precise, off)
-
-using namespace std;
-using namespace __gnu_pbds;
-
-typedef uint32_t u32;
-typedef int32_t i32;
-typedef uint64_t u64;
-typedef int64_t i64;
 
 namespace Part1 {
 
+using i8 = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
+
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+
+using f32 = float;
+using f64 = double;
+
+BufferedIO::StandardInputReader in;
+BufferedIO::StandardOutputWriter out;
+
 void run() {
-  priority_queue<i32> queue1{};
-  priority_queue<i32> queue2{};
+  std::priority_queue<i32> queue1{};
+  std::priority_queue<i32> queue2{};
 
   i32 x, y;
-  while (cin >> x >> y) {
+  while (in.nextInt(x) && in.nextInt(y)) {
     queue1.push(x);
     queue2.push(y);
   }
@@ -32,15 +38,11 @@ void run() {
     queue2.pop();
   }
 
-  cout << distance << "\n";
+  out << distance << "\n";
 }
-
 } // namespace Part1
 
-i32 main(i32 argc, char **argv) {
-  ios::sync_with_stdio(false);
-  cin.tie(nullptr);
-  cout.tie(nullptr);
+int32_t main() {
   Part1::run();
   return 0;
 }
