@@ -5,8 +5,9 @@ class Array {
 private:
   Array();
 
-  template <typename Procedure>
-  constexpr static void permute(std::vector<int> &vector, int length,
+  template <typename T, typename Procedure>
+    requires std::integral<T> || std::floating_point<T>
+  static void permute(std::vector<T> &vector, int length,
                                 Procedure &&procedure) {
     if (length == 1)
       std::invoke(std::forward<Procedure>(procedure));
@@ -21,7 +22,7 @@ private:
   }
 
 public:
-  inline constexpr static void sort(std::vector<int> &vector) {
+  inline static void sort(std::vector<int> &vector) {
     int bits = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix,
@@ -58,15 +59,16 @@ public:
     }
   }
 
-  template <typename Procedure>
-  constexpr static void permute(std::vector<int> vector,
+  template <typename T, typename Procedure>
+    requires std::integral<T> || std::floating_point<T>
+  static void permute(std::vector<T> vector,
                                 Procedure &&procedure) {
     permute(vector, vector.size(), std::forward<Procedure>(procedure));
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  inline constexpr static int __jdk__binarySearch(std::vector<T> const &vec,
+  inline static int __jdk__binarySearch(std::vector<T> const &vec,
                                            int fromIndex, int toIndex, T key) {
     int low = fromIndex;
     int high = toIndex - 1;

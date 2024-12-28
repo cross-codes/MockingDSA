@@ -1,12 +1,16 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
-#include <immintrin.h>
+#include <stack>
 #include <string>
+#include <tuple>
 
 #ifndef __linux__
 
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-disable-perfcrit-locks
 #define _CRT_DISABLE_PERFCRIT_LOCKS
+
+// https://stackoverflow.com/questions/48291991
 #define fread_unlocked fread
 #define fwrite_unlocked fwrite
 
@@ -19,6 +23,7 @@
 
 #endif
 
+// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
 struct IOPreProc {
 
   static constexpr int TEN = 10, SZ = TEN * TEN * TEN * TEN;
@@ -324,4 +329,43 @@ struct IO {
 
   IO *tie(std::nullptr_t) { return this; }
   void sync_with_stdio(bool) {}
-};
+} io;
+
+#define cin ::io
+#define cout ::io
+
+using i64 = long long;
+using u64 = unsigned long long;
+using u32 = unsigned;
+using u128 = unsigned __int128;
+
+int main() {
+  int t;
+  cin >> t;
+  while (t-- > 0) {
+    u32 minMoves = 0U;
+    std::stack<char> balance;
+    int n;
+    cin >> n;
+
+    while (n-- > 0) {
+      char c;
+      cin >> c;
+      if (c == '(')
+        balance.push(c);
+      else {
+        if (balance.empty()) {
+          minMoves++;
+          continue;
+        }
+        char e = balance.top();
+        balance.pop();
+        if (e != '(')
+          minMoves++;
+      }
+    }
+
+    cout << minMoves << "\n";
+  }
+  return 0;
+}

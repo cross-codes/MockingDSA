@@ -1,12 +1,17 @@
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <immintrin.h>
+#include <limits>
 #include <string>
+#include <tuple>
 
 #ifndef __linux__
 
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-disable-perfcrit-locks
 #define _CRT_DISABLE_PERFCRIT_LOCKS
+
+// https://stackoverflow.com/questions/48291991
 #define fread_unlocked fread
 #define fwrite_unlocked fwrite
 
@@ -19,6 +24,7 @@
 
 #endif
 
+// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
 struct IOPreProc {
 
   static constexpr int TEN = 10, SZ = TEN * TEN * TEN * TEN;
@@ -143,10 +149,10 @@ struct IO {
 
   inline void read_string(std::string &x) {
     char c;
-    while (read_char(c), c < ' ')
+    while (read_char(c), c < '!')
       continue;
     x = c;
-    while (read_char(c), c >= ' ')
+    while (read_char(c), c >= '!')
       x += c;
   }
 
@@ -324,4 +330,100 @@ struct IO {
 
   IO *tie(std::nullptr_t) { return this; }
   void sync_with_stdio(bool) {}
+} io;
+
+#define cin ::io
+#define cout ::io
+
+using i64 = long long;
+using u64 = unsigned long long;
+using u32 = unsigned;
+using u128 = unsigned __int128;
+
+class Vector2D {
+public:
+  int x;
+  int y;
+
+  Vector2D(int x, int y) : x(x), y(y) {}
+  ~Vector2D() {}
+  Vector2D(const Vector2D &vector) : x(vector.x), y(vector.y) {}
+
+  inline double norm() const {
+    return std::sqrt(this->x * this->x + this->y * this->y);
+  }
+
+  inline Vector2D add(const Vector2D &vector) const {
+    return Vector2D(this->x + vector.x, this->y + vector.y);
+  }
+
+  inline Vector2D subtract(const Vector2D &vector) const {
+    return Vector2D(this->x - vector.x, this->y - vector.y);
+  }
+
+  inline long long dot(const Vector2D &vector) const {
+    return static_cast<long long>(this->x) * vector.x +
+           static_cast<long long>(this->y) * vector.y;
+  }
+
+  inline long long cross(const Vector2D &vector) const {
+    return static_cast<long long>(this->x) * vector.y -
+           static_cast<long long>(this->y) * vector.x;
+  }
+
+  inline Vector2D perpendicularVector() const {
+    return Vector2D(-(this->y), this->x);
+  }
+
+  inline double angle() const {
+    if (this->x == 0)
+      return this->y > 0 ? std::numeric_limits<double>::infinity()
+                         : std::numeric_limits<double>::lowest();
+    return __builtin_atan2(this->y, this->x);
+  }
+
+  inline double angleBetween(const Vector2D &vector) const {
+    double dotProduct = this->dot(vector);
+    double normProduct = this->norm() * vector.norm();
+    if (normProduct == 0)
+      return (dotProduct > 0) ? std::numeric_limits<double>::infinity()
+                              : std::numeric_limits<double>::lowest();
+    return __builtin_acos(dotProduct / normProduct);
+  }
+
+  bool operator==(const Vector2D &vector) const {
+    if (this == &vector)
+      return true;
+    return this->x == vector.x && this->y == vector.y;
+  }
+
+  inline std::string to_string() const {
+    return std::to_string(this->x) + "i" + " + " + std::to_string(this->y) +
+           "j";
+  }
 };
+
+int main() {
+  int n;
+  cin >> n;
+
+  i64 area = 0ULL;
+
+  int x, y;
+  cin >> x >> y;
+  ::Vector2D first(x, y);
+  ::Vector2D prev = first;
+
+  for (int i = 1; i < n; i++) {
+    int a, b;
+    cin >> a >> b;
+    ::Vector2D vector(a, b);
+    area += prev.cross(vector);
+    prev = vector;
+  }
+
+  area += prev.cross(first);
+  cout << std::abs(area) << "\n";
+
+  return 0;
+}

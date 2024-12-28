@@ -1,12 +1,16 @@
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <immintrin.h>
 #include <string>
+#include <tuple>
 
 #ifndef __linux__
 
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-disable-perfcrit-locks
 #define _CRT_DISABLE_PERFCRIT_LOCKS
+
+// https://stackoverflow.com/questions/48291991
 #define fread_unlocked fread
 #define fwrite_unlocked fwrite
 
@@ -19,6 +23,7 @@
 
 #endif
 
+// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
 struct IOPreProc {
 
   static constexpr int TEN = 10, SZ = TEN * TEN * TEN * TEN;
@@ -143,10 +148,10 @@ struct IO {
 
   inline void read_string(std::string &x) {
     char c;
-    while (read_char(c), c < ' ')
+    while (read_char(c), c < '!')
       continue;
     x = c;
-    while (read_char(c), c >= ' ')
+    while (read_char(c), c >= '!')
       x += c;
   }
 
@@ -324,4 +329,39 @@ struct IO {
 
   IO *tie(std::nullptr_t) { return this; }
   void sync_with_stdio(bool) {}
-};
+} io;
+
+#define cin ::io
+#define cout ::io
+
+using i64 = long long;
+using u64 = unsigned long long;
+using u32 = unsigned;
+using u128 = unsigned __int128;
+
+inline i64 exponentOfPInFactorial(i64 n, int p) {
+  i64 ans = 0LL;
+  i64 toAdd = static_cast<i64>(std::floor(static_cast<double>(n) / p));
+
+  int cnt = 1;
+  while (toAdd != 0LL) {
+    ans += toAdd;
+    cnt++;
+    toAdd = static_cast<i64>(
+        (std::floor(static_cast<double>(n) / std::pow(p, cnt))));
+  }
+
+  return ans;
+}
+
+int main() {
+  i64 n;
+  cin >> n;
+
+  i64 powerOf2 = ::exponentOfPInFactorial(n, 2);
+  i64 powerOf5 = ::exponentOfPInFactorial(n, 5);
+
+  cout << std::min(powerOf2, powerOf5) << "\n";
+
+  return 0;
+}
