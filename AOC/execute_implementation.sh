@@ -1,12 +1,11 @@
 #!/usr/bin/env sh
 
-if [ "$#" -ne 2 ]; then
-	echo "Usage: $0 <day> <part>"
+if [ "$#" -ne 1 ]; then
+	echo "Usage: $0 <day>"
 	exit 1
 fi
 
 day=$1
-part=$2
 
 input_file="./inputs/year2024/day${day}.txt"
 
@@ -15,4 +14,7 @@ if [ ! -f "$input_file" ]; then
 	exit 1
 fi
 
-cat "$input_file" | ./sol.x86_64 ${part}
+echo -n "Part 1: "
+cat "$input_file" | ./sol.x86_64 1
+echo -n "Part 2: "
+cat "$input_file" | ./sol.x86_64 2

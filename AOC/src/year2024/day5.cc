@@ -102,8 +102,6 @@ inline bool validSequence(std::vector<i64>,
 struct Page {
   int pageNumber;
 
-  Page() {}
-
   Page(int num) : pageNumber(num) {}
 
   struct PageHash {
