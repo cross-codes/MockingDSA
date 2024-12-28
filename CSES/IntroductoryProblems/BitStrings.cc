@@ -330,27 +330,34 @@ struct IO {
   void sync_with_stdio(bool) {}
 } io;
 
-#define cin io
-#define cout io
+#define cin ::io
+#define cout ::io
 
 using i64 = long long;
 using u64 = unsigned long long;
 using u32 = unsigned;
 using u128 = unsigned __int128;
 
-int main() {
-  int t;
-  cin >> t;
-  int target;
-  cin >> target;
-  u64 numberOfMoves = 0ULL;
-  for (int i = 1; i < t; i++) {
-    int num;
-    cin >> num;
-    if (num < target) {
-      numberOfMoves += (target - num);
-    } else
-      target = num;
+constexpr i64 MOD = 1e9 + 7;
+
+inline i64 modPow(i64 base, i64 exponent, i64 modulus) {
+  i64 result = 1;
+
+  while (exponent > 0) {
+    if (exponent % 2 == 1)
+      result = result * base % modulus;
+    exponent >>= 1;
+    base = (base * base) % modulus;
   }
-  cout << numberOfMoves << "\n";
+
+  return result;
+}
+
+int main() {
+  int n;
+  cin >> n;
+
+  cout << ::modPow(2, n, ::MOD) << "\n";
+
+  return 0;
 }
