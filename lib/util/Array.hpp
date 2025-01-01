@@ -1,25 +1,8 @@
-#include <functional>
 #include <vector>
 
-class Array {
+struct Array {
 private:
   Array();
-
-  template <typename T, typename Procedure>
-    requires std::integral<T> || std::floating_point<T>
-  static void permute(std::vector<T> &vector, int length,
-                                Procedure &&procedure) {
-    if (length == 1)
-      std::invoke(std::forward<Procedure>(procedure));
-    else {
-      permute(vector, --length, std::forward<Procedure>(procedure));
-      for (int i = 0; i < length; i++) {
-        int index = (length & 1) == 0 ? 0 : i;
-        std::swap(vector[index], vector[length]);
-        permute(vector, length, std::forward<Procedure>(procedure));
-      }
-    }
-  }
 
 public:
   inline static void sort(std::vector<int> &vector) {
@@ -59,17 +42,12 @@ public:
     }
   }
 
-  template <typename T, typename Procedure>
-    requires std::integral<T> || std::floating_point<T>
-  static void permute(std::vector<T> vector,
-                                Procedure &&procedure) {
-    permute(vector, vector.size(), std::forward<Procedure>(procedure));
-  }
-
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  inline static int __jdk__binarySearch(std::vector<T> const &vec,
-                                           int fromIndex, int toIndex, T key) {
+  inline static auto __JDK__binarySearch(const std::vector<T> &vec,
+                                         int fromIndex, int toIndex, T key)
+      -> int {
+
     int low = fromIndex;
     int high = toIndex - 1;
     while (low <= high) {

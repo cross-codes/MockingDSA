@@ -2,7 +2,7 @@
 #include <limits>
 #include <string>
 
-class Vector2D {
+struct Vector2D {
 public:
   int x;
   int y;

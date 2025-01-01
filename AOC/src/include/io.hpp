@@ -4,25 +4,19 @@
 #include <string>
 #include <tuple>
 
-#ifndef __linux__
+// clang-format off
 
-// https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-disable-perfcrit-locks
-#define _CRT_DISABLE_PERFCRIT_LOCKS
-
-// https://stackoverflow.com/questions/48291991
-#define fread_unlocked fread
-#define fwrite_unlocked fwrite
-
+#ifdef _WIN32
+  #define _CRT_DISABLE_PERFCRIT_LOCKS
 #endif
 
 #ifndef __INTEL_LLVM_COMPILER
-
-#pragma GCC optimize("Ofast,unroll-loops")
-#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-
+  #pragma GCC optimize("Ofast,unroll-loops")
+  #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 #endif
 
-// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
+// clang-format on
+
 struct IOPreProc {
 
   static constexpr int TEN = 10, SZ = TEN * TEN * TEN * TEN;
@@ -40,6 +34,16 @@ struct IOPreProc {
 };
 
 struct IO {
+  // clang-format off
+
+  #ifndef HAVE_DECL_FREAD_UNLOCKED
+    #define fread_unlocked fread
+  #endif
+  #ifndef HAVE_DECL_FWRITE_UNLOCKED
+    #define fwrite_unlocked fwrite
+  #endif
+
+  // clang-format on
 
   static constexpr int SZ = 1 << 17, LEN = 32, TEN = 10, HUNDRED = TEN * TEN,
                        THOUSAND = HUNDRED * TEN, TENTHOUSAND = THOUSAND * TEN,
@@ -318,8 +322,11 @@ struct IO {
         read_int(x);
       }
     } else if constexpr (is_iterable<T>::value) {
-      for (auto &y : x)
+      for (auto &y : x) {
         operator>>(y);
+        if (input_ptr_left == input_ptr_right)
+          break;
+      }
     } else if constexpr (is_applyable<T>::value) {
       std::apply([this](auto &...y) { ((this->operator>>(y)), ...); }, x);
     }

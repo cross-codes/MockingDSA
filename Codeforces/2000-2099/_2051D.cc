@@ -3,26 +3,25 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
-#include <immintrin.h>
 #include <string>
+#include <tuple>
 #include <vector>
 
-// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
-#ifndef __linux__
+// clang-format off
 
-#define _CRT_DISABLE_PERFCRIT_LOCKS
-#define fread_unlocked fread
-#define fwrite_unlocked fwrite
-
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/crt-disable-perfcrit-locks
+#ifdef _WIN32
+  #define _CRT_DISABLE_PERFCRIT_LOCKS
 #endif
 
 #ifndef __INTEL_LLVM_COMPILER
-
-#pragma GCC optimize("Ofast,unroll-loops")
-#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-
+  #pragma GCC optimize("Ofast,unroll-loops")
+  #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 #endif
 
+// clang-format on
+
+// https://github.com/cross-codes/MockingDSA/blob/master/lib/extras/IO.hpp
 struct IOPreProc {
 
   static constexpr int TEN = 10, SZ = TEN * TEN * TEN * TEN;
@@ -40,7 +39,13 @@ struct IOPreProc {
 };
 
 struct IO {
-
+// https://stackoverflow.com/questions/48291991
+#ifndef HAVE_DECL_FREAD_UNLOCKED
+  #define fread_unlocked fread
+#endif
+#ifndef HAVE_DECL_FWRITE_UNLOCKED
+  #define fwrite_unlocked fwrite
+#endif
   static constexpr int SZ = 1 << 17, LEN = 32, TEN = 10, HUNDRED = TEN * TEN,
                        THOUSAND = HUNDRED * TEN, TENTHOUSAND = THOUSAND * TEN,
                        MAGIC_MULTIPLY = 205, MAGIC_SHIFT = 11, MASK = 15,
@@ -147,10 +152,10 @@ struct IO {
 
   inline void read_string(std::string &x) {
     char c;
-    while (read_char(c), c < '!')
+    while (read_char(c), c < ' ')
       continue;
     x = c;
-    while (read_char(c), c >= '!')
+    while (read_char(c), c >= ' ')
       x += c;
   }
 
@@ -330,8 +335,8 @@ struct IO {
   void sync_with_stdio(bool) {}
 } io;
 
-#define cin io
-#define cout io
+#define cin ::io
+#define cout ::io
 
 using i64 = long long;
 using u64 = unsigned long long;
@@ -343,8 +348,9 @@ class Array {
 private:
   Array();
 
-  template <typename Procedure>
-  constexpr static void permute(std::vector<int> &vector, int length,
+  template <typename T, typename Procedure>
+    requires std::integral<T> || std::floating_point<T>
+  static void permute(std::vector<T> &vector, int length,
                                 Procedure &&procedure) {
     if (length == 1)
       std::invoke(std::forward<Procedure>(procedure));
@@ -359,7 +365,7 @@ private:
   }
 
 public:
-  constexpr static void sort(std::vector<int> &vector) {
+  inline static void sort(std::vector<int> &vector) {
     int bits = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix,
@@ -396,15 +402,16 @@ public:
     }
   }
 
-  template <typename Procedure>
-  constexpr static void permute(std::vector<int> vector,
+  template <typename T, typename Procedure>
+    requires std::integral<T> || std::floating_point<T>
+  static void permute(std::vector<T> vector,
                                 Procedure &&procedure) {
     permute(vector, vector.size(), std::forward<Procedure>(procedure));
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  constexpr static int __jdk__binarySearch(std::vector<T> const &vec,
+  inline static int __jdk__binarySearch(std::vector<T> const &vec,
                                            int fromIndex, int toIndex, T key) {
     int low = fromIndex;
     int high = toIndex - 1;
