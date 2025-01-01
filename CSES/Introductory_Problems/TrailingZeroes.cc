@@ -1,12 +1,13 @@
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 
-using i64 = long long;
-using u64 = unsigned long long;
-using u32 = unsigned;
+using i64 = int64_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
 using u128 = unsigned __int128;
 
-inline i64 exponentOfPInFactorial(double n, int p) {
+inline i64 exponentOfPInFactorial(const double &n, const int &p) {
   i64 ans = 0LL;
   i64 toAdd = static_cast<i64>(std::floor(n / p));
 
