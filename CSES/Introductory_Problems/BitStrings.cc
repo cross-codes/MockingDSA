@@ -1,13 +1,14 @@
+#include <cstdint>
 #include <iostream>
 
-using i64 = long long;
-using u64 = unsigned long long;
-using u32 = unsigned;
+using i64 = int64_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
 using u128 = unsigned __int128;
 
 constexpr i64 MOD = static_cast<i64>(1e9 + 7);
 
-inline i64 modPow(i64 base, i64 exponent, i64 modulus) {
+inline i64 modPow(i64 base, i64 exponent, const i64 &modulus) {
   i64 result = 1LL;
 
   while (exponent > 0LL) {

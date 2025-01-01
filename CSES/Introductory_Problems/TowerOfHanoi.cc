@@ -1,11 +1,12 @@
+#include <cstdint>
 #include <iostream>
 
-using i64 = long long;
-using u64 = unsigned long long;
-using u32 = unsigned;
+using i64 = int64_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
 using u128 = unsigned __int128;
 
-void move(int n, int from, int to, int via) {
+void move(const int &n, const int &from, const int &to, const int &via) {
   if (n == 0)
     return;
   move(n - 1, from, via, to);
