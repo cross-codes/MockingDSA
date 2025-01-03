@@ -1,4 +1,5 @@
 #include "../include/io.hpp"
+#include <cstdint>
 #include <regex>
 
 IO io;
@@ -6,9 +7,9 @@ IO io;
 #define cin ::io
 #define cout ::io
 
-using i64 = long long;
-using u64 = unsigned long long;
-using u32 = unsigned;
+using i64 = int64_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
 using u128 = unsigned __int128;
 
 namespace part1 {

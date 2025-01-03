@@ -1,4 +1,5 @@
 #include "../include/io.hpp"
+#include <cstdint>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <unordered_set>
@@ -9,9 +10,9 @@ IO io;
 #define cin ::io
 #define cout ::io
 
-using i64 = long long;
-using u64 = unsigned long long;
-using u32 = unsigned;
+using i64 = int64_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
 using u128 = unsigned __int128;
 
 constexpr inline std::vector<std::string> split(std::string s,

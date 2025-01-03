@@ -45,7 +45,8 @@ public:
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
   inline static auto __JDK__binarySearch(const std::vector<T> &vec,
-                                         int fromIndex, int toIndex, T key)
+                                         const int &fromIndex,
+                                         const int &toIndex, const T &key)
       -> int {
 
     int low = fromIndex;
