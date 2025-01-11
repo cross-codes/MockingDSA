@@ -20,7 +20,7 @@ public:
   void add(size_t k, int64_t x) {
     while (k <= this->N) {
       this->tree[k] += x;
-      k += (k == 0 ? 0 : 1 << __builtin_ctz(k));
+      k += (k == 0 ? 0 : 1 << __builtin_ctzl(k));
     }
   }
 
@@ -28,7 +28,7 @@ public:
     int64_t s = 0LL;
     while (k >= 1) {
       s += this->tree[k];
-      k -= (k == 0 ? 0 : 1 << __builtin_ctz(k));
+      k -= (k == 0 ? 0 : 1 << __builtin_ctzl(k));
     }
     return s;
   }
