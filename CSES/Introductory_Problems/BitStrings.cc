@@ -8,6 +8,19 @@ using u128 = unsigned __int128;
 
 constexpr i64 MOD = static_cast<i64>(1e9 + 7);
 
+inline i64 modPow(i64 base, i64 exponent, const i64 &modulus);
+
+int main() {
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+
+  i64 n;
+  std::cin >> n;
+
+  std::cout << ::modPow(2LL, n, ::MOD) << "\n";
+
+  return 0;
+}
+
 inline i64 modPow(i64 base, i64 exponent, const i64 &modulus) {
   i64 result = 1LL;
 
@@ -19,15 +32,4 @@ inline i64 modPow(i64 base, i64 exponent, const i64 &modulus) {
   }
 
   return result;
-}
-
-int main() {
-  std::cin.tie(nullptr)->sync_with_stdio(false);
-
-  i64 n;
-  std::cin >> n;
-
-  std::cout << ::modPow(2LL, n, ::MOD) << "\n";
-
-  return 0;
 }

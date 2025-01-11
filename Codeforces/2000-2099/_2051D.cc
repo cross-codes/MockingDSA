@@ -377,7 +377,7 @@ public:
     }
     std::vector<std::vector<int>> newBuckets(radix,
                                              std::vector<int>(vector.size()));
-    for (int i = bits; i < sizeof(int) * 8; i += bits) {
+    for (unsigned int i = bits; i < sizeof(int) * 8; i += bits) {
       std::vector<int> newSize(radix);
       for (int j = 0; j < radix; j++) {
         for (int k = 0; k < size[j]; k++) {
