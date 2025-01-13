@@ -1,3 +1,9 @@
+#ifdef CROSS
+#define _GLIBCXX_DEBUG 1
+#define _GLIBCXX_DEBUG_PEDANTIC 1
+#define _GLIBCXX_SANITIZE_VECTOR 1
+#endif
+
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
@@ -21,7 +27,7 @@ int main() {
   std::multiset<u32> apartments;
 
   for (size_t i = 0; i < n; i++)
-    std::cin >> desiredSizes[i];
+    std::cin >> ::desiredSizes[i];
 
   for (size_t i = 0; i < m; i++) {
     u32 num;
@@ -29,13 +35,13 @@ int main() {
     apartments.insert(num);
   }
 
-  std::sort(&desiredSizes[0], &desiredSizes[n]);
+  std::sort(&::desiredSizes[0], &::desiredSizes[n]);
 
   u32 count = 0U;
   for (size_t i = 0; i < n; i++) {
-    u32 target = (desiredSizes[i] > k) ? desiredSizes[i] - k : 0;
+    u32 target = (::desiredSizes[i] > k) ? ::desiredSizes[i] - k : 0;
     auto it = apartments.lower_bound(target);
-    if (it != apartments.end() && *it <= desiredSizes[i] + k) {
+    if (it != apartments.end() && *it <= ::desiredSizes[i] + k) {
       count++;
       apartments.erase(it);
     }

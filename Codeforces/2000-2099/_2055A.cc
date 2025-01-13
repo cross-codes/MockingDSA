@@ -1,9 +1,3 @@
-#ifdef CROSS
-#define _GLIBCXX_DEBUG 1
-#define _GLIBCXX_DEBUG_PEDANTIC 1
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-
 #include <cstdint>
 #include <iostream>
 
@@ -18,10 +12,10 @@ int main() {
   int t;
   std::cin >> t;
   while (t-- > 0) {
-    i64 a, b;
-    std::cin >> a >> b;
-    if ((2LL * b - a) >= 0LL && ((2LL * b - a) % 3LL == 0LL) &&
-        (2LL * a - b) >= 0LL && ((2LL * a - b) % 3LL == 0LL))
+    int n, a, b;
+    std::cin >> n >> a >> b;
+
+    if ((a - b) % 2 == 0)
       std::cout << "YES\n";
     else
       std::cout << "NO\n";

@@ -18,7 +18,7 @@ public:
       auto it = charToIndex.find(c);
       if (it != charToIndex.end()) {
         bestSize = std::max(bestSize, charToIndex.size());
-        int newPos = it->second;
+        size_t newPos = it->second;
         for (size_t j = l; j <= newPos; j++)
           charToIndex.erase(s[j]);
         l = newPos + 1;
@@ -27,6 +27,6 @@ public:
       charToIndex[c] = i;
     }
 
-    return std::max(bestSize, charToIndex.size());
+    return static_cast<int>(std::max(bestSize, charToIndex.size()));
   }
 };

@@ -6,9 +6,8 @@
 
 #include <chrono>
 #include <cstdint>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
 #include <iostream>
+#include <unordered_set>
 
 using i64 = int64_t;
 using u64 = uint64_t;
@@ -54,23 +53,17 @@ int main() {
   size_t n;
   std::cin >> n;
 
-  int x;
-  std::cin >> x;
-
-  __gnu_pbds::gp_hash_table<int, size_t, ::HasherFunctor> map{};
-  for (size_t i = 1; i <= n; i++) {
-    int num;
+  std::unordered_set<u32, ::HasherFunctor> seenNumbers{};
+  u32 numberOfPasses = 1U;
+  for (size_t i = 0; i < n; i++) {
+    u32 num;
     std::cin >> num;
-
-    auto it = map.find(x - num);
-    if (it != map.end()) {
-      std::cout << i << " " << it->second << "\n";
-      return 0;
-    } else
-      map[num] = i;
+    if (seenNumbers.contains(num + 1))
+      numberOfPasses++;
+    seenNumbers.insert(num);
   }
 
-  std::cout << "IMPOSSIBLE\n";
+  std::cout << numberOfPasses << "\n";
 
   return 0;
 }

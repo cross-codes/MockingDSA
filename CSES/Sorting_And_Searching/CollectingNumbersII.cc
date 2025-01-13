@@ -1,10 +1,3 @@
-#ifdef CROSS
-#define _GLIBCXX_DEBUG 1
-#define _GLIBCXX_DEBUG_PEDANTIC 1
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-
-#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -48,66 +41,50 @@ public:
   }
 };
 
-constexpr int _ = 5000;
-int arr[_], copy[_];
+constexpr size_t _ = 200001;
+u32 sequence[_];
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n;
-  int x;
-  std::cin >> n >> x;
-  std::unordered_map<int, u32, HasherFunctor> map{};
+  size_t n, m;
+  std::cin >> n >> m;
 
-  for (size_t i = 0U; i < n; i++) {
-    int num;
-    std::cin >> num;
-    arr[i] = copy[i] = num;
-  }
-
-  std::sort(&copy[0], &copy[n]);
-
-  bool found = false;
+  std::unordered_map<u32, size_t, ::HasherFunctor> seenNumbers{};
+  u32 numberOfPasses = 1U;
   for (size_t i = 0; i < n; i++) {
-    int n1 = copy[i];
-
-    size_t l = i + 1, r = n - 1;
-    while (l < r) {
-      int n2 = copy[l], n3 = copy[r];
-      if (n1 + n2 + n3 > x)
-        r--;
-      else if (n1 + n2 + n3 < x)
-        l++;
-      else {
-        map[n1]++, map[n2]++, map[n3]++;
-        found = true;
-        break;
-      }
-    }
-
-    if (found)
-      break;
+    u32 num;
+    std::cin >> num;
+    if (seenNumbers.contains(num + 1))
+      numberOfPasses++;
+    seenNumbers.insert({num, i + 1}), sequence[i + 1] = num;
   }
 
-  if (!found)
-    std::cout << "IMPOSSIBLE\n";
-  else {
-    for (size_t i = 0; i < n; i++) {
-      if (map.empty())
-        break;
+  while (m-- > 0) {
+    size_t pos1, pos2;
+    std::cin >> pos1 >> pos2;
 
-      int currNum = arr[i];
-
-      auto it = map.find(currNum);
-      if (it != map.end()) {
-        u32 freq = it->second;
-        if (freq == 1U)
-          map.erase(currNum);
+    u32 num1 = sequence[pos1], num2 = sequence[pos2];
+    if (num1 > num2) {
+      auto it = seenNumbers.find(num1 + 1);
+      if (it != seenNumbers.end()) {
+        size_t nextPos = it->second;
+        if (nextPos < pos2)
+          std::cout << numberOfPasses << "\n";
         else
-          map[currNum] = --freq;
-
-        std::cout << i + 1U << " ";
-      }
+          std::cout << numberOfPasses - 1 << "\n";
+      } else
+        std::cout << numberOfPasses - 1 << "\n";
+    } else {
+      auto it = seenNumbers.find(num2 + 1);
+      if (it != seenNumbers.end()) {
+        size_t nextPos = it->second;
+        if (nextPos > pos1)
+          std::cout << numberOfPasses << "\n";
+        else
+          std::cout << numberOfPasses + 1 << "\n";
+      } else
+        std::cout << numberOfPasses + 1 << "\n";
     }
   }
 

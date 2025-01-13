@@ -1,3 +1,9 @@
+#ifdef CROSS
+#define _GLIBCXX_DEBUG 1
+#define _GLIBCXX_DEBUG_PEDANTIC 1
+#define _GLIBCXX_SANITIZE_VECTOR 1
+#endif
+
 #include <climits>
 #include <cstdint>
 #include <iostream>
@@ -17,7 +23,7 @@ int main() {
   for (int i = 0; i < n; i++)
     std::cin >> apples[i];
 
-  i64 minDiff = LLONG_MAX;
+  i64 minDiff = INT64_MAX;
   for (int i = 1; i < (1 << n); i++) {
     i64 sumGroup1 = 0LL, sumGroup2 = 0LL;
     for (int j = 0; j < n; j++) {
