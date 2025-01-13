@@ -9,3 +9,4 @@
 -Wfloat-equal
 -Wno-unused-const-variable
 -Wno-sign-conversion
+-DCROSS

@@ -1,3 +1,9 @@
+#ifdef CROSS
+#define _GLIBCXX_DEBUG 1
+#define _GLIBCXX_DEBUG_PEDANTIC 1
+#define _GLIBCXX_SANITIZE_VECTOR 1
+#endif
+
 #include <cstdint>
 #include <iostream>
 
@@ -8,7 +14,7 @@ using u128 = unsigned __int128;
 
 constexpr i64 MOD = static_cast<i64>(1e9 + 7);
 
-inline i64 modPow(i64 base, i64 exponent, const i64 &modulus);
+inline i64 modPow(i64, i64, const i64 &);
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
