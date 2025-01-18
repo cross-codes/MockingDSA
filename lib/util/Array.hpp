@@ -51,12 +51,12 @@ public:
 
     int low = fromIndex;
     int high = toIndex - 1;
-    while (low <= high) {
+    while (low < high) {
       int mid = (low + high) >> 1;
       if (vec[mid] < key)
         low = mid + 1;
       else if (vec[mid] > key)
-        high = mid - 1;
+        high = mid;
       else
         return mid;
     }
