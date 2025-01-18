@@ -5,7 +5,9 @@
 #endif
 
 #include <cstdint>
+#include <cstring>
 #include <iostream>
+#include <string>
 
 using i64 = int64_t;
 using u64 = uint64_t;
@@ -28,18 +30,23 @@ int main() {
   for (size_t i = 0; i <= _; i++)
     ::inverseFactorials[i] = ::modPow(factorials[i], ::MOD - 2, ::MOD);
 
-  u32 n;
-  std::cin >> n;
+  std::string input;
+  std::getline(std::cin, input);
 
-  while (n-- > 0) {
-    size_t a, b;
-    std::cin >> a >> b;
+  u32 freq[26];
+  std::memset(freq, 0, 26 * sizeof(u32));
 
-    std::cout << ((::factorials[a] * ::inverseFactorials[b]) % ::MOD *
-                  ::inverseFactorials[a - b]) %
-                     ::MOD
-              << "\n";
+  for (char &c : input)
+    freq[c - 'a']++;
+
+  u64 res = factorials[input.size()];
+
+  for (int num : freq) {
+    res *= inverseFactorials[num];
+    res %= MOD;
   }
+
+  std::cout << res % MOD << "\n";
 
   return 0;
 }

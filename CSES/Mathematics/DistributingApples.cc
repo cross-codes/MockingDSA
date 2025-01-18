@@ -12,7 +12,7 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 1000000;
+constexpr size_t _ = 2000000;
 constexpr u64 MOD = static_cast<u64>(1e9 + 7);
 u64 factorials[_ + 1], inverseFactorials[_ + 1];
 
@@ -28,18 +28,14 @@ int main() {
   for (size_t i = 0; i <= _; i++)
     ::inverseFactorials[i] = ::modPow(factorials[i], ::MOD - 2, ::MOD);
 
-  u32 n;
-  std::cin >> n;
+  u32 n, m;
+  std::cin >> n >> m;
 
-  while (n-- > 0) {
-    size_t a, b;
-    std::cin >> a >> b;
+  u64 nVm = ((factorials[n + m - 1] * inverseFactorials[m]) % ::MOD *
+             inverseFactorials[n - 1]) %
+            ::MOD;
 
-    std::cout << ((::factorials[a] * ::inverseFactorials[b]) % ::MOD *
-                  ::inverseFactorials[a - b]) %
-                     ::MOD
-              << "\n";
-  }
+  std::cout << nVm << "\n";
 
   return 0;
 }
