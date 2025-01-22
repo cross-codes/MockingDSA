@@ -12,24 +12,26 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
-void move(const int &n, const int &from, const int &to, const int &via);
+void move(size_t, u32, u32, u32);
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  int n;
+  size_t n;
   std::cin >> n;
   std::cout << (1 << n) - 1 << "\n";
 
-  ::move(n, 1, 3, 2);
+  ::move(n, 1, 2, 3);
 
   return 0;
 }
 
-void move(const int &n, const int &from, const int &to, const int &via) {
-  if (n == 0)
-    return;
-  move(n - 1, from, via, to);
-  std::cout << from << " " << to << "\n";
-  move(n - 1, via, to, from);
+void move(size_t numberOfDisks, u32 source, u32 intermediate, u32 destination) {
+  if (numberOfDisks == 1)
+    std::cout << source << " " << destination << "\n";
+  else {
+    ::move(numberOfDisks - 1, source, destination, intermediate);
+    std::cout << source << " " << destination << "\n";
+    ::move(numberOfDisks - 1, intermediate, source, destination);
+  }
 }
