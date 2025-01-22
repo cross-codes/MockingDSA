@@ -45,22 +45,49 @@ public:
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
   inline static auto __JDK__binarySearch(const std::vector<T> &vec,
-                                         const int &fromIndex,
-                                         const int &toIndex, const T &key)
+                                         const size_t &fromIndex,
+                                         const size_t &toIndex, const T &key)
       -> int {
 
-    int low = fromIndex;
-    int high = toIndex - 1;
+    size_t low = fromIndex, high = toIndex - 1;
     while (low < high) {
-      int mid = (low + high) >> 1;
+      size_t mid = (low + high) >> 1;
       if (vec[mid] < key)
         low = mid + 1;
       else if (vec[mid] > key)
         high = mid;
       else
-        return mid;
+        return static_cast<int>(mid);
     }
 
-    return -(low + 1);
+    return -(static_cast<int>(low) + 1);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline static auto ternarySearch(const std::vector<T> &vec,
+                                   const size_t &fromIndex,
+                                   const size_t &toIndex, const T &key) -> int {
+    size_t low = fromIndex, high = toIndex - 1;
+
+    while (low < high - 1) {
+      size_t l = (low + high) / 3;
+      size_t u = ((low + high) / 3) << 1;
+
+      if (key > vec[u])
+        low = u + 1;
+      else if (key > vec[l]) {
+        low = l + 1;
+        high = u;
+      } else
+        high = l;
+    }
+
+    if (key == vec[low])
+      return static_cast<int>(low);
+    else if (key == vec[high])
+      return static_cast<int>(high);
+    else
+      return -1;
   }
 };
