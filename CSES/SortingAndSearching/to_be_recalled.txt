@@ -1,2 +1,3 @@
 Restautant customers
 Missing coin sum
+Nested ranges check

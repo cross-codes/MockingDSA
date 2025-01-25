@@ -4,12 +4,10 @@
 
 struct Vector2D {
 public:
-  int x;
-  int y;
+  int64_t x;
+  int64_t y;
 
-  Vector2D(int x, int y) : x(x), y(y) {}
-  ~Vector2D() {}
-  Vector2D(const Vector2D &vector) : x(vector.x), y(vector.y) {}
+  Vector2D(int64_t x, int64_t y) : x(x), y(y) {}
 
   inline double norm() const {
     return std::sqrt(this->x * this->x + this->y * this->y);
@@ -23,14 +21,12 @@ public:
     return Vector2D(this->x - vector.x, this->y - vector.y);
   }
 
-  inline long long dot(const Vector2D &vector) const {
-    return static_cast<long long>(this->x) * vector.x +
-           static_cast<long long>(this->y) * vector.y;
+  inline int64_t dot(const Vector2D &vector) const {
+    return (this->x) * vector.x + (this->y) * vector.y;
   }
 
-  inline long long cross(const Vector2D &vector) const {
-    return static_cast<long long>(this->x) * vector.y -
-           static_cast<long long>(this->y) * vector.x;
+  inline int64_t cross(const Vector2D &vector) const {
+    return (this->x) * vector.y - (this->y) * vector.x;
   }
 
   inline Vector2D perpendicularVector() const {
@@ -41,16 +37,17 @@ public:
     if (this->x == 0)
       return this->y > 0 ? std::numeric_limits<double>::infinity()
                          : std::numeric_limits<double>::lowest();
-    return __builtin_atan2(this->y, this->x);
+    return __builtin_atan2(static_cast<double>(this->y),
+                           static_cast<double>(this->x));
   }
 
   inline double angleBetween(const Vector2D &vector) const {
-    double dotProduct = this->dot(vector);
+    int64_t dotProduct = (this->dot(vector));
     double normProduct = this->norm() * vector.norm();
-    if (normProduct == 0)
+    if (std::abs(normProduct) < 1e9)
       return (dotProduct > 0) ? std::numeric_limits<double>::infinity()
                               : std::numeric_limits<double>::lowest();
-    return __builtin_acos(dotProduct / normProduct);
+    return __builtin_acos(static_cast<double>(dotProduct) / normProduct);
   }
 
   bool operator==(const Vector2D &vector) const {
