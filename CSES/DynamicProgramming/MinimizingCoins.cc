@@ -25,23 +25,23 @@ int main() {
   std::cin >> n >> x;
 
   for (size_t i = 0; i < n; i++)
-    std::cin >> coins[i];
+    std::cin >> ::coins[i];
 
   for (size_t i = 1; i < _; i++) {
     int bestNumber = INT_MAX;
     for (size_t j = 0; j < n; j++) {
-      int coin = coins[j];
-      if (coin <= static_cast<int>(i) && dp[i - coin] != -1)
-        bestNumber = std::min(bestNumber, dp[i - coin] + 1);
+      int coin = ::coins[j];
+      if (coin <= static_cast<int>(i) && ::dp[i - coin] != -1)
+        bestNumber = std::min(bestNumber, ::dp[i - coin] + 1);
     }
 
     if (bestNumber == INT_MAX)
-      dp[i] = -1;
+      ::dp[i] = -1;
     else
-      dp[i] = bestNumber;
+      ::dp[i] = bestNumber;
   }
 
-  std::cout << dp[x] << "\n";
+  std::cout << ::dp[x] << "\n";
 
   return 0;
 }
