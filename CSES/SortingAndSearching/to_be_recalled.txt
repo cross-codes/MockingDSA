@@ -1,3 +1,4 @@
 Restautant customers
 Missing coin sum
 Nested ranges check
+Nearest Smaller values (monotonic stack)
