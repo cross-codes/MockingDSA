@@ -9,7 +9,7 @@ public:
   std::string underlyingString;
 
   Anagram(std::string s) {
-    std::memset(freq, 0, sizeof(freq));
+    std::memset(freq, 0x00, sizeof(freq));
     for (char c : s)
       freq[c - 'a']++;
   }
@@ -44,6 +44,7 @@ public:
     for (auto &string : strs) {
       Anagram equiv(string);
       auto it = typeToIndex.find(equiv);
+
       if (it != typeToIndex.end())
         res[it->second].push_back(string);
       else {
