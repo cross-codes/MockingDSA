@@ -1,9 +1,3 @@
-#ifdef CROSS
-#define _GLIBCXX_DEBUG 1
-#define _GLIBCXX_DEBUG_PEDANTIC 1
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-
 #include <cstdint>
 #include <iostream>
 
@@ -15,17 +9,17 @@ using u128 = unsigned __int128;
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  i64 n;
+  int n;
   std::cin >> n;
 
-  i64 sum = 0LL;
+  int res = 0;
   for (int i = 0; i < n - 1; i++) {
-    i64 num;
+    int num;
     std::cin >> num;
-    sum += num;
+    res ^= num ^ (i + 1);
   }
 
-  std::cout << ((n * (n + 1)) >> 1) - sum << "\n";
+  std::cout << (res ^ n) << "\n";
 
   return 0;
 }
