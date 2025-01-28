@@ -3,7 +3,7 @@
 #include <string>
 
 #ifdef CROSS
-#include "../../lib/util/Debug.hpp"
+#include "util/Debug.hh"
 #else
 #define dbg(...) 249
 #endif
@@ -21,6 +21,8 @@ int main() {
   while (t--) {
     std::string input;
     std::cin >> input;
+
+    dbg("hello");
 
     u32 cnt = 0U;
     for (char c : input) {

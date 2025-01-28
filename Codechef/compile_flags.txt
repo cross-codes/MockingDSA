@@ -1,6 +1,7 @@
 -xc++
 -std=c++20
 -O2
+-I/home/cross/MockingDSA/lib
 -funroll-loops
 -fsanitize=undefined,address
 -fno-sanitize-recover
