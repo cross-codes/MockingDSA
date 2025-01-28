@@ -1,20 +1,17 @@
 #include <cstddef>
 #include <cstring>
+#include <memory>
 #include <string>
 
 template <typename E> class BoundedStack {
 private:
   int64_t STACK_SIZE_;
   int64_t pos_ = -1;
-  E *stack_;
+  std::unique_ptr<E[]> stack_;
 
 public:
   BoundedStack(size_t initialSize)
-      : STACK_SIZE_(initialSize) {
-    stack_ = new E[STACK_SIZE_];
-  };
-
-  ~BoundedStack() { delete[] stack_; }
+      : STACK_SIZE_(initialSize), stack_(std::make_unique<E[]>(STACK_SIZE_)) {};
 
   void pop() {
     if (pos_ == -1)
@@ -32,9 +29,7 @@ public:
 
   size_t size() { return static_cast<size_t>(pos_ + 1); }
 
-  void clear() {
-    pos_ = -1;
-  }
+  void clear() { pos_ = -1; }
 
   E top() {
     if (pos_ == -1)

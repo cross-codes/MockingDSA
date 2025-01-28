@@ -1,11 +1,6 @@
-#ifdef CROSS
-#define _GLIBCXX_DEBUG 1
-#define _GLIBCXX_DEBUG_PEDANTIC 1
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-
 #include <cstdint>
 #include <iostream>
+#include <memory>
 
 using i64 = int64_t;
 using u64 = uint64_t;
@@ -13,25 +8,20 @@ using u32 = uint32_t;
 using u128 = unsigned __int128;
 
 struct FenwickTree {
-
 private:
-  size_t N;
-  int64_t *tree;
+  size_t N_;
+  std::unique_ptr<int64_t[]> tree_;
 
 public:
-  int64_t *array;
+  std::unique_ptr<int64_t[]> array;
 
   FenwickTree(size_t n)
-      : N(n), tree(new int64_t[n + 1]), array(new int64_t[n + 1]) {};
-
-  ~FenwickTree() {
-    delete[] tree;
-    delete[] array;
-  }
+      : N_(n), tree_(std::make_unique<int64_t[]>(n + 1)),
+        array(std::make_unique<int64_t[]>(n + 1)) {};
 
   void addToIndex(size_t k, int64_t x) {
-    while (k <= N) {
-      tree[k] += x;
+    while (k <= N_) {
+      tree_[k] += x;
       k += (k == 0 ? 0 : 1 << __builtin_ctzll(k));
     }
   }
@@ -39,7 +29,7 @@ public:
   int64_t prefixSumAt(size_t k) {
     int64_t s = 0LL;
     while (k >= 1) {
-      s += tree[k];
+      s += tree_[k];
       k -= (k == 0 ? 0 : 1 << __builtin_ctzll(k));
     }
     return s;
@@ -52,7 +42,7 @@ int main() {
   size_t n, q;
   std::cin >> n >> q;
 
-  FenwickTree bit = FenwickTree(n);
+  FenwickTree bit(n);
 
   for (size_t i = 1; i <= n; i++) {
     i64 num;
