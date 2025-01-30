@@ -1,5 +1,6 @@
 #include <cstddef>
-#include <unordered_map>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 #include <vector>
 
 struct Node {
@@ -19,7 +20,7 @@ public:
     if (head->next == nullptr)
       return new Node(head->val);
 
-    std::unordered_map<Node *, Node *> nodeToCopy{};
+    __gnu_pbds::gp_hash_table<Node *, Node *> nodeToCopy{};
     std::vector<Node *> nodeOrder{};
 
     Node *current = head;
