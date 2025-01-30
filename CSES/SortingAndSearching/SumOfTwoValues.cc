@@ -1,9 +1,3 @@
-#ifdef CROSS
-#define _GLIBCXX_DEBUG 1
-#define _GLIBCXX_DEBUG_PEDANTIC 1
-#define _GLIBCXX_SANITIZE_VECTOR 1
-#endif
-
 #include <chrono>
 #include <cstdint>
 #include <ext/pb_ds/assoc_container.hpp>
