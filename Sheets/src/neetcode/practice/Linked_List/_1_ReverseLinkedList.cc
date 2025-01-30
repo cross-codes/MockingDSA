@@ -1,4 +1,4 @@
-#include "./ListNode.hpp"
+#include "./ListNode.hh"
 
 class Solution {
 public:

@@ -1,4 +1,4 @@
-#include "./TreeNode.hpp"
+#include "./TreeNode.hh"
 
 class Solution {
 public:
