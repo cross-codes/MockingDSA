@@ -19,18 +19,19 @@ int main() {
   for (size_t i = 0; i < n; i++)
     std::cin >> start[i] >> end[i];
 
+  int maxOverlap = 0, currentOverlap = 0;
+
   std::sort(&::start[0], &::start[n]);
   std::sort(&::end[0], &::end[n]);
 
-  int maxOverlap = 0, currentOverlap = 0;
-  size_t ptr1 = 0U, ptr2 = 0U;
-  while (true) {
-    if (start[ptr1] < end[ptr2]) {
-      maxOverlap = std::max(maxOverlap, ++currentOverlap);
-      if (++ptr1 == n)
-        break;
-    } else
-      ptr2++, currentOverlap--;
+  size_t startIdx = 0U, endIdx = 0U;
+  while (startIdx < n && endIdx < n) {
+    if (start[startIdx] < end[endIdx])
+      currentOverlap++, startIdx++;
+    else
+      currentOverlap--, endIdx++;
+
+    maxOverlap = std::max(maxOverlap, currentOverlap);
   }
 
   std::cout << maxOverlap << "\n";
