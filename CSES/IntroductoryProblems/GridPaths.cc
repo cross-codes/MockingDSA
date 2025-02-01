@@ -8,10 +8,10 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 7;
+constexpr size_t N = 7;
 
 size_t cnt = 0;
-bool visited[_ + 1][_ + 1];
+bool visited[N + 1][N + 1];
 
 enum class Direction { UP, DOWN, LEFT, RIGHT, NONE };
 
@@ -32,18 +32,17 @@ int main() {
 }
 
 auto inBounds(size_t x, size_t y) -> bool {
-  return (x >= 1) && (y >= 1) && (x <= _) && (y <= _);
+  return (x >= 1) && (y >= 1) && (x <= N) && (y <= N);
 }
 
 void search(size_t x, size_t y, size_t idx, std::string pattern,
             Direction dir) {
-  if (idx == _ * _ - 1 || (x == 1 && y == _)) {
-    if (idx == _ * _ - 1 && x == 1 && y == _)
+  if (idx == N * N - 1 || (x == 1 && y == N)) {
+    if (idx == N * N - 1 && x == 1 && y == N)
       cnt++;
 
     return;
   }
-
 
   if (dir == Direction::UP) {
     if (!inBounds(x, y - 1) || visited[y - 1][x])
