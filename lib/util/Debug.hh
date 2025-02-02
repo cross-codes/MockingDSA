@@ -1,6 +1,7 @@
 #pragma once
 #include <bitset>
 #include <concepts>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -80,14 +81,14 @@ std::string to_string(std::tuple<A, B, C, D> p) {
          to_string(get<2>(p)) + ", " + to_string(get<3>(p)) + ")";
 }
 
-void print() { std::cerr << std::endl; }
+void print() { std::fprintf(stderr, "\n"); }
 
 template <typename T, typename... Args> void print(T H, Args... args) {
-  std::cerr << " " << to_string(H);
+  std::fprintf(stderr, " %s", to_string(H).c_str());
   print(args...);
 }
 
 } // namespace Debug
 
 #define dbg(...)                                                               \
-  std::cerr << "[" << #__VA_ARGS__ << "]:", Debug::print(__VA_ARGS__)
+  std::fprintf(stderr, "[%s]:", #__VA_ARGS__), Debug::print(__VA_ARGS__)
