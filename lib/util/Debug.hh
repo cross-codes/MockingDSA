@@ -1,8 +1,8 @@
 #pragma once
 #include <bitset>
 #include <concepts>
-#include <cstdio>
 #include <iostream>
+#include <print>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -81,14 +81,24 @@ std::string to_string(std::tuple<A, B, C, D> p) {
          to_string(get<2>(p)) + ", " + to_string(get<3>(p)) + ")";
 }
 
-void print() { std::fprintf(stderr, "\n"); }
+void print() {
+#if __cplusplus >= 202302L
+  std::print(stderr, "{}", "\n");
+#else
+  std::cerr << std::endl;
+#endif
+}
 
 template <typename T, typename... Args> void print(T H, Args... args) {
-  std::fprintf(stderr, " %s", to_string(H).c_str());
+#if __cplusplus >= 202302L
+  std::print(stderr, " {}", to_string(H));
+#else
+  std::cerr << " " << to_string(H);
+#endif
   print(args...);
 }
 
 } // namespace Debug
 
 #define dbg(...)                                                               \
-  std::fprintf(stderr, "[%s]:", #__VA_ARGS__), Debug::print(__VA_ARGS__)
+  std::cerr << "[" << #__VA_ARGS__ << "]:", Debug::print(__VA_ARGS__)

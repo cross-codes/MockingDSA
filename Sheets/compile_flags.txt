@@ -1,5 +1,5 @@
 -xc++
--std=c++20
+-std=c++17
 -O2
 -I/home/cross/MockingDSA/lib
 -funroll-loops
@@ -16,7 +16,6 @@
 -Wshift-overflow
 -Wcast-qual
 -Wcast-align
--Wno-unused-result
 -DCROSS
 -D_GLIBCXX_DEBUG
 -D_GLIBCXX_DEBUG_PEDANTIC
