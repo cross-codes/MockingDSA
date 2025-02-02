@@ -30,6 +30,7 @@ private:
 
     headSentinel_->next->prev = node;
     headSentinel_->next = node;
+    currentSize_++;
   }
 
   void removeBack() {
@@ -39,6 +40,7 @@ private:
     tail->next->prev = tail->prev;
 
     cache_.erase(tail->key);
+    currentSize_--;
   }
 
 public:
@@ -69,12 +71,9 @@ public:
 
       cache_.insert({key, newNode});
       addToFront(newNode);
-      currentSize_++;
 
-      if (currentSize_ > capacity_) {
+      if (currentSize_ > capacity_) 
         removeBack();
-        currentSize_--;
-      }
     } else {
       auto node = it->second;
       node->value = value;
