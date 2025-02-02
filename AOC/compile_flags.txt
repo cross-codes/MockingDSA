@@ -16,6 +16,7 @@
 -Wshift-overflow
 -Wcast-qual
 -Wcast-align
+-Wno-unused-result
 -DCROSS
 -D_GLIBCXX_DEBUG
 -D_GLIBCXX_DEBUG_PEDANTIC
