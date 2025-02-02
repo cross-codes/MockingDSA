@@ -1,5 +1,5 @@
 COMPILER = icpx
-FLAGS = -xc++ -std=c++23 -O2 -I/home/cross/MockingDSA/lib -funroll-loops \
+FLAGS = -xc++ -std=c++23 -O2 -I/home/cross/MockingDSA/Leetcode/include -funroll-loops \
 				-fsanitize=undefined,address -fno-sanitize-recover -fstack-protector \
 				-Wall -Wextra -Wshadow -Wconversion -Wfloat-equal \
 				-Wno-unused-const-variable -Wno-sign-conversion -Wshift-overflow \

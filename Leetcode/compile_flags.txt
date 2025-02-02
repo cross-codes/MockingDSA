@@ -1,7 +1,7 @@
 -xc++
 -std=c++23
 -O2
--I/home/cross/MockingDSA/lib
+-I/home/cross/MockingDSA/Leetcode/include
 -funroll-loops
 -fsanitize=undefined,address
 -fno-sanitize-recover

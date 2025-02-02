@@ -1,4 +1,4 @@
-#include "./ListNode.hh"
+#include "ListNode.hh"
 #include <vector>
 
 class Solution {
