@@ -13,16 +13,15 @@ bool visited[N + 1][N + 1];
 
 enum class Direction { UP, DOWN, LEFT, RIGHT, NONE };
 
-inline void search(size_t, size_t, size_t, char[], Direction);
+inline void search(size_t, size_t, size_t, const std::string &, Direction);
 inline auto inBounds(size_t, size_t) -> bool;
 inline auto canGo(Direction, size_t, size_t) -> bool;
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  char pattern[N * N];
-  for (size_t i = 0; i < N * N; i++)
-    std::cin >> pattern[i];
+  std::string pattern;
+  std::cin >> pattern;
 
   search(1, 1, 0, pattern, ::Direction::NONE);
 
@@ -54,7 +53,7 @@ inline auto canGo(::Direction dir, size_t x, size_t y) -> bool {
   }
 }
 
-inline void search(size_t x, size_t y, size_t idx, char pattern[],
+inline void search(size_t x, size_t y, size_t idx, const std::string &pattern,
                    ::Direction dir) {
   if (idx == N * N - 1 || (x == 1 && y == N)) {
     if (idx == N * N - 1 && x == 1 && y == N)

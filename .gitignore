@@ -1,5 +1,8 @@
 # Gitignore for the following technologies: C++, Java, Eclipse, Vim
 
+# Java
+_Java
+
 # Prerequisites
 *.d
 
