@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cstdint>
-#include <cstdio>
 #include <iostream>
 #include <sys/types.h>
 #include <tuple>
@@ -21,13 +20,14 @@ auto constexpr TUPLE_ORDER = [](const std::tuple<int, int, int> &a,
 };
 
 int main() {
+  std::cin.tie(nullptr)->sync_with_stdio(false);
 
   size_t n;
-  std::scanf("%ld", &n);
+  std::cin >> n;
 
   for (size_t i = 1; i <= n; i++) {
     int start, end, cost;
-    std::scanf("%d %d %d", &start, &end, &cost);
+    std::cin >> start >> end >> cost;
     ::intervals[i] = std::make_tuple(start, end, cost);
   }
 

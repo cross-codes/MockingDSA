@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <cstring>
 #include <iostream>
 #include <print>
 #include <sys/types.h>
@@ -22,16 +21,18 @@ int main() {
   std::cin >> t;
 
   while (t-- > 0) {
-    std::string input;
-    std::cin >> input;
+    int n;
+    std::cin >> n;
 
-    int cnt = 0;
-    for (char c : input) {
-      if (c == '1')
-        cnt++;
+    bool bad = false;
+    for (int i = 0; i < n; i++) {
+      int num;
+      std::cin >> num;
+      if (num <= std::max(i, n - i - 1) << 1)
+        bad = true;
     }
 
-    std::println("{0}", cnt);
+    std::println("{0}", (bad) ? "NO" : "YES");
   }
 
   return 0;

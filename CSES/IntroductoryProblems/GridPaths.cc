@@ -1,6 +1,5 @@
 #include <cstdint>
-#include <cstdio>
-#include <cstring>
+#include <iostream>
 
 using i64 = int64_t;
 using u64 = uint64_t;
@@ -14,18 +13,20 @@ bool visited[N + 1][N + 1];
 
 enum class Direction { UP, DOWN, LEFT, RIGHT, NONE };
 
-inline void search(size_t, size_t, size_t, char pattern[], Direction);
-inline auto inBounds(size_t x, size_t y) -> bool;
-inline auto canGo(Direction dir, size_t x, size_t y) -> bool;
+inline void search(size_t, size_t, size_t, char[], Direction);
+inline auto inBounds(size_t, size_t) -> bool;
+inline auto canGo(Direction, size_t, size_t) -> bool;
 
 int main() {
+  std::cin.tie(nullptr)->sync_with_stdio(false);
 
   char pattern[N * N];
-  std::scanf("%s", pattern);
+  for (size_t i = 0; i < N * N; i++)
+    std::cin >> pattern[i];
 
   search(1, 1, 0, pattern, ::Direction::NONE);
 
-  std::printf("%ld\n", ::cnt);
+  std::cout << cnt << "\n";
 
   return 0;
 }
@@ -40,7 +41,7 @@ inline auto canGo(::Direction dir, size_t x, size_t y) -> bool {
     return ::inBounds(x, y - 1) && !::visited[y - 1][x];
 
   case ::Direction::RIGHT:
-    return ::inBounds(x + 1, y) && !::visited[y][x + 1];
+    return ::inBounds(x + 1, y) && (!::visited[y][x + 1]);
 
   case ::Direction::DOWN:
     return ::inBounds(x, y + 1) && !::visited[y + 1][x];
@@ -76,19 +77,19 @@ inline void search(size_t x, size_t y, size_t idx, char pattern[],
   char c = pattern[idx];
 
   if (c == 'D' || c == '?')
-    if (::inBounds(x, y + 1) && !::visited[y + 1][x])
+    if (::canGo(::Direction::DOWN, x, y))
       search(x, y + 1, idx + 1, pattern, ::Direction::DOWN);
 
   if (c == 'U' || c == '?')
-    if (::inBounds(x, y - 1) && !::visited[y - 1][x])
+    if (::canGo(::Direction::UP, x, y))
       search(x, y - 1, idx + 1, pattern, Direction::UP);
 
   if (c == 'R' || c == '?')
-    if (::inBounds(x + 1, y) && !::visited[y][x + 1])
+    if (::canGo(::Direction::RIGHT, x, y))
       search(x + 1, y, idx + 1, pattern, ::Direction::RIGHT);
 
   if (c == 'L' || c == '?')
-    if (::inBounds(x - 1, y) && !::visited[y][x - 1])
+    if (::canGo(::Direction::LEFT, x, y))
       search(x - 1, y, idx + 1, pattern, ::Direction::LEFT);
 
   ::visited[y][x] = false;
