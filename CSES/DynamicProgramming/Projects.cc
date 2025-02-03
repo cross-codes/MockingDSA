@@ -1,17 +1,17 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
-#include <sys/types.h>
 #include <tuple>
 
 using i64 = int64_t;
 using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
+using ssz = ptrdiff_t;
 
-constexpr size_t _ = 200001;
+constexpr ssz _ = 200001;
 std::tuple<int, int, int> intervals[_];
-ssize_t compatible[_];
+ssz compatible[_];
 i64 maxCost[_];
 
 auto constexpr TUPLE_ORDER = [](const std::tuple<int, int, int> &a,
@@ -22,10 +22,10 @@ auto constexpr TUPLE_ORDER = [](const std::tuple<int, int, int> &a,
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n;
+  ssz n;
   std::cin >> n;
 
-  for (size_t i = 1; i <= n; i++) {
+  for (ssz i = 1; i <= n; i++) {
     int start, end, cost;
     std::cin >> start >> end >> cost;
     ::intervals[i] = std::make_tuple(start, end, cost);
@@ -33,7 +33,7 @@ int main() {
 
   std::sort(&::intervals[1], &::intervals[n + 1], ::TUPLE_ORDER);
 
-  for (size_t i = 1; i <= n; i++) {
+  for (ssz i = 1; i <= n; i++) {
     int start = std::get<0>(::intervals[i]);
     auto it = std::lower_bound(&::intervals[1], &::intervals[n + 1],
                                std::make_tuple(0, start, 0), ::TUPLE_ORDER);
@@ -41,7 +41,7 @@ int main() {
     ::compatible[i] = std::distance(&::intervals[1], --it) + 1;
   }
 
-  for (size_t i = 1; i <= n; i++) {
+  for (ssz i = 1; i <= n; i++) {
     int cost = std::get<2>(::intervals[i]);
     ::maxCost[i] = std::max(cost + ::maxCost[compatible[i]], ::maxCost[i - 1]);
   }
