@@ -18,7 +18,9 @@ public:
   void rotate(std::vector<std::vector<int>> &matrix) {
     size_t n = matrix.size();
     squareTranspose(matrix, 0, n);
-    for (size_t i = 0; i < n; i++)
-      std::reverse(matrix[i].begin(), matrix[i].end());
+    for (size_t i = 0; i < n; i++) {
+      auto &row = matrix[i];
+      std::reverse(row.begin(), row.end());
+    }
   }
 };
