@@ -1,5 +1,6 @@
 #include <climits>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 class Solution {
@@ -15,9 +16,9 @@ public:
       return maxVal;
     } else {
 
-      int maxMoneyA[n], maxMoneyB[n];
-      std::memset(maxMoneyA, 0x00, sizeof(maxMoneyA));
-      std::memset(maxMoneyB, 0x00, sizeof(maxMoneyB));
+      std::unique_ptr<int[]> maxMoneyA(new int[n]), maxMoneyB(new int[n]);
+      std::memset(maxMoneyA.get(), 0x00, sizeof(int) * n);
+      std::memset(maxMoneyB.get(), 0x00, sizeof(int) * n);
 
       // Do not visit the first house
       maxMoneyA[1] = nums[1], maxMoneyA[2] = nums[2],
