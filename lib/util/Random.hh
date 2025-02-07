@@ -2,6 +2,11 @@
 #include <cstdint>
 
 struct Random {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
 private:
   Random();
   inline static int64_t seed =

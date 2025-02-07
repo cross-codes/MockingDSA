@@ -1,5 +1,6 @@
 #include <climits>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 class Solution {
@@ -7,9 +8,9 @@ public:
   int maxProduct(std::vector<int> &nums) {
     size_t n = nums.size();
 
-    int maxProducts[n], minProducts[n];
-    std::memset(maxProducts, 0x00, sizeof(maxProducts));
-    std::memset(minProducts, 0x00, sizeof(minProducts));
+    std::unique_ptr<int[]> maxProducts(new int[n]), minProducts(new int[n]);
+    std::memset(maxProducts.get(), 0x00, sizeof(int) * n);
+    std::memset(minProducts.get(), 0x00, sizeof(int) * n);
 
     int res = nums[0];
     maxProducts[0] = minProducts[0] = nums[0];

@@ -18,13 +18,10 @@ auto run() -> void {
   ssize n, k;
   std::cin >> n >> k;
 
-  std::vector<int> seq{};
+  std::unique_ptr<int[]> seq(new int[n]);
 
-  for (int i = 0; i < n; i++) {
-    int num;
-    std::cin >> num;
-    seq.push_back(num);
-  }
+  for (int i = 0; i < n; i++)
+    std::cin >> seq[i];
 
   bool match = false;
   ssize maxWindow = n - k + 1;

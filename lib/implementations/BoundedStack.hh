@@ -4,6 +4,11 @@
 #include <string>
 
 template <typename E> class BoundedStack {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
 private:
   int64_t STACK_SIZE_;
   int64_t pos_ = -1;

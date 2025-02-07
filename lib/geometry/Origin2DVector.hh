@@ -3,6 +3,11 @@
 #include <string>
 
 struct Vector2D {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
 public:
   int64_t x;
   int64_t y;

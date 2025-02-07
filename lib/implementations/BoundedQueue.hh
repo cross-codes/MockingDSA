@@ -3,6 +3,11 @@
 #include <memory>
 
 template <typename E> struct BoundedQueue {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
 private:
   int64_t QUEUE_SIZE_;
   int64_t head_, tail_;

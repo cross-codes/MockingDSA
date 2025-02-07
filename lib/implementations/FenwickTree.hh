@@ -3,6 +3,11 @@
 #include <memory>
 
 struct FenwickTree {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
 private:
   size_t N_;
   std::unique_ptr<int64_t[]> tree_;

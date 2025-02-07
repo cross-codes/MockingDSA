@@ -1,13 +1,14 @@
 #include <climits>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 class Solution {
 public:
   int coinChange(std::vector<int> &coins, int amount) {
-    int minCoins[amount + 1];
+    std::unique_ptr<int[]> minCoins(new int[amount + 1]);
 
-    std::memset(minCoins, 0x00, sizeof(minCoins));
+    std::memset(minCoins.get(), 0x00, sizeof(int) * (amount + 1));
 
     for (int i = 1; i <= amount; i++) {
       minCoins[i] = INT_MAX;

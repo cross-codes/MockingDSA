@@ -1,14 +1,15 @@
 #include <climits>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 class Solution {
 public:
   int rob(std::vector<int> &nums) {
     size_t n = nums.size();
-    int maxMoney[n];
+    std::unique_ptr<int[]> maxMoney(new int[n]);
 
-    std::memset(maxMoney, 0x00, sizeof(maxMoney));
+    std::memset(maxMoney.get(), 0x00, sizeof(int) * n);
 
     maxMoney[0] = nums[0], maxMoney[1] = nums[1],
     maxMoney[2] = nums[0] + nums[2];

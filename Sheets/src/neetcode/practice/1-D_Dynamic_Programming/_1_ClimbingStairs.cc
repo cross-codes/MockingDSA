@@ -1,12 +1,12 @@
-#include <algorithm>
 #include <cstring>
+#include <memory>
 
 class Solution {
 public:
   int climbStairs(int n) {
-    int distinctWays[n + 1];
+    std::unique_ptr<int[]> distinctWays(new int[n + 1]);
 
-    std::memset(distinctWays, 0x00, sizeof(distinctWays));
+    std::memset(distinctWays.get(), 0x00, sizeof(int) * n);
 
     distinctWays[1] = 1, distinctWays[2] = 2;
 

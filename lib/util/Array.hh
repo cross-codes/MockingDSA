@@ -1,6 +1,11 @@
 #include <vector>
 
 struct Array {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
 private:
   Array();
 
