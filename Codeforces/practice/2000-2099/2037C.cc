@@ -22,11 +22,11 @@ struct Algebra {
 
 private:
   Algebra();
-  inline static const double EPSILON_ = 1E-6;
-  inline static const int SIEVE_30_ =
+  inline static constexpr double EPSILON_ = 1E-6;
+  inline static constexpr int SIEVE_30_ =
       ~((1 << 1) | (1 << 7) | (1 << 11) | (1 << 13) | (1 << 17) | (1 << 19) |
         (1 << 23) | (1 << 29));
-  inline static const int64_t FLOOR_SQRT_MAX_ = 3037000499LL;
+  inline static constexpr int64_t FLOOR_SQRT_MAX_ = 3037000499LL;
 
   inline static const std::vector<std::vector<int64_t>> millerRabinBaseSets = {
       {291830, 126401071349994536LL},
@@ -39,9 +39,9 @@ private:
        43835965440333360LL, 761179012939631437LL, 1263739024124850375LL},
       {INT64_MAX, 2, 325, 9375, 28178, 450775, 9780504, 1795265022}};
 
-  inline static int64_t flip(int64_t a) { return a ^ INT64_MIN; }
-  inline static int compare(int64_t a, int64_t b) {
-    int64_t flippedA = flip(a), flippedB = flip(b);
+  inline static int64_t flip_(int64_t a) { return a ^ INT64_MIN; }
+  inline static int compare_(int64_t a, int64_t b) {
+    int64_t flippedA = flip_(a), flippedB = flip_(b);
 
     if (flippedA < flippedB)
       return -1;
@@ -51,30 +51,30 @@ private:
       return 0;
   }
 
-  inline static int64_t smallMulMod(int64_t a, int64_t b, int64_t m) {
+  inline static int64_t smallMulMod_(int64_t a, int64_t b, int64_t m) {
     return (a * b) % m;
   }
 
-  inline static int64_t smallSquareMod(int64_t a, int64_t m) {
+  inline static int64_t smallSquareMod_(int64_t a, int64_t m) {
     return (a * a) % m;
   }
 
-  inline static int64_t smallPowMod(int64_t a, int64_t p, int64_t m) {
+  inline static int64_t smallPowMod_(int64_t a, int64_t p, int64_t m) {
     int64_t res = 1;
     for (; p != 0; p >>= 1) {
       if ((p & 1) != 0) {
-        res = smallMulMod(res, a, m);
+        res = smallMulMod_(res, a, m);
       }
-      a = smallSquareMod(a, m);
+      a = smallSquareMod_(a, m);
     }
     return res;
   }
 
-  inline static int64_t largePlusMod(int64_t a, int64_t b, int64_t m) {
+  inline static int64_t largePlusMod_(int64_t a, int64_t b, int64_t m) {
     return (a >= m - b) ? (a + b - m) : (a + b);
   }
 
-  inline static int64_t largeTimes2ToThe32Mod(int64_t a, int64_t m) {
+  inline static int64_t largeTimes2ToThe32Mod_(int64_t a, int64_t m) {
     int remainingPowersOf2 = 32;
     do {
       int shift = std::min(remainingPowersOf2, __builtin_clzll(a));
@@ -84,77 +84,83 @@ private:
     return a;
   }
 
-  inline static int64_t largeMulMod(int64_t a, int64_t b, int64_t m) {
+  inline static int64_t largeMulMod_(int64_t a, int64_t b, int64_t m) {
     int64_t aHi = a >> 32;
     int64_t bHi = b >> 32;
     int64_t aLo = a & 0xFFFFFFFFLL;
     int64_t bLo = b & 0xFFFFFFFFLL;
-    int64_t result = largeTimes2ToThe32Mod(aHi * bHi, m);
+    int64_t result = largeTimes2ToThe32Mod_(aHi * bHi, m);
     result += aHi * bLo;
     if (result < 0) {
       result = remainder(result, m);
     }
     result += aLo * bHi;
-    result = largeTimes2ToThe32Mod(result, m);
-    return largePlusMod(result, remainder(aLo * bLo, m), m);
+    result = largeTimes2ToThe32Mod_(result, m);
+    return largePlusMod_(result, remainder(aLo * bLo, m), m);
   }
 
-  inline static int64_t largeSquareMod(int64_t a, int64_t m) {
+  inline static int64_t largeSquareMod_(int64_t a, int64_t m) {
     int64_t aHi = a >> 32;
     int64_t aLo = a & 0xFFFFFFFFLL;
-    int64_t result = largeTimes2ToThe32Mod(aHi * aHi /* < 2^62 */, m);
+    int64_t result = largeTimes2ToThe32Mod_(aHi * aHi /* < 2^62 */, m);
     int64_t hiLo = aHi * aLo * 2;
     if (hiLo < 0) {
       hiLo = remainder(hiLo, m);
     }
     result += hiLo;
-    result = largeTimes2ToThe32Mod(result, m);
-    return largePlusMod(result, remainder(aLo * aLo, m), m);
+    result = largeTimes2ToThe32Mod_(result, m);
+    return largePlusMod_(result, remainder(aLo * aLo, m), m);
   }
 
-  inline static int64_t largePowMod(int64_t a, int64_t p, int64_t m) {
+  inline static int64_t largePowMod_(int64_t a, int64_t p, int64_t m) {
     int64_t res = 1;
     for (; p != 0; p >>= 1) {
       if (p & 1)
-        res = largeMulMod(res, a, m);
-      a = largeSquareMod(a, m);
+        res = largeMulMod_(res, a, m);
+      a = largeSquareMod_(a, m);
     }
 
     return res;
   }
 
-  inline static bool testWitness(int64_t base, int64_t n) {
+  inline static bool testWitnessSmall_(int64_t base, int64_t n) {
     int r = __builtin_ctzll(n - 1);
     int64_t d = (n - 1) >> r;
     base %= n;
     if (base == 0)
       return true;
 
-    if (n <= FLOOR_SQRT_MAX_) {
-      int64_t a = smallPowMod(base, d, n);
-      if (a == 1)
-        return true;
-      int j = 0;
-      while (a != n - 1) {
-        if (++j == r)
-          return false;
-        a = smallSquareMod(a, n);
-      }
-
+    int64_t a = smallPowMod_(base, d, n);
+    if (a == 1)
       return true;
-    } else {
-      int64_t a = largePowMod(base, d, n);
-      if (a == 1)
-        return true;
-      int j = 0;
-      while (a != n - 1) {
-        if (++j == r)
-          return false;
-        a = largeSquareMod(a, n);
-      }
-
-      return true;
+    int j = 0;
+    while (a != n - 1) {
+      if (++j == r)
+        return false;
+      a = smallSquareMod_(a, n);
     }
+
+    return true;
+  }
+
+  inline static bool testWitnessLarge_(int64_t base, int64_t n) {
+    int r = __builtin_ctzll(n - 1);
+    int64_t d = (n - 1) >> r;
+    base %= n;
+    if (base == 0)
+      return true;
+
+    int64_t a = largePowMod_(base, d, n);
+    if (a == 1)
+      return true;
+    int j = 0;
+    while (a != n - 1) {
+      if (++j == r)
+        return false;
+      a = largeSquareMod_(a, n);
+    }
+
+    return true;
   }
 
 public:
@@ -220,7 +226,7 @@ public:
 
   inline static int64_t remainder(int64_t dividend, int64_t divisor) {
     if (divisor < 0) {
-      if (compare(dividend, divisor) < 0) {
+      if (compare_(dividend, divisor) < 0) {
         return dividend;
       } else {
         return dividend - divisor;
@@ -232,7 +238,7 @@ public:
     }
     int64_t quotient = ((dividend >> 1) / divisor) << 1;
     int64_t rem = dividend - quotient * divisor;
-    return rem - (compare(rem, divisor) >= 0 ? divisor : 0);
+    return rem - (compare_(rem, divisor) >= 0 ? divisor : 0);
   }
 
   inline static bool isPrime(int64_t n) {
@@ -240,12 +246,13 @@ public:
       return false;
 
     if (n < 66) {
-      int64_t mask = (1LL << (2 - 2)) | (1LL << (3 - 2)) | (1LL << (5 - 2)) |
-                     (1LL << (7 - 2)) | (1LL << (11 - 2)) | (1LL << (13 - 2)) |
-                     (1LL << (17 - 2)) | (1LL << (19 - 2)) | (1LL << (23 - 2)) |
-                     (1LL << (29 - 2)) | (1LL << (31 - 2)) | (1LL << (37 - 2)) |
-                     (1LL << (41 - 2)) | (1LL << (43 - 2)) | (1LL << (47 - 2)) |
-                     (1LL << (53 - 2)) | (1LL << (59 - 2)) | (1LL << (61 - 2));
+      constexpr int64_t mask =
+          (1LL << (2 - 2)) | (1LL << (3 - 2)) | (1LL << (5 - 2)) |
+          (1LL << (7 - 2)) | (1LL << (11 - 2)) | (1LL << (13 - 2)) |
+          (1LL << (17 - 2)) | (1LL << (19 - 2)) | (1LL << (23 - 2)) |
+          (1LL << (29 - 2)) | (1LL << (31 - 2)) | (1LL << (37 - 2)) |
+          (1LL << (41 - 2)) | (1LL << (43 - 2)) | (1LL << (47 - 2)) |
+          (1LL << (53 - 2)) | (1LL << (59 - 2)) | (1LL << (61 - 2));
       return ((mask >> (static_cast<int>(n) - 2)) & 1) != 0;
     }
 
@@ -260,9 +267,17 @@ public:
 
     for (std::vector<int64_t> baseSet : millerRabinBaseSets) {
       if (n <= baseSet[0]) {
-        for (size_t i = 1; i < baseSet.size(); i++) {
-          if (!testWitness(baseSet[i], n))
-            return false;
+        bool small = n <= FLOOR_SQRT_MAX_;
+        if (small) {
+          for (size_t i = 1; i < baseSet.size(); i++) {
+            if (!testWitnessSmall_(baseSet[i], n))
+              return false;
+          }
+        } else {
+          for (size_t i = 1; i < baseSet.size(); i++) {
+            if (!testWitnessLarge_(baseSet[i], n))
+              return false;
+          }
         }
       }
 

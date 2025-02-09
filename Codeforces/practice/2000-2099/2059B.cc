@@ -47,11 +47,11 @@ auto run() -> void {
       if (seq[i] != 1) {
         ssize curWindow = i;
         if (curWindow <= maxWindow) {
-          std::println("{}", 1);
+          std::println("1");
           match = true;
           break;
         } else {
-          std::println("{}", 2);
+          std::println("2");
           match = true;
           break;
         }
@@ -59,7 +59,7 @@ auto run() -> void {
     }
 
     if (!match) {
-      std::println("{}", 2);
+      std::println("2");
     }
   }
 }
@@ -68,7 +68,7 @@ int main() {
 #ifdef CROSS
   FILE *c = std::freopen("input.txt", "r", stdin);
   if (c == nullptr) {
-    std::println(stderr, "{}", "Input file not found");
+    std::println(stderr, "Input file not found");
     __builtin_trap();
   }
 #else

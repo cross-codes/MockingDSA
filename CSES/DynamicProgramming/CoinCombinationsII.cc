@@ -1,5 +1,7 @@
 #include <cstdint>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 using i64 = int64_t;
 using u64 = uint64_t;
@@ -8,7 +10,8 @@ using u128 = unsigned __int128;
 
 constexpr size_t _ = 1000001;
 constexpr int MOD = static_cast<i64>(1e9 + 7);
-u64 coins[100], dp[_];
+std::unique_ptr<u64[]> distinct(new u64[_]);
+std::vector<u64> coins(100);
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
@@ -20,17 +23,17 @@ int main() {
   for (size_t i = 0; i < n; i++)
     std::cin >> ::coins[i];
 
-  dp[0] = 1;
-  for (size_t j = 0; j < n; j++) {
+  ::distinct[0] = 1;
+  for (const u64 &c: ::coins) {
     for (u64 i = 1; i <= sum; i++) {
-      if (i >= coins[j]) {
-        dp[i] += dp[i - coins[j]];
-        dp[i] %= ::MOD;
+      if (i >= c) {
+        ::distinct[i] += ::distinct[i - c];
+        ::distinct[i] %= ::MOD;
       }
     }
   }
 
-  std::cout << dp[sum] << "\n";
+  std::cout << ::distinct[sum] << "\n";
 
   return 0;
 }
