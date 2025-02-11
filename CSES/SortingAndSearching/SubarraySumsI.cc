@@ -2,7 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-#include <unordered_map>
+#include <unordered_set>
 
 using usize = size_t;
 using ssize = ptrdiff_t;
@@ -22,9 +22,8 @@ int main() {
   std::unique_ptr<int[]> array(new int[n]);
   std::unique_ptr<i64[]> prefix(new i64[n + 1]);
 
-  std::unordered_map<i64, u64> prefixIndices{};
-  prefixIndices.reserve(n + 1);
-  prefixIndices[0] = 1U;
+  std::unordered_set<i64> prefixIndices{};
+  prefixIndices.reserve(n + 1), prefixIndices.insert(0U);
 
   std::memset(array.get(), 0x00, sizeof(int) * n);
   std::memset(prefix.get(), 0x00, sizeof(int) * (n + 1));
@@ -34,11 +33,10 @@ int main() {
     std::cin >> array[i - 1];
     prefix[i] = array[i - 1] + prefix[i - 1];
 
-    auto it = prefixIndices.find(prefix[i] - x);
-    if (it != prefixIndices.end())
-      cnt += it->second;
+    if (prefixIndices.contains(prefix[i] - x))
+      cnt++;
 
-    prefixIndices[prefix[i]]++;
+    prefixIndices.insert(prefix[i]);
   }
 
   std::cout << cnt << "\n";
