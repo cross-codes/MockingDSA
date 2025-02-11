@@ -18,8 +18,7 @@ auto run() -> void {
   ssize n, m;
   std::cin >> n >> m;
 
-  std::unique_ptr<int[]> a(new int[n]);
-  std::vector<int> b(m);
+  std::unique_ptr<int[]> a(new int[n]), b(new int[m]);
 
   for (ssize i = 0; i < n; i++)
     std::cin >> a[i];
@@ -27,20 +26,21 @@ auto run() -> void {
   for (ssize i = 0; i < m; i++)
     std::cin >> b[i];
 
-  std::sort(b.begin(), b.end());
+  std::sort(&b[0], &b[m]);
 
   if (b[0] - a[0] < a[0])
     a[0] = b[0] - a[0];
 
   for (ssize i = 1; i < n - 1; i++) {
-    auto it = std::lower_bound(b.begin(), b.end(), a[i] + a[i - 1]);
-    if (it != b.end()) {
-      if (a[i] >= a[i - 1]) {
-        if (*it - a[i] < a[i])
-          a[i] = *it - a[i];
-      } else {
+    auto it = std::lower_bound(&b[0], &b[m], a[i] + a[i - 1]);
+    if (it == &b[m]) [[unlikely]]
+      continue;
+
+    if (a[i] >= a[i - 1]) {
+      if (*it - a[i] < a[i])
         a[i] = *it - a[i];
-      }
+    } else {
+      a[i] = *it - a[i];
     }
   }
 
