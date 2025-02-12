@@ -19,9 +19,9 @@ private:
   }
 
 public:
-  static int nextInt() { return next(32); }
+  inline static int nextInt() { return next(32); }
 
-  static int nextInt(int bound) {
+  inline static int nextInt(int bound) {
     int r = next(31);
     int m = bound - 1;
     if ((bound & m) == 0)
@@ -32,11 +32,11 @@ public:
     return r;
   }
 
-  static int64_t next64() {
+  inline static int64_t next64() {
     return static_cast<int64_t>(next(32)) << 32 | next(32);
   }
 
-  static double nextDouble() {
-    return (static_cast<int64_t>(next(26)) << 27 | next(27)) * 0x1.0p-53;
+  inline static double nextDouble() {
+    return (((next(26)) << 27) | (next(27))) * 0x1.0p-53;
   }
 };

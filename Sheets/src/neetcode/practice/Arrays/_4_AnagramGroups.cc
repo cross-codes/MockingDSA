@@ -1,15 +1,17 @@
 #include <cstring>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 struct Anagram {
 public:
-  int freq[26];
+  std::unique_ptr<int[]> freq;
   std::string underlyingString;
 
-  Anagram(std::string s) {
-    std::memset(freq, 0x00, sizeof(freq));
+  Anagram(std::string s)
+      : freq(std::make_unique<int[]>(26)), underlyingString(s) {
+    std::memset(freq.get(), 0x00, sizeof(int) * 26);
     for (char c : s)
       freq[c - 'a']++;
   }

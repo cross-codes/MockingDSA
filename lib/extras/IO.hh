@@ -10,11 +10,6 @@
   #define _CRT_DISABLE_PERFCRIT_LOCKS
 #endif
 
-#ifndef __INTEL_LLVM_COMPILER
-  #pragma GCC optimize("Ofast,unroll-loops")
-  #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
-#endif
-
 // clang-format on
 
 struct IOPreProc {
