@@ -14,20 +14,26 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
-namespace _2065A {
+namespace _1917B {
 
 auto run() -> void {
-  std::string input;
-  std::cin >> input;
+  usize n;
+  std::cin >> n;
 
-  if (input.size() <= 2) {
-    std::println("i");
-  } else {
-    std::println("{}", input.substr(0, input.size() - 2) + "i");
+  std::unordered_set<char> encountered{};
+
+  u32 cnt = 0U;
+  for (usize i = 0; i < n; i++) {
+    char c;
+    std::cin >> c;
+    encountered.insert(c);
+    cnt += encountered.size();
   }
+
+  std::println("{}", cnt);
 }
 
-} // namespace _2065A
+} // namespace _1917B
 
 int main() {
 #ifdef CROSS
@@ -44,7 +50,7 @@ int main() {
   std::cin >> t;
 
   while (t-- > 0)
-    _2065A::run();
+    _1917B ::run();
 
 #ifdef CROSS
   std::fclose(stdin);

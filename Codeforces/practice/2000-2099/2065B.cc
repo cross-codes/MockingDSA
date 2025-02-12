@@ -14,6 +14,8 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
+namespace _2065B {
+
 auto run() -> void {
   std::string input;
   std::cin >> input;
@@ -30,6 +32,8 @@ auto run() -> void {
   std::println("{}", n);
 }
 
+} // namespace _2065B
+
 int main() {
 #ifdef CROSS
   FILE *stream = std::freopen("input.txt", "r", stdin);
@@ -45,7 +49,7 @@ int main() {
   std::cin >> t;
 
   while (t-- > 0)
-    run();
+    _2065B::run();
 
 #ifdef CROSS
   std::fclose(stdin);
