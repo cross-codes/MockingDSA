@@ -1,4 +1,5 @@
-#include "./Interval.hpp"
+#include "./Interval.hh"
+
 #include <algorithm>
 #include <vector>
 
