@@ -14,6 +14,8 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
+namespace _2065D {
+
 inline auto constexpr VECTOR_ORDER =
     [](const std::pair<std::vector<i64>, i64> &a,
        const std::pair<std::vector<i64>, i64> &b) -> bool {
@@ -37,7 +39,7 @@ auto run() -> void {
     }
   }
 
-  std::sort(arrays.begin(), arrays.end(), ::VECTOR_ORDER);
+  std::sort(arrays.begin(), arrays.end(), VECTOR_ORDER);
 
   u64 totSum = 0ULL, cnt = n * m;
   for (ssize i = 0; i < n; i++) {
@@ -48,6 +50,8 @@ auto run() -> void {
 
   std::println("{}", totSum);
 }
+
+} // namespace _2065D
 
 int main() {
 #ifdef CROSS
@@ -64,7 +68,7 @@ int main() {
   std::cin >> t;
 
   while (t-- > 0)
-    run();
+    _2065D::run();
 
 #ifdef CROSS
   std::fclose(stdin);

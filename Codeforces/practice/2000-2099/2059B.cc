@@ -14,6 +14,8 @@ using u64 = uint64_t;
 using u32 = uint32_t;
 using u128 = unsigned __int128;
 
+namespace _2059B {
+
 auto run() -> void {
   ssize n, k;
   std::cin >> n >> k;
@@ -64,10 +66,12 @@ auto run() -> void {
   }
 }
 
+} // namespace _2059B
+
 int main() {
 #ifdef CROSS
-  FILE *c = std::freopen("input.txt", "r", stdin);
-  if (c == nullptr) {
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr) {
     std::println(stderr, "Input file not found");
     __builtin_trap();
   }
@@ -79,7 +83,7 @@ int main() {
   std::cin >> t;
 
   while (t-- > 0)
-    run();
+    _2059B::run();
 
 #ifdef CROSS
   std::fclose(stdin);
