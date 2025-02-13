@@ -1,5 +1,5 @@
-#include <chrono>
-#include <cstdint>
+#include <cmath>
+#include <random>
 
 struct Random {
 
@@ -8,35 +8,107 @@ struct Random {
    */
 
 private:
-  Random();
-  inline static int64_t seed =
-      std::chrono::steady_clock::now().time_since_epoch().count() ^
-      8682522807148012ULL;
+  std::random_device randomDevice_;
+  std::mt19937_64 engine_;
 
-  static int next(unsigned int bits) {
-    seed = seed * 0x5DEECE66DLL + 0xBLL & 0xFFFFFFFFFFFFLL;
-    return static_cast<int>(seed >> (48 - bits));
-  }
+  Random() : engine_(randomDevice_()) {};
+  Random(const Random &) = delete;
+  Random &operator=(const Random &) = delete;
 
 public:
-  inline static int nextInt() { return next(32); }
-
-  inline static int nextInt(int bound) {
-    int r = next(31);
-    int m = bound - 1;
-    if ((bound & m) == 0)
-      r = static_cast<int>(bound * static_cast<int64_t>(r) >> 31);
-    else
-      for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
-        ;
-    return r;
+  static Random &getInstance() {
+    static Random instance;
+    return instance;
   }
 
-  inline static int64_t next64() {
-    return static_cast<int64_t>(next(32)) << 32 | next(32);
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextUniformRandomInteger(T p, T r) {
+    std::uniform_int_distribution<T> distribution(p, r);
+    return distribution(engine_);
   }
 
-  inline static double nextDouble() {
-    return (((next(26)) << 27) | (next(27))) * 0x1.0p-53;
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextUniformRandomReal(T p, T r) {
+    std::uniform_real_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextNormalReal(T p, T r) {
+    std::normal_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  bool nextBernoulli() {
+    std::bernoulli_distribution distribution;
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextBinomialReal(T p, T r) {
+    std::binomial_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextPoissonReal(T p, T r) {
+    std::poisson_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextExponentialReal(T p, T r) {
+    std::exponential_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextGammaReal(T p, T r) {
+    std::gamma_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextWeibullReal(T p, T r) {
+    std::weibull_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextLogNormalReal(T p, T r) {
+    std::lognormal_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextChiSquaredReal(T p, T r) {
+    std::chi_squared_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextCauchyReal(T p, T r) {
+    std::cauchy_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextTDistributionReal(T p, T r) {
+    std::student_t_distribution<T> distribution(p, r);
+    return distribution(engine_);
   }
 };
