@@ -4,7 +4,7 @@
 struct Random {
 
   /*
-   * Author: Akshaj Rao (cross-codes)
+   * Author: github.com/cross-codes
    */
 
 private:

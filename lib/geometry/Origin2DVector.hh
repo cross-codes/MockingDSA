@@ -5,7 +5,7 @@
 struct Vector2D {
 
   /*
-   * Author: Akshaj Rao (cross-codes)
+   * Author: github.com/cross-codes
    */
 
 public:

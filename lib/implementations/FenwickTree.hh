@@ -5,7 +5,7 @@
 struct FenwickTree {
 
   /*
-   * Author: Akshaj Rao (cross-codes)
+   * Author: github.com/cross-codes
    */
 
 private:

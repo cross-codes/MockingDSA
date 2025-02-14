@@ -6,7 +6,7 @@
 template <typename E> class BoundedStack {
 
   /*
-   * Author: Akshaj Rao (cross-codes)
+   * Author: github.com/cross-codes
    */
 
 private:

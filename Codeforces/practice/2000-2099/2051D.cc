@@ -1,14 +1,137 @@
-#include <concepts>
-#include <cstring>
-#include <memory>
-#include <vector>
+#include <bits/stdc++.h>
 
-#include "Random.hh"
+#ifdef CROSS
+#include "util/Debug.hh"
+#else
+#define dbg(...) 249
+#endif
+
+using usize = size_t;
+using ssize = ptrdiff_t;
+
+using i64 = int64_t;
+using u64 = uint64_t;
+using u32 = uint32_t;
+using u128 = unsigned __int128;
+
+namespace _2051D {
+
+struct Random {
+
+  /*
+   * Author: Akshaj Rao (cross-codes)
+   */
+
+private:
+  std::random_device randomDevice_;
+  std::mt19937_64 engine_;
+
+  Random() : engine_(randomDevice_()) {};
+  Random(const Random &) = delete;
+  Random &operator=(const Random &) = delete;
+
+public:
+  static Random &getInstance() {
+    static Random instance;
+    return instance;
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextUniformRandomInteger(T p, T r) {
+    std::uniform_int_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextUniformRandomReal(T p, T r) {
+    std::uniform_real_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextNormalReal(T p, T r) {
+    std::normal_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  bool nextBernoulli() {
+    std::bernoulli_distribution distribution;
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextBinomialReal(T p, T r) {
+    std::binomial_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextPoissonReal(T p, T r) {
+    std::poisson_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextExponentialReal(T p, T r) {
+    std::exponential_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextGammaReal(T p, T r) {
+    std::gamma_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextWeibullReal(T p, T r) {
+    std::weibull_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextLogNormalReal(T p, T r) {
+    std::lognormal_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextChiSquaredReal(T p, T r) {
+    std::chi_squared_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextCauchyReal(T p, T r) {
+    std::cauchy_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  T nextTDistributionReal(T p, T r) {
+    std::student_t_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+};
 
 struct Array {
 
   /*
-   * Author: github.com/cross-codes
+   * Author: Akshaj Rao (cross-codes)
    */
 
 private:
@@ -189,3 +312,90 @@ public:
       return -1;
   }
 };
+
+auto run() -> void {
+  int n;
+  std::cin >> n;
+  i64 x, y;
+  std::cin >> x >> y;
+
+  std::unique_ptr<i64[]> nums(new i64[n]);
+
+  i64 sum = 0LL;
+  for (int i = 0; i < n; i++) {
+    i64 num;
+    std::cin >> num;
+    nums[i] = num;
+    sum += num;
+  }
+
+  std::sort(&nums[0], &nums[n]);
+
+  i64 numberOfPairs = 0LL;
+  for (int i = 0; i < n; i++) {
+    i64 currDiff = sum - nums[i];
+    i64 lowerBound = currDiff - y, upperBound = currDiff - x;
+    ssize lowerIndex = Array::indexBinarySearch(nums, i + 1, n, lowerBound);
+
+    if (lowerIndex < 0)
+      lowerIndex = -(lowerIndex + 1);
+
+    if (lowerIndex == n)
+      continue;
+
+    i64 refVal = nums[lowerIndex];
+
+    for (ssize j = lowerIndex - 1; j > i; j--) {
+      if (nums[j] == refVal)
+        lowerIndex--;
+      else
+        break;
+    }
+
+    ssize upperIndex = Array::indexBinarySearch(nums, i + 1, n, upperBound);
+    if (upperIndex < 0) {
+      upperIndex = -(upperIndex + 1) - 1;
+      if (upperIndex + 1 == lowerIndex)
+        continue;
+    }
+
+    refVal = nums[upperIndex];
+
+    for (ssize j = upperIndex + 1; j < n; j++) {
+      if (nums[j] == refVal)
+        upperIndex++;
+      else
+        break;
+    }
+
+    numberOfPairs += upperIndex - lowerIndex + 1;
+  }
+
+  std::println("{}", numberOfPairs);
+}
+
+} // namespace _2051D
+
+int main() {
+#ifdef CROSS
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr) {
+    std::println(stderr, "Input file not found");
+    __builtin_trap();
+  }
+#else
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+#endif
+
+  int t;
+  std::cin >> t;
+
+  while (t-- > 0)
+    _2051D::run();
+
+#ifdef CROSS
+  std::fclose(stdin);
+#endif
+
+  return 0;
+}

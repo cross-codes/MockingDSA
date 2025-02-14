@@ -5,7 +5,7 @@
 template <typename E> struct BoundedQueue {
 
   /*
-   * Author: Akshaj Rao (cross-codes)
+   * Author: github.com/cross-codes
    */
 
 private:
