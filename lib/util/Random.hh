@@ -23,91 +23,91 @@ public:
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextUniformRandomInteger(T p, T r) {
+  inline T nextUniformRandomInteger(T p, T r) {
     std::uniform_int_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextUniformRandomReal(T p, T r) {
+  inline T nextUniformRandomReal(T p, T r) {
     std::uniform_real_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextNormalReal(T p, T r) {
+  inline T nextNormalReal(T p, T r) {
     std::normal_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  bool nextBernoulli() {
+  inline bool nextBernoulli() {
     std::bernoulli_distribution distribution;
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextBinomialReal(T p, T r) {
+  inline T nextBinomialReal(T p, T r) {
     std::binomial_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextPoissonReal(T p, T r) {
+  inline T nextPoissonReal(T p, T r) {
     std::poisson_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextExponentialReal(T p, T r) {
+  inline T nextExponentialReal(T p, T r) {
     std::exponential_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextGammaReal(T p, T r) {
+  inline T nextGammaReal(T p, T r) {
     std::gamma_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextWeibullReal(T p, T r) {
+  inline T nextWeibullReal(T p, T r) {
     std::weibull_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextLogNormalReal(T p, T r) {
+  inline T nextLogNormalReal(T p, T r) {
     std::lognormal_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextChiSquaredReal(T p, T r) {
+  inline T nextChiSquaredReal(T p, T r) {
     std::chi_squared_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextCauchyReal(T p, T r) {
+  inline T nextCauchyReal(T p, T r) {
     std::cauchy_distribution<T> distribution(p, r);
     return distribution(engine_);
   }
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  T nextTDistributionReal(T p, T r) {
+  inline T nextTDistributionReal(T p, T r) {
     std::student_t_distribution<T> distribution(p, r);
     return distribution(engine_);
   }

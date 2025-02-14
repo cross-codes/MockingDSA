@@ -103,20 +103,20 @@ public:
     }
   }
 
-  static void TRE_Quicksort(std::unique_ptr<int[]> &A, ptrdiff_t start,
-                            ptrdiff_t pastEnd) {
+  static void TRERandomizedQuickSort(std::unique_ptr<int[]> &A, ptrdiff_t start,
+                                     ptrdiff_t pastEnd) {
     while (start < pastEnd - 1) {
       ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
-      TRE_Quicksort(A, start, q);
+      TRERandomizedQuickSort(A, start, q);
       start = q + 1;
     }
   }
 
-  static void TRE_Quicksort(std::unique_ptr<int64_t[]> &A, ptrdiff_t start,
-                            ptrdiff_t pastEnd) {
+  static void TRERandomizedQuickSort(std::unique_ptr<int64_t[]> &A,
+                                     ptrdiff_t start, ptrdiff_t pastEnd) {
     while (start < pastEnd - 1) {
       ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
-      TRE_Quicksort(A, start, q);
+      TRERandomizedQuickSort(A, start, q);
       start = q + 1;
     }
   }
