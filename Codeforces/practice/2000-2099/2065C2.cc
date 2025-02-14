@@ -128,13 +128,10 @@ public:
   }
 };
 
-template <typename T>
-concept RAIterator = std::random_access_iterator<T>;
-
 struct Array {
 
   /*
-   * Author: Akshaj Rao (cross-codes)
+   * Author: github.com/cross-codes
    */
 
 private:
@@ -229,21 +226,21 @@ public:
     }
   }
 
-  static void TRE_Quicksort(std::unique_ptr<int[]> &A, ptrdiff_t p,
-                            ptrdiff_t r) {
-    while (p < r) {
-      ptrdiff_t q = randomizedParition_(A, p, r);
-      TRE_Quicksort(A, p, q - 1);
-      p = q + 1;
+  static void TRE_Quicksort(std::unique_ptr<int[]> &A, ptrdiff_t start,
+                            ptrdiff_t pastEnd) {
+    while (start < pastEnd - 1) {
+      ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
+      TRE_Quicksort(A, start, q);
+      start = q + 1;
     }
   }
 
-  static void TRE_Quicksort(std::unique_ptr<int64_t[]> &A, ptrdiff_t p,
-                            ptrdiff_t r) {
-    while (p < r) {
-      ptrdiff_t q = randomizedParition_(A, p, r);
-      TRE_Quicksort(A, p, q - 1);
-      p = q + 1;
+  static void TRE_Quicksort(std::unique_ptr<int64_t[]> &A, ptrdiff_t start,
+                            ptrdiff_t pastEnd) {
+    while (start < pastEnd - 1) {
+      ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
+      TRE_Quicksort(A, start, q);
+      start = q + 1;
     }
   }
 
@@ -268,50 +265,49 @@ public:
     return B;
   }
 
-  template <RAIterator I, typename T>
+  template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  inline static auto indexBinarySearch(I start, I end, const T &key)
-      -> ptrdiff_t {
-
-    I low = start, high = end - 1;
-    while (low < high) {
-      I mid = start +
-              ((std::distance(start, low) + std::distance(start, high)) >> 1);
-      if (*mid < key)
-        low = mid + 1;
-      else if (*mid > key)
-        high = mid;
+  inline static auto indexBinarySearch(const std::unique_ptr<T[]> &a,
+                                       ptrdiff_t start, ptrdiff_t pastEnd,
+                                       const T &key) -> ptrdiff_t {
+    ptrdiff_t i = start, j = pastEnd - 1;
+    while (i <= j) {
+      ptrdiff_t m = (i + j) >> 1;
+      if (a[m] < key)
+        i = m + 1;
+      else if (a[m] > key)
+        j = m - 1;
       else
-        return static_cast<ptrdiff_t>(std::distance(start, mid));
+        return m;
     }
 
-    return -(static_cast<ptrdiff_t>(std::distance(start, low)) + 1);
+    return -(i + 1);
   }
 
-  template <RAIterator I, typename T>
+  template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  inline static auto indexTernarySearch(I start, I end, const T &key)
-      -> ptrdiff_t {
-    I low = start, high = end - 1;
+  inline static auto indexTernarySearch(const std::unique_ptr<T[]> &a,
+                                        ptrdiff_t start, ptrdiff_t pastEnd,
+                                        const T &key) -> ptrdiff_t {
 
-    while (low < high - 1) {
-      size_t lowPHigh = std::distance(start, low) + std::distance(start, high);
-      I l = start + lowPHigh / 3;
-      I u = start + ((lowPHigh / 3) << 1);
+    ptrdiff_t i = start, j = pastEnd - 1;
+    while (i < j - 1) {
+      ptrdiff_t l = (i + j) / 3;
+      ptrdiff_t u = ((i + j) / 3) << 1;
 
-      if (key > *u)
-        low = u + 1;
-      else if (key > *l) {
-        low = l + 1;
-        high = u;
+      if (key > a[u])
+        i = u + 1;
+      else if (key > a[l]) {
+        i = l + 1;
+        j = u;
       } else
-        high = l;
+        j = l;
     }
 
-    if (key == *low)
-      return static_cast<ptrdiff_t>(std::distance(start, low));
-    else if (key == *high)
-      return static_cast<ptrdiff_t>(std::distance(start, high));
+    if (key == a[i])
+      return i;
+    else if (key == a[j])
+      return j;
     else
       return -1;
   }
@@ -329,7 +325,7 @@ auto run() -> void {
   for (ssize i = 0; i < m; i++)
     std::cin >> b[i];
 
-  Array::TRE_Quicksort(b, 0, m - 1);
+  Array::TRE_Quicksort(b, 0, m);
 
   if (b[0] - a[0] < a[0])
     a[0] = b[0] - a[0];

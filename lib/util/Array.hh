@@ -104,19 +104,19 @@ public:
   }
 
   static void TRE_Quicksort(std::unique_ptr<int[]> &A, ptrdiff_t start,
-                            ptrdiff_t inclusiveEnd) {
-    while (start < inclusiveEnd) {
-      ptrdiff_t q = randomizedParition_(A, start, inclusiveEnd);
-      TRE_Quicksort(A, start, q - 1);
+                            ptrdiff_t pastEnd) {
+    while (start < pastEnd - 1) {
+      ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
+      TRE_Quicksort(A, start, q);
       start = q + 1;
     }
   }
 
   static void TRE_Quicksort(std::unique_ptr<int64_t[]> &A, ptrdiff_t start,
-                            ptrdiff_t inclusiveEnd) {
-    while (start < inclusiveEnd) {
-      ptrdiff_t q = randomizedParition_(A, start, inclusiveEnd);
-      TRE_Quicksort(A, start, q - 1);
+                            ptrdiff_t pastEnd) {
+    while (start < pastEnd - 1) {
+      ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
+      TRE_Quicksort(A, start, q);
       start = q + 1;
     }
   }
@@ -124,8 +124,8 @@ public:
   inline static auto stableCountingSort(std::unique_ptr<uint32_t[]> &A,
                                         size_t n, uint32_t max)
       -> std::unique_ptr<uint32_t[]> {
-    std::unique_ptr<uint32_t[]> B(new uint32_t[n]), C(new uint32_t[max + 1]);
 
+    std::unique_ptr<uint32_t[]> B(new uint32_t[n]), C(new uint32_t[max + 1]);
     std::memset(C.get(), 0x00, sizeof(int) * (max + 1));
 
     for (uint32_t j = 0; j < n; j++)
