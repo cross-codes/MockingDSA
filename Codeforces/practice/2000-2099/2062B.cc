@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 #ifdef CROSS
-#include "util/Debug.hh"
+#include "extras/Debug.hh"
 #else
 #define dbg(...) 249
 #endif
