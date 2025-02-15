@@ -1,17 +1,15 @@
+#include <array>
 #include <cstring>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 struct Anagram {
 public:
-  std::unique_ptr<int[]> freq;
+  std::array<int, 26> freq;
   std::string underlyingString;
 
-  Anagram(std::string s)
-      : freq(std::make_unique<int[]>(26)), underlyingString(s) {
-    std::memset(freq.get(), 0x00, sizeof(int) * 26);
+  Anagram(std::string s) : freq{}, underlyingString(s) {
     for (char c : s)
       freq[c - 'a']++;
   }
@@ -43,7 +41,7 @@ public:
     std::vector<std::vector<std::string>> res;
     std::unordered_map<Anagram, size_t, Anagram::AnagramHash> typeToIndex{};
 
-    for (auto &string : strs) {
+    for (const auto &string : strs) {
       Anagram equiv(string);
       auto it = typeToIndex.find(equiv);
 
