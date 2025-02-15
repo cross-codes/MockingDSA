@@ -42,8 +42,6 @@ public:
     return distribution(engine_);
   }
 
-  template <typename T>
-    requires std::integral<T> || std::floating_point<T>
   inline bool nextBernoulli() {
     std::bernoulli_distribution distribution;
     return distribution(engine_);
