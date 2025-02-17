@@ -43,9 +43,9 @@ std::string to_string(std::vector<bool> v) {
   return res;
 }
 
-template <size_t N> std::string to_string(std::bitset<N> v) {
+template <std::size_t N> std::string to_string(std::bitset<N> v) {
   std::string res = "";
-  for (size_t i = 0; i < N; i++) {
+  for (std::size_t i = 0; i < N; i++) {
     res += static_cast<char>('0' + v[i]);
   }
   return res;

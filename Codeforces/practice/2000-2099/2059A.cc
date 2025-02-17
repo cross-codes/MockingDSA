@@ -6,7 +6,7 @@
 #define dbg(...) 249
 #endif
 
-using usize = size_t;
+using usize = std::size_t;
 using ssize = ptrdiff_t;
 
 using i64 = int64_t;
@@ -22,13 +22,13 @@ auto run() -> void {
 
   std::unordered_set<int> a, b;
 
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     int num;
     std::cin >> num;
     a.insert(num);
   }
 
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     int num;
     std::cin >> num;
     b.insert(num);

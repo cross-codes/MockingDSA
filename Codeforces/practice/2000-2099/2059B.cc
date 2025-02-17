@@ -6,7 +6,7 @@
 #define dbg(...) 249
 #endif
 
-using usize = size_t;
+using usize = std::size_t;
 using ssize = ptrdiff_t;
 
 using i64 = int64_t;

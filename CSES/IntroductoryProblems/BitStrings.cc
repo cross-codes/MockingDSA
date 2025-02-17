@@ -1,9 +1,9 @@
 #include <cstdint>
 #include <iostream>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
 constexpr i64 MOD = static_cast<i64>(1e9 + 7);

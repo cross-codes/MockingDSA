@@ -3,12 +3,12 @@
 #include <iostream>
 #include <vector>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 200001;
+constexpr std::size_t _ = 200001;
 
 std::pair<i64, i64> points[_];
 i64 minSquareDistance = INT64_MAX;
@@ -23,7 +23,7 @@ void solve(std::vector<int>, std::vector<int>);
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n;
+  std::size_t n;
   std::cin >> n;
 
   std::vector<int> sortedXIndices{}, sortedYIndices{};
@@ -58,12 +58,12 @@ auto distance(const std::pair<i64, i64> &a, const std::pair<i64, i64> &b)
 }
 
 void solve(std::vector<int> sortedXIndices, std::vector<int> sortedYIndices) {
-  size_t len = sortedXIndices.size();
+  std::size_t len = sortedXIndices.size();
   if (len == 1U)
     return;
 
   std::vector<int> leftX{}, leftY{}, rightX{}, rightY{};
-  for (size_t i = 0; i < len; i++) {
+  for (std::size_t i = 0; i < len; i++) {
     if (i < len >> 1) {
       leftX.push_back(sortedXIndices[i]);
       ::isLeft[sortedXIndices[i]] = true;
@@ -89,8 +89,8 @@ void solve(std::vector<int> sortedXIndices, std::vector<int> sortedYIndices) {
     if (::square(::points[idx].first - midX) < minSquareDistance)
       strip.push_back(idx);
 
-  for (size_t i = 0; i < strip.size(); i++)
-    for (size_t j = i + 1;
+  for (std::size_t i = 0; i < strip.size(); i++)
+    for (std::size_t j = i + 1;
          j < strip.size() &&
          square(::points[strip[i]].second - ::points[strip[j]].second) <
              minSquareDistance;

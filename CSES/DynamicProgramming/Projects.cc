@@ -3,12 +3,12 @@
 #include <iostream>
 #include <memory>
 
-using usize = size_t;
-using ssize = ptrdiff_t;
+using usize = std::size_t;
+using ssize = std::ptrdiff_t;
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
 auto constexpr TUPLE_ORDER = [](const std::tuple<int, int, int> &a,

@@ -1,12 +1,12 @@
 #include <cstdint>
 #include <iostream>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 1000000;
+constexpr std::size_t _ = 1000000;
 constexpr u64 MOD = static_cast<u64>(1e9 + 7);
 u64 factorials[_ + 1], inverseFactorials[_ + 1];
 
@@ -16,17 +16,17 @@ int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
   ::factorials[0] = 1;
-  for (size_t i = 1; i <= _; i++)
+  for (std::size_t i = 1; i <= _; i++)
     ::factorials[i] = ::factorials[i - 1] * i % MOD;
 
-  for (size_t i = 0; i <= _; i++)
+  for (std::size_t i = 0; i <= _; i++)
     ::inverseFactorials[i] = ::modPow(factorials[i], ::MOD - 2, ::MOD);
 
   u32 n;
   std::cin >> n;
 
   while (n-- > 0) {
-    size_t a, b;
+    std::size_t a, b;
     std::cin >> a >> b;
 
     std::cout << ((::factorials[a] * ::inverseFactorials[b]) % ::MOD *

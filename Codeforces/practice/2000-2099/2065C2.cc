@@ -267,13 +267,13 @@ private:
 
 public:
   inline static void integerBucketSort(std::unique_ptr<int[]> &array,
-                                       size_t length) {
+                                       std::std::size_t length) {
     int bits = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix, std::vector<int>(length));
 
     std::vector<int> size(radix);
-    for (size_t i = 0; i < length; i++) {
+    for (std::std::size_t i = 0; i < length; i++) {
       int e = array[i];
       int index = e & radix - 1;
       buckets[index][size[index]++] = e;
@@ -369,7 +369,7 @@ public:
   }
 
   inline static auto stableCountingSort(std::unique_ptr<uint32_t[]> &A,
-                                        size_t n, uint32_t max)
+                                        std::std::size_t n, uint32_t max)
       -> std::unique_ptr<uint32_t[]> {
 
     std::unique_ptr<uint32_t[]> B(new uint32_t[n]), C(new uint32_t[max + 1]);
@@ -389,7 +389,7 @@ public:
     return B;
   }
 
-  inline static auto stableCountingSort(std::vector<uint32_t> &A, size_t n,
+  inline static auto stableCountingSort(std::vector<uint32_t> &A, std::std::size_t n,
                                         uint32_t max) -> std::vector<uint32_t> {
 
     std::vector<uint32_t> B(n), C(max + 1, 0);
@@ -508,7 +508,7 @@ public:
     requires std::three_way_comparable<T>
   inline static auto inverseOrderStatistic(std::unique_ptr<T[]> &A,
                                            ptrdiff_t start, ptrdiff_t pastEnd,
-                                           size_t order) -> T {
+                                           std::std::size_t order) -> T {
     ptrdiff_t left = start, right = pastEnd - 1;
 
     while (true) {
@@ -518,7 +518,7 @@ public:
         return A[order - 1];
       }
 
-      size_t j = lomutoPartition_(A, left, right);
+      std::std::size_t j = lomutoPartition_(A, left, right);
 
       if (j >= order - 1)
         right = j - 1;
@@ -530,7 +530,7 @@ public:
   template <typename T>
     requires std::three_way_comparable<T>
   inline static auto inverseOrderStatistic(std::vector<T> &A, ptrdiff_t start,
-                                           ptrdiff_t pastEnd, size_t order)
+                                           ptrdiff_t pastEnd, std::std::size_t order)
       -> T {
     ptrdiff_t left = start, right = pastEnd - 1;
 
@@ -541,7 +541,7 @@ public:
         return A[order - 1];
       }
 
-      size_t j = lomutoPartition_(A, left, right);
+      std::std::size_t j = lomutoPartition_(A, left, right);
 
       if (j >= order - 1)
         right = j - 1;
@@ -553,14 +553,14 @@ public:
   template <typename T>
     requires std::three_way_comparable<T>
   inline static auto orderStatistic(std::unique_ptr<T[]> &A, ptrdiff_t start,
-                                    ptrdiff_t pastEnd, size_t order) -> T {
+                                    ptrdiff_t pastEnd, std::std::size_t order) -> T {
     return inverseOrderStatistic(A, start, pastEnd, pastEnd - start - order);
   }
 
   template <typename T>
     requires std::three_way_comparable<T>
   inline static auto orderStatistic(std::vector<T> &A, ptrdiff_t start,
-                                    ptrdiff_t pastEnd, size_t order) -> T {
+                                    ptrdiff_t pastEnd, std::std::size_t order) -> T {
     return inverseOrderStatistic(A, start, pastEnd, pastEnd - start - order);
   }
 };

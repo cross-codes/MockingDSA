@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <iostream>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
 int main() {
@@ -14,7 +14,7 @@ int main() {
   std::string input;
   std::cin >> input;
 
-  size_t n = input.size();
+  std::size_t n = input.size();
   std::string forward, backward, oddComp;
   forward.reserve(n), backward.reserve(n), oddComp.reserve(n);
 

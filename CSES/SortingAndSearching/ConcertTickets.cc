@@ -2,26 +2,26 @@
 #include <iostream>
 #include <set>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n, m;
+  std::size_t n, m;
   std::cin >> n >> m;
 
   std::multiset<u64> prices{};
 
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     u64 price;
     std::cin >> price;
     prices.insert(price);
   }
 
-  for (size_t i = 0; i < m; i++) {
+  for (std::size_t i = 0; i < m; i++) {
     u64 maxPrice;
     std::cin >> maxPrice;
 

@@ -2,17 +2,17 @@
 #include <cstdint>
 #include <iostream>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
 struct OriginVector2D {
 public:
-  int64_t x;
-  int64_t y;
+  std::int64_t x;
+  std::int64_t y;
 
-  OriginVector2D(int64_t x, int64_t y) : x(x), y(y) {}
+  OriginVector2D(std::int64_t x, std::int64_t y) : x(x), y(y) {}
 
   inline double norm() const {
     return std::sqrt(this->x * this->x + this->y * this->y);
@@ -26,11 +26,11 @@ public:
     return OriginVector2D(this->x - vector.x, this->y - vector.y);
   }
 
-  inline int64_t dot(const OriginVector2D &vector) const {
+  inline std::int64_t dot(const OriginVector2D &vector) const {
     return (this->x) * vector.x + (this->y) * vector.y;
   }
 
-  inline int64_t cross(const OriginVector2D &vector) const {
+  inline std::int64_t cross(const OriginVector2D &vector) const {
     return (this->x) * vector.y - (this->y) * vector.x;
   }
 
@@ -47,7 +47,7 @@ public:
   }
 
   inline double angleBetween(const OriginVector2D &vector) const {
-    int64_t dotProduct = (this->dot(vector));
+    std::int64_t dotProduct = (this->dot(vector));
     double normProduct = this->norm() * vector.norm();
     if (std::abs(normProduct) < 1e9)
       return (dotProduct > 0) ? std::numeric_limits<double>::infinity()

@@ -3,27 +3,27 @@
 #include <iostream>
 #include <unordered_map>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 40;
+constexpr std::size_t _ = 40;
 u64 list[_];
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n;
+  std::size_t n;
   u64 x;
   std::cin >> n >> x;
 
-  for (size_t i = 0; i < n; i++)
+  for (std::size_t i = 0; i < n; i++)
     std::cin >> ::list[i];
 
   std::sort(&::list[0], &::list[n]);
 
-  std::unordered_map<u64, size_t> firstSums{};
+  std::unordered_map<u64, std::size_t> firstSums{};
   firstSums.reserve(1 << (n >> 1));
 
   for (int i = 0; i < (1 << (n >> 1)); i++) {

@@ -10,12 +10,12 @@ template <typename E> class BoundedStack {
    */
 
 private:
-  int64_t STACK_SIZE_;
-  int64_t pos_ = -1;
+  std::int64_t STACK_SIZE_;
+  std::ptrdiff_t pos_ = -1;
   std::unique_ptr<E[]> stack_;
 
 public:
-  BoundedStack(size_t initialSize)
+  BoundedStack(std::size_t initialSize)
       : STACK_SIZE_(initialSize), stack_(std::make_unique<E[]>(STACK_SIZE_)) {};
 
   void pop() {
@@ -32,7 +32,7 @@ public:
 
   bool empty() { return pos_ == -1; }
 
-  size_t size() { return static_cast<size_t>(pos_ + 1); }
+  std::size_t size() { return static_cast<std::size_t>(pos_ + 1); }
 
   void clear() { pos_ = -1; }
 

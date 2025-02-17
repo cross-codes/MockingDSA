@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <string>
 
@@ -9,10 +10,10 @@ struct Vector2D {
    */
 
 public:
-  int64_t x;
-  int64_t y;
+  std::int64_t x;
+  std::int64_t y;
 
-  Vector2D(int64_t x, int64_t y) : x(x), y(y) {}
+  Vector2D(std::int64_t x, std::int64_t y) : x(x), y(y) {}
 
   inline double norm() const {
     return std::sqrt(this->x * this->x + this->y * this->y);
@@ -26,11 +27,11 @@ public:
     return Vector2D(this->x - vector.x, this->y - vector.y);
   }
 
-  inline int64_t dot(const Vector2D &vector) const {
+  inline std::int64_t dot(const Vector2D &vector) const {
     return (this->x) * vector.x + (this->y) * vector.y;
   }
 
-  inline int64_t cross(const Vector2D &vector) const {
+  inline std::int64_t cross(const Vector2D &vector) const {
     return (this->x) * vector.y - (this->y) * vector.x;
   }
 
@@ -47,7 +48,7 @@ public:
   }
 
   inline double angleBetween(const Vector2D &vector) const {
-    int64_t dotProduct = (this->dot(vector));
+    std::int64_t dotProduct = (this->dot(vector));
     double normProduct = this->norm() * vector.norm();
     if (std::abs(normProduct) < 1e9)
       return (dotProduct > 0) ? std::numeric_limits<double>::infinity()
