@@ -3,12 +3,12 @@
 #include <iostream>
 #include <map>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 200000;
+constexpr std::size_t _ = 200000;
 std::pair<int, int> intervals[_];
 
 auto constexpr SUPERINTERVAL = [](const std::pair<int, int> &a,
@@ -32,7 +32,7 @@ auto constexpr SUBINTERVAL = [](const std::pair<int, int> &a,
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n;
+  std::size_t n;
   std::cin >> n;
 
   std::map<std::pair<int, int>, int, decltype(::SUPERINTERVAL)>
@@ -40,7 +40,7 @@ int main() {
   std::map<std::pair<int, int>, int, decltype(::SUBINTERVAL)>
       mapToSubInterval{};
 
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     int left, right;
     std::cin >> left >> right;
     auto pair = std::make_pair(left, right);
@@ -63,7 +63,7 @@ int main() {
     }
   }
 
-  for (size_t i = 0; i < n; i++)
+  for (std::size_t i = 0; i < n; i++)
     std::cout << mapToSuperInterval[::intervals[i]] << " ";
 
   std::cout << "\n";
@@ -82,7 +82,7 @@ int main() {
     }
   }
 
-  for (size_t i = 0; i < n; i++)
+  for (std::size_t i = 0; i < n; i++)
     std::cout << mapToSubInterval[::intervals[i]] << " ";
 
   std::cout << "\n";

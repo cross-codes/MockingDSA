@@ -1,21 +1,21 @@
 #include <cstdint>
 #include <iostream>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t N = 7;
+constexpr std::size_t N = 7;
 
-size_t cnt = 0;
+std::size_t cnt = 0;
 bool visited[N + 1][N + 1];
 
 enum class Direction { UP, DOWN, LEFT, RIGHT, NONE };
 
-inline void search(size_t, size_t, size_t, const std::string &, Direction);
-inline auto inBounds(size_t, size_t) -> bool;
-inline auto canGo(Direction, size_t, size_t) -> bool;
+inline void search(std::size_t, std::size_t, std::size_t, const std::string &, Direction);
+inline auto inBounds(std::size_t, std::size_t) -> bool;
+inline auto canGo(Direction, std::size_t, std::size_t) -> bool;
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
@@ -30,11 +30,11 @@ int main() {
   return 0;
 }
 
-inline auto inBounds(size_t x, size_t y) -> bool {
+inline auto inBounds(std::size_t x, std::size_t y) -> bool {
   return (x >= 1) && (y >= 1) && (x <= N) && (y <= N);
 }
 
-inline auto canGo(::Direction dir, size_t x, size_t y) -> bool {
+inline auto canGo(::Direction dir, std::size_t x, std::size_t y) -> bool {
   switch (dir) {
   case ::Direction::UP:
     return ::inBounds(x, y - 1) && !::visited[y - 1][x];
@@ -53,7 +53,7 @@ inline auto canGo(::Direction dir, size_t x, size_t y) -> bool {
   }
 }
 
-inline void search(size_t x, size_t y, size_t idx, const std::string &pattern,
+inline void search(std::size_t x, std::size_t y, std::size_t idx, const std::string &pattern,
                    ::Direction dir) {
   if (idx == N * N - 1 || (x == 1 && y == N)) {
     if (idx == N * N - 1 && x == 1 && y == N)

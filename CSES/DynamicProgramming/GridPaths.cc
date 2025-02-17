@@ -1,12 +1,12 @@
 #include <cstdint>
 #include <iostream>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
-constexpr size_t _ = 1001;
+constexpr std::size_t _ = 1001;
 constexpr int MOD = static_cast<int>(1e9 + 7);
 
 int grid[_][_], numPaths[_][_];
@@ -14,11 +14,11 @@ int grid[_][_], numPaths[_][_];
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
-  size_t n;
+  std::size_t n;
   std::cin >> n;
 
-  for (size_t y = 1; y <= n; y++) {
-    for (size_t x = 1; x <= n; x++) {
+  for (std::size_t y = 1; y <= n; y++) {
+    for (std::size_t x = 1; x <= n; x++) {
       char c;
       std::cin >> c;
       if (c == '.')
@@ -29,8 +29,8 @@ int main() {
   }
 
   ::numPaths[1][1] = 1;
-  for (size_t y = 1; y <= n; y++) {
-    for (size_t x = 1; x <= n; x++) {
+  for (std::size_t y = 1; y <= n; y++) {
+    for (std::size_t x = 1; x <= n; x++) {
 
       if (grid[y][x] == -1) [[unlikely]] {
         ::numPaths[y][x] = 0;

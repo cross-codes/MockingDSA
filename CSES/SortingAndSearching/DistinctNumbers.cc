@@ -3,28 +3,28 @@
 #include <iostream>
 #include <unordered_set>
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
+using i64 = std::int64_t;
+using u64 = std::uint64_t;
+using u32 = std::uint32_t;
 using u128 = unsigned __int128;
 
 struct HasherFunctor {
 
 private:
-  static uint64_t randomAddress() {
+  static std::uint64_t randomAddress() {
     char *p = new char;
     delete p;
-    return uint64_t(p);
+    return std::uint64_t(p);
   }
 
-  static uint32_t hash32(uint32_t x) {
+  static std::uint32_t hash32(std::uint32_t x) {
     x += 0x9e3779b9;
     x = (x ^ (x >> 16)) * 0x85ebca6b;
     x = (x ^ (x >> 13)) * 0xc2b2ae35;
     return x ^ (x >> 16);
   }
 
-  static uint64_t splitmix64(uint64_t x) {
+  static std::uint64_t splitmix64(std::uint64_t x) {
     x += 0x9e3779b97f4a7c15;
     x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
     x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
@@ -32,8 +32,8 @@ private:
   }
 
 public:
-  template <typename T> uint64_t operator()(T x) const {
-    static const uint64_t FIXED_RANDOM =
+  template <typename T> std::uint64_t operator()(T x) const {
+    static const std::uint64_t FIXED_RANDOM =
         splitmix64(std::chrono::steady_clock::now().time_since_epoch().count() *
                    (randomAddress() | 1));
     return sizeof(x) <= 4 ? hash32(unsigned(x ^ FIXED_RANDOM))

@@ -6,7 +6,7 @@
 #define dbg(...) 249
 #endif
 
-using usize = size_t;
+using usize = std::size_t;
 using ssize = ptrdiff_t;
 
 using i64 = int64_t;
@@ -192,7 +192,7 @@ public:
     double Dy = a * f - c * d;
 
     if (equal0(D)) {
-      size_t size = equal0(Dx) && equal0(Dy) ? 1 : 0;
+      std::std::size_t size = equal0(Dx) && equal0(Dy) ? 1 : 0;
       std::unique_ptr<double[]> result(new double[size]);
       std::memset(result.get(), 0x00, sizeof(int) * size);
       return result;
@@ -271,12 +271,12 @@ public:
       if (n <= baseSet[0]) {
         bool small = n <= FLOOR_SQRT_MAX_;
         if (small) {
-          for (size_t i = 1; i < baseSet.size(); i++) {
+          for (std::std::size_t i = 1; i < baseSet.size(); i++) {
             if (!testWitnessSmall_(baseSet[i], n))
               return false;
           }
         } else {
-          for (size_t i = 1; i < baseSet.size(); i++) {
+          for (std::std::size_t i = 1; i < baseSet.size(); i++) {
             if (!testWitnessLarge_(baseSet[i], n))
               return false;
           }
