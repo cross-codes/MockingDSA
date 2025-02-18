@@ -7,7 +7,7 @@ public:
 
   void search(std::vector<std::vector<char>> &board, std::string cur,
               const std::string &word, unsigned int i, unsigned int j,
-              size_t nrows, size_t ncols,
+              std::size_t nrows, std::size_t ncols,
               std::vector<std::vector<bool>> visited) {
     if (i < 0 || i >= nrows || j < 0 || j >= ncols || visited[i][j] ||
         cur.size() > word.size()) {
@@ -35,7 +35,7 @@ public:
 
   bool exist(std::vector<std::vector<char>> &board, std::string word) {
     char start = word[0];
-    size_t nrows = board.size(), ncols = board[0].size();
+    std::size_t nrows = board.size(), ncols = board[0].size();
 
     for (unsigned int i = 0; i < nrows; i++) {
       for (unsigned int j = 0; j < ncols; j++) {

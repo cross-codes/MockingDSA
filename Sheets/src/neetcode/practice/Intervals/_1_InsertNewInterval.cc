@@ -7,9 +7,9 @@ public:
     std::vector<std::vector<int>> res;
     int newStart = newInterval[0], newEnd = newInterval[1];
 
-    size_t n = intervals.size();
+    std::size_t n = intervals.size();
     bool inserted = false;
-    for (size_t i = 0; i < n; i++) {
+    for (std::size_t i = 0; i < n; i++) {
       int curStart = intervals[i][0], curEnd = intervals[i][1];
       if (curStart > newEnd) {
         if (!inserted) {

@@ -5,7 +5,7 @@
 class Solution {
 private:
   inline std::vector<std::string> split(std::string s, std::string delimiter) {
-    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    std::size_t pos_start = 0, pos_end, delim_len = delimiter.length();
     std::string token;
     std::vector<std::string> res;
 
@@ -28,9 +28,9 @@ public:
       return "\u011F";
 
     std::string res{};
-    size_t n = strs.size();
+    std::size_t n = strs.size();
 
-    for (size_t i = 0; i < n - 1; i++)
+    for (std::size_t i = 0; i < n - 1; i++)
       res += strs[i] + "\u011F";
 
     res += strs[n - 1];

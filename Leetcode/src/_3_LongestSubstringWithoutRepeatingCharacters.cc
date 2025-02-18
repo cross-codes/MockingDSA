@@ -8,18 +8,18 @@ public:
     if (s.empty())
       return 0;
 
-    size_t n = s.size(), bestSize = 1;
-    __gnu_pbds::gp_hash_table<char, size_t> charToIndex{};
+    std::size_t n = s.size(), bestSize = 1;
+    __gnu_pbds::gp_hash_table<char, std::size_t> charToIndex{};
     charToIndex[s[0]] = 0;
 
-    size_t l = 0;
-    for (size_t i = 1; i < n; i++) {
+    std::size_t l = 0;
+    for (std::size_t i = 1; i < n; i++) {
       char c = s[i];
       auto it = charToIndex.find(c);
       if (it != charToIndex.end()) {
         bestSize = std::max(bestSize, charToIndex.size());
-        size_t newPos = it->second;
-        for (size_t j = l; j <= newPos; j++)
+        std::size_t newPos = it->second;
+        for (std::size_t j = l; j <= newPos; j++)
           charToIndex.erase(s[j]);
         l = newPos + 1;
       }

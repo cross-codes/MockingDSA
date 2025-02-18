@@ -15,7 +15,7 @@ public:
   }
 
   bool operator==(const Anagram &o) const {
-    for (size_t i = 0; i < 26; i++)
+    for (std::size_t i = 0; i < 26; i++)
       if (freq[i] != o.freq[i])
         return false;
 
@@ -23,9 +23,9 @@ public:
   }
 
   struct AnagramHash {
-    size_t operator()(const Anagram &a) const {
-      size_t hash = 1;
-      for (size_t i = 0; i < 26; i++)
+    std::size_t operator()(const Anagram &a) const {
+      std::size_t hash = 1;
+      for (std::size_t i = 0; i < 26; i++)
         hash = 31 * hash + a.freq[i];
 
       return hash;
@@ -39,7 +39,7 @@ public:
   groupAnagrams(std::vector<std::string> &strs) {
 
     std::vector<std::vector<std::string>> res;
-    std::unordered_map<Anagram, size_t, Anagram::AnagramHash> typeToIndex{};
+    std::unordered_map<Anagram, std::size_t, Anagram::AnagramHash> typeToIndex{};
 
     for (const auto &string : strs) {
       Anagram equiv(string);

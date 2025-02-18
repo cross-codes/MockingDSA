@@ -8,12 +8,12 @@ private:
   std::mt19937_64 engine_;
 
   template <typename T>
-  inline auto indexPartition_(std::vector<T> &A, ptrdiff_t p,
-                                     ptrdiff_t r) -> ptrdiff_t {
+  inline auto indexPartition_(std::vector<T> &A, std::ptrdiff_t p,
+                                     std::ptrdiff_t r) -> std::ptrdiff_t {
     T x = A[r];
-    ptrdiff_t i = p - 1;
+    std::ptrdiff_t i = p - 1;
 
-    for (ptrdiff_t j = p; j <= r - 1; j++) {
+    for (std::ptrdiff_t j = p; j <= r - 1; j++) {
       if (A[j] <= x) {
         i++;
         std::swap(A[i], A[j]);
@@ -25,20 +25,20 @@ private:
   }
 
   template <typename T>
-  auto randomizedParition_(std::vector<T> &A, ptrdiff_t p,
-                                       ptrdiff_t r) -> ptrdiff_t {
+  auto randomizedParition_(std::vector<T> &A, std::ptrdiff_t p,
+                                       std::ptrdiff_t r) -> std::ptrdiff_t {
     std::uniform_int_distribution<int> distribution(static_cast<int>(p),
                                                     static_cast<int>(r));
-    ptrdiff_t i = static_cast<ptrdiff_t>(distribution(engine_));
+    std::ptrdiff_t i = static_cast<std::ptrdiff_t>(distribution(engine_));
     std::swap(A[i], A[r]);
 
     return indexPartition_(A, p, r);
   }
 
   template <typename T>
-  inline auto lomutoPartition_(std::vector<T> &nums, ptrdiff_t p,
-                                      ptrdiff_t r) -> ptrdiff_t {
-    ptrdiff_t mid = (p + r) >> 1;
+  inline auto lomutoPartition_(std::vector<T> &nums, std::ptrdiff_t p,
+                                      std::ptrdiff_t r) -> std::ptrdiff_t {
+    std::ptrdiff_t mid = (p + r) >> 1;
     std::swap(nums[mid], nums[p + 1]);
 
     if (nums[p] < nums[r])
@@ -49,7 +49,7 @@ private:
       std::swap(nums[p], nums[p + 1]);
 
     T pivot = nums[p + 1];
-    ptrdiff_t i = p + 1, j = r;
+    std::ptrdiff_t i = p + 1, j = r;
 
     while (true) {
       while (nums[++i] > pivot)
@@ -67,10 +67,10 @@ private:
   }
 
   template <typename T>
-  inline auto inverseOrderStatistic_(std::vector<T> &A, ptrdiff_t start,
-                                           ptrdiff_t pastEnd, size_t order)
+  inline auto inverseOrderStatistic_(std::vector<T> &A, std::ptrdiff_t start,
+                                           std::ptrdiff_t pastEnd, std::size_t order)
       -> T {
-    ptrdiff_t left = start, right = pastEnd - 1;
+    std::ptrdiff_t left = start, right = pastEnd - 1;
 
     while (true) {
       if (right <= left + 1) {
@@ -79,7 +79,7 @@ private:
         return A[order - 1];
       }
 
-      size_t j = lomutoPartition_(A, left, right);
+      std::size_t j = lomutoPartition_(A, left, right);
 
       if (j >= order - 1)
         right = j - 1;

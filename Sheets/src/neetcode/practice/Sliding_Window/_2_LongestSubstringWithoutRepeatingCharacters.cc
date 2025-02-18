@@ -8,16 +8,16 @@ public:
     if (s.empty())
       return 0;
 
-    ptrdiff_t l = 0, n = s.size(), maxLength = 1;
-    std::unordered_map<char, ptrdiff_t> indices{};
+    std::ptrdiff_t l = 0, n = s.size(), maxLength = 1;
+    std::unordered_map<char, std::ptrdiff_t> indices{};
 
-    for (ptrdiff_t i = 0; i < n; i++) {
+    for (std::ptrdiff_t i = 0; i < n; i++) {
       char c = s[i];
       auto it = indices.find(c);
       if (it != indices.end()) {
-        ptrdiff_t endIndex = it->second;
+        std::ptrdiff_t endIndex = it->second;
         maxLength = std::max(maxLength, i - l);
-        for (ptrdiff_t j = l; j <= endIndex; j++)
+        for (std::ptrdiff_t j = l; j <= endIndex; j++)
           indices.erase(s[j]);
 
         l = endIndex + 1;

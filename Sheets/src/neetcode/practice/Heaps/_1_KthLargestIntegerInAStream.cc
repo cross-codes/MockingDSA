@@ -4,7 +4,7 @@
 class KthLargest {
 private:
   std::priority_queue<int, std::vector<int>, std::greater<int>> heap_;
-  size_t maxSize_ = 0;
+  std::size_t maxSize_ = 0;
 
 public:
   KthLargest(int k, std::vector<int> &nums) : maxSize_(k) {

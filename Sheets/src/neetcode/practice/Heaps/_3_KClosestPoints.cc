@@ -11,7 +11,7 @@ private:
 public:
   std::vector<std::vector<int>> kClosest(std::vector<std::vector<int>> &points,
                                          int k) {
-    size_t n = points.size();
+    std::size_t n = points.size();
     std::vector<std::vector<int>> res{};
 
     auto DISTANCE_ORDER = [this](const std::vector<int> &a,

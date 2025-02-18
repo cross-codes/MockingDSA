@@ -10,10 +10,10 @@ public:
 
   int carFleet(int target, std::vector<int> &position,
                std::vector<int> &speed) {
-    size_t n = position.size();
+    std::size_t n = position.size();
     std::vector<std::pair<int, int>> cars(n);
 
-    for (size_t i = 0; i < n; i++)
+    for (std::size_t i = 0; i < n; i++)
       cars[i] = {position[i], speed[i]};
 
     std::sort(cars.begin(), cars.end(), std::greater<std::pair<int, int>>());

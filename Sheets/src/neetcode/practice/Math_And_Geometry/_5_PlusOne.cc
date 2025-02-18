@@ -4,14 +4,14 @@
 class Solution {
 public:
   std::vector<int> plusOne(std::vector<int> &digits) {
-    size_t n = digits.size();
+    std::size_t n = digits.size();
     std::vector<int> res{};
 
     int sum = digits[n - 1] + 1;
     int carry = (sum >= 10) ? 1 : 0;
     res.push_back(sum >= 10 ? sum - 10 : sum);
 
-    for (ptrdiff_t i = n - 2; i >= 0; i--) {
+    for (std::ptrdiff_t i = n - 2; i >= 0; i--) {
       sum = digits[i] + carry;
       carry = (sum >= 10) ? 1 : 0;
       res.push_back(sum >= 10 ? sum - 10 : sum);

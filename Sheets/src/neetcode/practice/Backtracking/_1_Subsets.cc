@@ -5,7 +5,7 @@ public:
   std::vector<std::vector<int>> powerSet{};
   std::vector<int> subset{};
 
-  void search(unsigned int idx, std::vector<int> &nums, size_t n) {
+  void search(unsigned int idx, std::vector<int> &nums, std::size_t n) {
     if (idx == n)
       this->powerSet.push_back(this->subset);
     else {

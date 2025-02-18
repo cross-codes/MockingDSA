@@ -5,13 +5,13 @@ class Solution {
 public:
   double findMedianSortedArrays(std::vector<int> &nums1,
                                 std::vector<int> &nums2) {
-    size_t m = nums1.size(), n = nums2.size();
+    std::size_t m = nums1.size(), n = nums2.size();
     if (m == 0 && n == 0)
       return 0.0;
 
     std::multiset<int> bag{};
     std::multiset<int>::iterator medianIt;
-    size_t medianIdx;
+    std::size_t medianIdx;
     bool odd = false, once = false;
 
     for (int num : nums1) {
@@ -28,7 +28,7 @@ public:
       if (num < *medianIt)
         medianIdx++;
 
-      size_t idx = (bag.size() + 1) / 2;
+      std::size_t idx = (bag.size() + 1) / 2;
 
       if (medianIdx < idx)
         ++medianIt;
@@ -53,7 +53,7 @@ public:
       if (num < *medianIt)
         medianIdx++;
 
-      size_t idx = (bag.size() + 1) / 2;
+      std::size_t idx = (bag.size() + 1) / 2;
 
       if (medianIdx < idx)
         ++medianIt;

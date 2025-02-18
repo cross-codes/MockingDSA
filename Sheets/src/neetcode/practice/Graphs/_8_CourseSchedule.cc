@@ -5,12 +5,12 @@
 class Solution {
 public:
   bool canFinish(int numCourses, std::vector<std::vector<int>> &prerequisites) {
-    size_t n = prerequisites.size();
+    std::size_t n = prerequisites.size();
 
     int inDegrees[numCourses];
     std::memset(inDegrees, 0x00, sizeof(inDegrees));
 
-    for (size_t i = 0; i < n; i++)
+    for (std::size_t i = 0; i < n; i++)
       inDegrees[prerequisites[i][1]]++;
 
     std::queue<int> vertexQueue;
@@ -24,7 +24,7 @@ public:
       vertexQueue.pop();
       inDegrees[vertex] = -1;
 
-      for (size_t i = 0; i < n; i++) {
+      for (std::size_t i = 0; i < n; i++) {
         if (prerequisites[i][0] == vertex)
           inDegrees[prerequisites[i][1]]--;
       }
@@ -36,7 +36,7 @@ public:
     }
 
     bool cond = true;
-    for (size_t i = 0; i < n; i++) {
+    for (std::size_t i = 0; i < n; i++) {
       if (inDegrees[i] >= 0) {
         cond = false;
         break;

@@ -3,8 +3,8 @@
 #include <vector>
 
 struct VectorHash {
-  size_t operator()(const std::vector<int> &vec) const {
-    size_t hash = 0U;
+  std::size_t operator()(const std::vector<int> &vec) const {
+    std::size_t hash = 0U;
 
     auto copy = vec;
     std::sort(copy.begin(), copy.end());
@@ -34,7 +34,7 @@ public:
   int target;
 
   void search(int sum, const std::vector<int> &nums, std::vector<int> cur,
-              size_t idx, ...) {
+              std::size_t idx, ...) {
     if (sum == target) {
       res.insert(cur);
       return;

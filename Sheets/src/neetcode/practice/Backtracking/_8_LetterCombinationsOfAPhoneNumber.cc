@@ -8,7 +8,7 @@ public:
                                      "jkl", "mno", "pqrs", "tuv", "wxyz"};
 
   void search(std::string cur, char currentDigit, std::string digits,
-              size_t digitIndex) {
+              std::size_t digitIndex) {
     if (currentDigit == '0') {
       res.push_back(cur);
       return;
