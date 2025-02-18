@@ -5,7 +5,7 @@
 class Solution {
 public:
   std::string longestCommonPrefix(std::vector<std::string> &strs) {
-    size_t pos = 0, minLength = ULONG_LONG_MAX;
+    std::size_t pos = 0, minLength = ULONG_LONG_MAX;
     std::string commonPrefix("");
     char c = strs[0][0];
 

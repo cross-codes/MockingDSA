@@ -30,7 +30,7 @@ public:
       current = current->next;
     }
 
-    size_t n = nodeOrder.size();
+    std::size_t n = nodeOrder.size();
 
     Node *newHead = nodeToCopy[head];
     newHead->next = nodeToCopy[head->next];
@@ -38,7 +38,7 @@ public:
 
     Node *newCurrent = newHead->next;
 
-    for (size_t i = 0; i <= n - 1; i++) {
+    for (std::size_t i = 0; i <= n - 1; i++) {
       newCurrent->next = nodeToCopy[nodeOrder[i]->next];
       newCurrent->random = nodeToCopy[nodeOrder[i]->random];
       newCurrent = newCurrent->next;

@@ -3,8 +3,8 @@
 #include <vector>
 
 struct VectorHash {
-  size_t operator()(const std::vector<int> &vec) const {
-    size_t hash = 0U;
+  std::size_t operator()(const std::vector<int> &vec) const {
+    std::size_t hash = 0U;
 
     auto copy = vec;
     std::sort(copy.begin(), copy.end());
@@ -32,7 +32,7 @@ class Solution {
 public:
   std::unordered_set<std::vector<int>, VectorHash, IsEqualToVector> res{};
 
-  void search(size_t idx, const std::vector<int> &nums, std::vector<int> cur,
+  void search(std::size_t idx, const std::vector<int> &nums, std::vector<int> cur,
               ...) {
     if (idx == nums.size()) {
       res.insert(cur);

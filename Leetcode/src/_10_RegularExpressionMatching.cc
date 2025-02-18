@@ -3,8 +3,8 @@
 class Solution {
 public:
   bool isMatch(std::string s, std::string p) {
-    size_t sSize = s.size(), pSize = p.size();
-    size_t patternPos = 0, stringPos = 0;
+    std::size_t sSize = s.size(), pSize = p.size();
+    std::size_t patternPos = 0, stringPos = 0;
 
     char prev = '.';
     while (stringPos != sSize && patternPos != pSize) {

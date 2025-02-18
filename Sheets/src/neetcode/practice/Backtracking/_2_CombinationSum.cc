@@ -6,7 +6,7 @@ public:
   int target;
 
   void search(int sum, const std::vector<int> &nums, std::vector<int> cur,
-              size_t idx...) {
+              std::size_t idx...) {
     if (sum == target) {
       this->res.push_back(cur);
       return;

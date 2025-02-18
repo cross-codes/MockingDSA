@@ -3,8 +3,8 @@
 class Solution {
 public:
   std::vector<int> twoSum(std::vector<int> &numbers, int target) {
-    ptrdiff_t n = numbers.size();
-    ptrdiff_t l = 0, r = n - 1;
+    std::ptrdiff_t n = numbers.size();
+    std::ptrdiff_t l = 0, r = n - 1;
 
     while (numbers[l] + numbers[r] > target) {
       r--;

@@ -4,7 +4,7 @@
 class Solution {
 public:
   std::vector<int> maxSlidingWindow(std::vector<int> &nums, int k) {
-    size_t n = nums.size();
+    std::size_t n = nums.size();
     std::vector<int> res{};
 
     std::deque<int> deque{};
@@ -16,7 +16,7 @@ public:
 
     res.push_back(deque.front());
 
-    for (size_t j = k; j < n; j++) {
+    for (std::size_t j = k; j < n; j++) {
       int newVal = nums[j], popVal = nums[j - k];
       while (!deque.empty() && deque.back() < newVal)
         deque.pop_back();

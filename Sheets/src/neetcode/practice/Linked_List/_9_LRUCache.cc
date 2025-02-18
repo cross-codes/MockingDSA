@@ -13,7 +13,7 @@ public:
 
 class LRUCache {
 private:
-  size_t capacity_, currentSize_;
+  std::size_t capacity_, currentSize_;
   DualLinkedNode *headSentinel_, *tailSentinel_;
   __gnu_pbds::gp_hash_table<int, DualLinkedNode *> cache_;
 
@@ -44,7 +44,7 @@ private:
   }
 
 public:
-  LRUCache(size_t capacity)
+  LRUCache(std::size_t capacity)
       : capacity_(capacity), currentSize_(0),
         headSentinel_(new DualLinkedNode(-1, -1)),
         tailSentinel_(new DualLinkedNode(-1, -1)), cache_() {

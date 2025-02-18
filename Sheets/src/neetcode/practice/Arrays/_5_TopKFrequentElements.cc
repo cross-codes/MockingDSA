@@ -5,14 +5,14 @@
 class Solution {
 private:
   inline auto static INVERSE_PAIR_ORDER =
-      [](const std::pair<int, size_t> &a,
-         const std::pair<int, size_t> &b) -> bool {
+      [](const std::pair<int, std::size_t> &a,
+         const std::pair<int, std::size_t> &b) -> bool {
     return a.second > b.second;
   };
 
 public:
   std::vector<int> topKFrequent(std::vector<int> &nums, int k) {
-    std::array<std::pair<int, size_t>, 2001> freq = {};
+    std::array<std::pair<int, std::size_t>, 2001> freq = {};
     for (int i = -1000; i <= 1000; i++)
       freq[i + 1000].first = i;
 

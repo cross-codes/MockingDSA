@@ -48,9 +48,9 @@ public:
       return nullptr;
 
     newHead = lists[0];
-    size_t n = lists.size();
+    std::size_t n = lists.size();
 
-    for (size_t i = 1; i < n; i++)
+    for (std::size_t i = 1; i < n; i++)
       merge(lists[i]);
 
     return newHead;

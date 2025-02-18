@@ -7,12 +7,12 @@ public:
     std::vector<std::vector<int>> res{};
 
     std::sort(nums.begin(), nums.end());
-    size_t n = nums.size();
+    std::size_t n = nums.size();
 
-    for (size_t i = 0; i < n; i++) {
+    for (std::size_t i = 0; i < n; i++) {
       int aux = nums[i];
 
-      ptrdiff_t l = i + 1, r = n - 1;
+      std::ptrdiff_t l = i + 1, r = n - 1;
       while (nums[l] + nums[r] > -aux)
         r--;
 

@@ -14,7 +14,7 @@ public:
   }
 
   bool operator==(const std::unique_ptr<int[]> &a) const {
-    for (size_t i = 0; i < 26; i++) {
+    for (std::size_t i = 0; i < 26; i++) {
       if (a[i] != freq_[i])
         return false;
     }
@@ -27,19 +27,19 @@ class Solution {
 public:
   bool checkInclusion(std::string s1, std::string s2) {
     auto reduce = Anagram(s1);
-    size_t n = s2.size();
+    std::size_t n = s2.size();
 
     std::unique_ptr<int[]> freq(new int[26]);
     std::memset(freq.get(), 0x00, sizeof(int) * 26);
 
-    ptrdiff_t l = 0;
-    for (size_t i = 0; i < s1.size(); i++)
+    std::ptrdiff_t l = 0;
+    for (std::size_t i = 0; i < s1.size(); i++)
       freq[s2[i] - 'a']++;
 
     if (reduce == freq)
       return true;
 
-    for (size_t i = s1.size(); i < n; i++) {
+    for (std::size_t i = s1.size(); i < n; i++) {
       freq[s2[l] - 'a']--;
       freq[s2[i] - 'a']++;
 

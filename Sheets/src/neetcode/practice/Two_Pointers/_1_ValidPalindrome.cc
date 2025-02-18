@@ -3,8 +3,8 @@
 class Solution {
 public:
   bool isPalindrome(std::string s) {
-    ptrdiff_t n = s.size();
-    ptrdiff_t l = 0, r = n - 1;
+    std::ptrdiff_t n = s.size();
+    std::ptrdiff_t l = 0, r = n - 1;
     while (!std::isalnum(s[l]))
       l++;
     while (!std::isalnum(s[r]))
