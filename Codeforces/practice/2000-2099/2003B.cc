@@ -13,7 +13,7 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 using u128 = unsigned __int128;
 
-namespace _StickLengths {
+namespace _2003B {
 
 struct Random {
 
@@ -580,25 +580,16 @@ auto run() -> void {
   usize n;
   std::cin >> n;
 
-  std::unique_ptr<int[]> sticks(new int[n]);
+  std::unique_ptr<int[]> elem(new int[n]);
+  for (usize i = 0UZ; i < n; i++)
+    std::cin >> elem[i];
 
-  for (usize i = 0U; i < n; i++)
-    std::cin >> sticks[i];
+  int median = Array::orderStatistic(elem, 0, n, (n >> 1) + 1);
 
-  int median{};
-  if (n & 1)
-    median = Array::orderStatistic(sticks, 0, n, (n >> 1) + 1);
-  else
-    median = Array::orderStatistic(sticks, 0, n, n >> 1);
-
-  u64 res{};
-  for (usize i = 0; i < n; i++)
-    res += std::abs(sticks[i] - median);
-
-  std::cout << res << "\n";
+  std::println("{}", median);
 }
 
-} // namespace _StickLengths
+} // namespace _2003B
 
 int main() {
 #ifdef CROSS
@@ -616,9 +607,10 @@ int main() {
 #endif
 
   int t{1};
+  std::cin >> t;
 
   while (t-- > 0)
-    _StickLengths::run();
+    _2003B::run();
 
 #ifdef CROSS
   std::fclose(stdin);

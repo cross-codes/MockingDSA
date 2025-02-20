@@ -13,31 +13,27 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 using u128 = unsigned __int128;
 
-namespace _141A {
+namespace _272A {
 
 auto run() -> void {
-  std::array<int, 26> freq{};
+  ssize n;
+  std::cin >> n;
 
-  std::string guest, host, mess;
-  std::cin >> guest >> host >> mess;
-
-  auto update = [&](const char &c) { freq[c - 'A']++; };
-
-  std::ranges::for_each(guest, update);
-  std::ranges::for_each(host, update);
-  std::ranges::for_each(mess, [&](const char &c) { freq[c - 'A']--; });
-
-  for (auto &f : freq) {
-    if (f != 0) {
-      std::println("NO");
-      return;
-    }
+  int s{}, k{};
+  for (ssize i = 0Z; i < n; i++) {
+    int num;
+    std::cin >> num;
+    s += num;
   }
 
-  std::println("YES");
+  for (ssize i = 1Z; i <= 5; i++)
+    if ((s + i - 1Z) % (n + 1Z))
+      k++;
+
+  std::println("{}", k);
 }
 
-} // namespace _141A
+} // namespace _272A
 
 int main() {
 #ifdef CROSS
@@ -57,7 +53,7 @@ int main() {
   int t{1};
 
   while (t-- > 0)
-    _141A::run();
+    _272A::run();
 
 #ifdef CROSS
   std::fclose(stdin);
