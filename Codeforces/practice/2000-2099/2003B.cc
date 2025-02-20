@@ -1,8 +1,129 @@
-#include <cstring>
-#include <memory>
-#include <vector>
+#include <bits/stdc++.h>
 
-#include "Random.hh"
+#if __cplusplus >= 202302L
+#define dbg(a) std::println(stderr, "", a);
+#else
+#define dbg(a) std::cerr << a << "\n";
+#endif
+
+using usize = std::size_t;
+using ssize = std::ptrdiff_t;
+using i64 = std::int64_t;
+using u32 = std::uint32_t;
+using u64 = std::uint64_t;
+using u128 = unsigned __int128;
+
+namespace _2003B {
+
+struct Random {
+
+  /*
+   * Author: github.com/cross-codes
+   */
+
+private:
+  std::random_device randomDevice_;
+  std::mt19937_64 engine_;
+
+  Random() : engine_(randomDevice_()) {};
+  Random(const Random &) = delete;
+  Random &operator=(const Random &) = delete;
+
+public:
+  static Random &getInstance() {
+    static Random instance;
+    return instance;
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextUniformRandomInteger(T p, T r) {
+    std::uniform_int_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextUniformRandomReal(T p, T r) {
+    std::uniform_real_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextNormalReal(T p, T r) {
+    std::normal_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  inline bool nextBernoulli() {
+    std::bernoulli_distribution distribution;
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextBinomialReal(T p, T r) {
+    std::binomial_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextPoissonReal(T p, T r) {
+    std::poisson_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextExponentialReal(T p, T r) {
+    std::exponential_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextGammaReal(T p, T r) {
+    std::gamma_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextWeibullReal(T p, T r) {
+    std::weibull_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextLogNormalReal(T p, T r) {
+    std::lognormal_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextChiSquaredReal(T p, T r) {
+    std::chi_squared_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextCauchyReal(T p, T r) {
+    std::cauchy_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+
+  template <typename T>
+    requires std::integral<T> || std::floating_point<T>
+  inline T nextTDistributionReal(T p, T r) {
+    std::student_t_distribution<T> distribution(p, r);
+    return distribution(engine_);
+  }
+};
 
 struct Array {
 
@@ -454,3 +575,46 @@ public:
                                  pastEnd - start - order + 1);
   }
 };
+
+auto run() -> void {
+  usize n;
+  std::cin >> n;
+
+  std::unique_ptr<int[]> elem(new int[n]);
+  for (usize i = 0UZ; i < n; i++)
+    std::cin >> elem[i];
+
+  int median = Array::orderStatistic(elem, 0, n, (n >> 1) + 1);
+
+  std::println("{}", median);
+}
+
+} // namespace _2003B
+
+int main() {
+#ifdef CROSS
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr) {
+#if __cplusplus >= 202302L
+    std::println(stderr, "Input file not found");
+#else
+    std::cerr << "Input file not found\n";
+#endif
+    __builtin_trap();
+  }
+#else
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+#endif
+
+  int t{1};
+  std::cin >> t;
+
+  while (t-- > 0)
+    _2003B::run();
+
+#ifdef CROSS
+  std::fclose(stdin);
+#endif
+
+  return 0;
+}

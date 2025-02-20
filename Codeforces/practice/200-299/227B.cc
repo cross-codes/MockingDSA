@@ -13,31 +13,35 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 using u128 = unsigned __int128;
 
-namespace _141A {
+namespace _227B {
 
 auto run() -> void {
-  std::array<int, 26> freq{};
+  usize n;
+  std::cin >> n;
 
-  std::string guest, host, mess;
-  std::cin >> guest >> host >> mess;
+  std::array<usize, 100001> positions{};
 
-  auto update = [&](const char &c) { freq[c - 'A']++; };
-
-  std::ranges::for_each(guest, update);
-  std::ranges::for_each(host, update);
-  std::ranges::for_each(mess, [&](const char &c) { freq[c - 'A']--; });
-
-  for (auto &f : freq) {
-    if (f != 0) {
-      std::println("NO");
-      return;
-    }
+  for (usize i = 1UZ; i <= n; i++) {
+    int num;
+    std::cin >> num;
+    positions[num] = i;
   }
 
-  std::println("YES");
+  ssize m;
+  std::cin >> m;
+
+  u64 fwd{}, back{};
+  while (m-- > 0) {
+    usize b;
+    std::cin >> b;
+    fwd += positions[b];
+    back += n - positions[b] + 1;
+  }
+
+  std::println("{} {}", fwd, back);
 }
 
-} // namespace _141A
+} // namespace _227B
 
 int main() {
 #ifdef CROSS
@@ -57,7 +61,7 @@ int main() {
   int t{1};
 
   while (t-- > 0)
-    _141A::run();
+    _227B::run();
 
 #ifdef CROSS
   std::fclose(stdin);
