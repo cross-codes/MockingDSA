@@ -180,7 +180,7 @@ public:
   }
 
   inline static int ceilLog2(std::int64_t n) {
-    return (n == 0) ? 0 : 64 - __builtin_clzll(n);
+    return (n == 1) ? 1 : 64 - __builtin_clzll(n - 1);
   }
 
   inline static bool equal(double a, double b) {

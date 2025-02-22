@@ -1,5 +1,3 @@
-#include <cstddef>
-#include <cstdint>
 #include <memory>
 
 struct FenwickTree {
@@ -19,10 +17,10 @@ public:
       : N_(n), tree_(std::make_unique<std::int64_t[]>(n + 1)),
         array(std::make_unique<std::int64_t[]>(n + 1)) {};
 
-  void addToIndex(std::size_t k, std::int64_t x) {
+  void advanceValue(std::size_t k, std::int64_t x) {
     while (k <= N_) {
       tree_[k] += x;
-      k += (k == 0 ? 0 : 1 << __builtin_ctzll(k));
+      k += k & -k;
     }
   }
 
@@ -30,7 +28,7 @@ public:
     std::int64_t s = 0LL;
     while (k >= 1) {
       s += tree_[k];
-      k -= (k == 0 ? 0 : 1 << __builtin_ctzll(k));
+      k -= k & -k;
     }
     return s;
   }
