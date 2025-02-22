@@ -13,7 +13,7 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 using u128 = unsigned __int128;
 
-namespace _StaticRangeMinimumQueries {
+namespace _DynamicRangeMinimumQueries {
 
 struct Algebra {
 
@@ -304,59 +304,83 @@ public:
   }
 };
 
-template <typename T> struct IdempotentSparseTable {
+template <typename T> struct SegmentTree {
 
   /*
    * Author: github.com/cross-codes
    */
 
 private:
-  std::function<T(const T &, const T &)> function;
-  std::vector<std::vector<T>> table;
+  std::size_t offset_;
+  std::unique_ptr<T[]> tree_;
+
+  std::function<T(const T &, const T &)> function_;
+  T defaultValue_;
 
 public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func,
-                        std::unique_ptr<T[]> &array, std::size_t n)
-      : function(func) {
-    std::uint32_t K = Algebra::log2(n);
+  SegmentTree(std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
+              std::function<T(const T &, const T &)> function)
+      : offset_(1 << Algebra::ceilLog2(n)),
+        tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
+        defaultValue_(defaultValue) {
 
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(&array[0], &array[n], table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++) {
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++) {
-        table[y][x] = function(table[y - 1][x], table[y - 1][k]);
-      }
+    std::copy(&array[0], &array[n], &tree_[offset_]);
+    for (std::size_t i = offset_; i != 1; i >>= 1) {
+      for (std::size_t j = i; j < i << 1; j += 2)
+        tree_[j >> 1] = function_(tree_[j], tree_[j + 1]);
     }
   }
 
+  void setAtIndex(std::size_t index, T value) {
+    tree_[index += offset_] = value;
+
+    for (; index != 1; index >>= 1)
+      tree_[index >> 1] = function_(tree_[index], tree_[index ^ 1]);
+  }
+
   T queryRange(std::size_t fromIdx, std::size_t pastEndIdx) {
-    std::size_t log2 = Algebra::log2(pastEndIdx - fromIdx);
-    return function(table[log2][fromIdx],
-                    table[log2][pastEndIdx - (1 << log2)]);
+    T result{defaultValue_};
+
+    for (fromIdx += offset_, pastEndIdx += offset_; fromIdx < pastEndIdx;
+         fromIdx >>= 1, pastEndIdx >>= 1) {
+
+      if (fromIdx & 1)
+        result = function_(result, tree_[fromIdx++]);
+      if (pastEndIdx & 1)
+        result = function_(result, tree_[--pastEndIdx]);
+    }
+
+    return result;
   }
 };
 
 auto run() -> void {
-  ssize n, q;
+  usize n, q;
   std::cin >> n >> q;
 
   std::unique_ptr<int[]> array(new int[n]);
-  for (ssize i = 0; i < n; i++)
+
+  for (usize i = 0; i < n; i++)
     std::cin >> array[i];
 
   auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-
-  auto table = IdempotentSparseTable<int>(MIN_SELECT, array, n);
+  auto segmentTree = SegmentTree<int>(array, n, INT_MAX, MIN_SELECT);
 
   while (q-- > 0) {
-    usize a, b;
-    std::cin >> a >> b;
-    std::cout << table.queryRange(--a, b) << "\n";
+    usize k, a, b;
+    int u, type;
+    std::cin >> type;
+    if (type == 1) {
+      std::cin >> k >> u;
+      segmentTree.setAtIndex(k - 1, u);
+    } else {
+      std::cin >> a >> b;
+      std::cout << segmentTree.queryRange(a - 1, b) << "\n";
+    }
   }
 }
 
-} // namespace _StaticRangeMinimumQueries
+} // namespace _DynamicRangeMinimumQueries
 
 int main() {
 #ifdef CROSS
@@ -376,7 +400,7 @@ int main() {
   int t{1};
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _DynamicRangeMinimumQueries::run();
 
 #ifdef CROSS
   std::fclose(stdin);

@@ -1,13 +1,26 @@
-#include <cstdint>
-#include <iostream>
-#include <memory>
+#include <bits/stdc++.h>
 
+#if __cplusplus >= 202302L
+#define dbg(a) std::println(stderr, "{}", a);
+#else
+#define dbg(a) std::cerr << a << "\n";
+#endif
+
+using usize = std::size_t;
+using ssize = std::ptrdiff_t;
 using i64 = std::int64_t;
-using u64 = std::uint64_t;
 using u32 = std::uint32_t;
+using u64 = std::uint64_t;
 using u128 = unsigned __int128;
 
+namespace _DynamicRangeSumQueries {
+
 struct FenwickTree {
+
+  /*
+   * Author: github.com/cross-codes
+   */
+
 private:
   std::size_t N_;
   std::unique_ptr<std::int64_t[]> tree_;
@@ -19,10 +32,10 @@ public:
       : N_(n), tree_(std::make_unique<std::int64_t[]>(n + 1)),
         array(std::make_unique<std::int64_t[]>(n + 1)) {};
 
-  void addToIndex(std::size_t k, std::int64_t x) {
+  void advance(std::size_t k, std::int64_t x) {
     while (k <= N_) {
       tree_[k] += x;
-      k += (k == 0 ? 0 : 1 << __builtin_ctzll(k));
+      k += k & -k;
     }
   }
 
@@ -30,15 +43,13 @@ public:
     std::int64_t s = 0LL;
     while (k >= 1) {
       s += tree_[k];
-      k -= (k == 0 ? 0 : 1 << __builtin_ctzll(k));
+      k -= k & -k;
     }
     return s;
   }
 };
 
-int main() {
-  std::cin.tie(nullptr)->sync_with_stdio(false);
-
+auto run() -> void {
   std::size_t n, q;
   std::cin >> n >> q;
 
@@ -47,7 +58,7 @@ int main() {
   for (std::size_t i = 1; i <= n; i++) {
     i64 num;
     std::cin >> num;
-    bit.addToIndex(i, num);
+    bit.advance(i, num);
     bit.array[i] = num;
   }
 
@@ -58,7 +69,7 @@ int main() {
       std::size_t k;
       i64 u;
       std::cin >> k >> u;
-      bit.addToIndex(k, u - bit.array[k]);
+      bit.advance(k, u - bit.array[k]);
       bit.array[k] = u;
     } else {
       std::size_t a, b;
@@ -66,6 +77,33 @@ int main() {
       std::cout << (bit.prefixSumAt(b) - bit.prefixSumAt(a - 1)) << "\n";
     }
   }
+}
+
+} // namespace _DynamicRangeSumQueries
+
+int main() {
+#ifdef CROSS
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr) {
+#if __cplusplus >= 202302L
+    std::println(stderr, "Input file not found");
+#else
+    std::cerr << "Input file not found\n";
+#endif
+    __builtin_trap();
+  }
+#else
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+#endif
+
+  int t{1};
+
+  while (t-- > 0)
+    _DynamicRangeSumQueries::run();
+
+#ifdef CROSS
+  std::fclose(stdin);
+#endif
 
   return 0;
 }
