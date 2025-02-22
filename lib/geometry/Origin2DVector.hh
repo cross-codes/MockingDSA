@@ -3,7 +3,7 @@
 #include <limits>
 #include <string>
 
-struct Vector2D {
+struct Origin2DVector {
 
   /*
    * Author: github.com/cross-codes
@@ -13,30 +13,30 @@ public:
   std::int64_t x;
   std::int64_t y;
 
-  Vector2D(std::int64_t x, std::int64_t y) : x(x), y(y) {}
+  Origin2DVector(std::int64_t x, std::int64_t y) : x(x), y(y) {}
 
   inline double norm() const {
     return std::sqrt(this->x * this->x + this->y * this->y);
   }
 
-  inline Vector2D add(const Vector2D &vector) const {
-    return Vector2D(this->x + vector.x, this->y + vector.y);
+  inline Origin2DVector add(const Origin2DVector &vector) const {
+    return Origin2DVector(this->x + vector.x, this->y + vector.y);
   }
 
-  inline Vector2D subtract(const Vector2D &vector) const {
-    return Vector2D(this->x - vector.x, this->y - vector.y);
+  inline Origin2DVector subtract(const Origin2DVector &vector) const {
+    return Origin2DVector(this->x - vector.x, this->y - vector.y);
   }
 
-  inline std::int64_t dot(const Vector2D &vector) const {
+  inline std::int64_t dot(const Origin2DVector &vector) const {
     return (this->x) * vector.x + (this->y) * vector.y;
   }
 
-  inline std::int64_t cross(const Vector2D &vector) const {
+  inline std::int64_t cross(const Origin2DVector &vector) const {
     return (this->x) * vector.y - (this->y) * vector.x;
   }
 
-  inline Vector2D perpendicularVector() const {
-    return Vector2D(-(this->y), this->x);
+  inline Origin2DVector perpendicularVector() const {
+    return Origin2DVector(-(this->y), this->x);
   }
 
   inline double angle() const {
@@ -47,7 +47,7 @@ public:
                            static_cast<double>(this->x));
   }
 
-  inline double angleBetween(const Vector2D &vector) const {
+  inline double angleBetween(const Origin2DVector &vector) const {
     std::int64_t dotProduct = (this->dot(vector));
     double normProduct = this->norm() * vector.norm();
     if (std::abs(normProduct) < 1e9)
@@ -56,7 +56,7 @@ public:
     return __builtin_acos(static_cast<double>(dotProduct) / normProduct);
   }
 
-  bool operator==(const Vector2D &vector) const {
+  bool operator==(const Origin2DVector &vector) const {
     if (this == &vector)
       return true;
     return this->x == vector.x && this->y == vector.y;
