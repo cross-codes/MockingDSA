@@ -24,29 +24,39 @@ public:
         defaultValue_(defaultValue) {
 
     std::copy(&array[0], &array[n], &tree_[offset_]);
-    for (std::size_t i = offset_; i != 1; i >>= 1) {
-      for (std::size_t j = i; j < i << 1; j += 2)
+
+    std::size_t i = offset_;
+    while (i != 1) {
+      std::size_t j = i;
+      while (j < i << 1) {
         tree_[j >> 1] = function_(tree_[j], tree_[j + 1]);
+        j += 2;
+      }
+      i >>= 1;
     }
   }
 
   void setAtIndex(std::size_t index, T value) {
-    tree_[index += offset_] = value;
+    index += offset_;
+    tree_[index] = value;
 
-    for (; index != 1; index >>= 1)
+    while (index != 1) {
       tree_[index >> 1] = function_(tree_[index], tree_[index ^ 1]);
+      index >>= 1;
+    }
   }
 
   T queryRange(std::size_t fromIdx, std::size_t pastEndIdx) {
+    fromIdx += offset_, pastEndIdx += offset_;
+
     T result{defaultValue_};
-
-    for (fromIdx += offset_, pastEndIdx += offset_; fromIdx < pastEndIdx;
-         fromIdx >>= 1, pastEndIdx >>= 1) {
-
+    while (fromIdx < pastEndIdx) {
       if (fromIdx & 1)
         result = function_(result, tree_[fromIdx++]);
       if (pastEndIdx & 1)
         result = function_(result, tree_[--pastEndIdx]);
+
+      fromIdx >>= 1, pastEndIdx >>= 1;
     }
 
     return result;

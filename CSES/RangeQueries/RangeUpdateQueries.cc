@@ -13,7 +13,7 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 using u128 = unsigned __int128;
 
-namespace _DynamicRangeMinimumQueries {
+namespace _RangeUpdateQueries {
 
 struct Algebra {
 
@@ -365,32 +365,41 @@ public:
 };
 
 auto run() -> void {
-  usize n, q;
+  ssize n, q;
   std::cin >> n >> q;
 
   std::unique_ptr<int[]> array(new int[n]);
-
-  for (usize i = 0; i < n; i++)
+  for (ssize i = 0; i < n; i++)
     std::cin >> array[i];
 
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto segmentTree = SegmentTree<int>(array, n, INT_MAX, MIN_SELECT);
+  std::unique_ptr<i64[]> differenceArray(new i64[n + 1]);
+
+  differenceArray[0] = array[0];
+  for (ssize i = 1; i < n; i++)
+    differenceArray[i] = array[i] - array[i - 1];
+  differenceArray[n] = 0LL;
+
+  auto ADD = [&](const i64 &a, const i64 &b) { return a + b; };
+
+  auto segmentTree = SegmentTree<i64>(differenceArray, n + 1, 0LL, ADD);
 
   while (q-- > 0) {
-    usize k, a, b;
-    int u, type;
-    std::cin >> type;
-    if (type == 1) {
-      std::cin >> k >> u;
-      segmentTree.setAtIndex(k - 1, u);
+    int choice, a, b, k, u;
+    std::cin >> choice;
+    if (choice == 1) {
+      std::cin >> a >> b >> u;
+      a--, b--;
+      differenceArray[a] += u, differenceArray[b + 1] -= u;
+      segmentTree.setAtIndex(a, differenceArray[a]);
+      segmentTree.setAtIndex(b + 1, differenceArray[b + 1]);
     } else {
-      std::cin >> a >> b;
-      std::cout << segmentTree.queryRange(a - 1, b) << "\n";
+      std::cin >> k;
+      std::cout << segmentTree.queryRange(0, k) << "\n";
     }
   }
 }
 
-} // namespace _DynamicRangeMinimumQueries
+} // namespace _RangeUpdateQueries
 
 int main() {
 #ifdef CROSS
@@ -410,7 +419,7 @@ int main() {
   int t{1};
 
   while (t-- > 0)
-    _DynamicRangeMinimumQueries::run();
+    _RangeUpdateQueries::run();
 
 #ifdef CROSS
   std::fclose(stdin);
