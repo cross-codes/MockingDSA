@@ -19,7 +19,7 @@ private:
 public:
   SegmentTree(std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
               std::function<T(const T &, const T &)> function)
-      : offset_(1 << Algebra::ceilLog2(n)),
+      : offset_(1LL << Algebra::ceilLog2(n)),
         tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
         defaultValue_(defaultValue) {
 
