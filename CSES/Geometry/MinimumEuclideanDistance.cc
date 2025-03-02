@@ -59,8 +59,7 @@ auto distance(const std::pair<i64, i64> &a, const std::pair<i64, i64> &b)
 
 void solve(std::vector<int> sortedXIndices, std::vector<int> sortedYIndices) {
   std::size_t len = sortedXIndices.size();
-  if (len == 1U)
-    return;
+  if (len == 1U) return;
 
   std::vector<int> leftX{}, leftY{}, rightX{}, rightY{};
   for (std::size_t i = 0; i < len; i++) {

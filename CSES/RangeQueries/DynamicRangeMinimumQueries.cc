@@ -16,12 +16,11 @@ using u128 = unsigned __int128;
 namespace _DynamicRangeMinimumQueries {
 
 struct Algebra {
-
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   Algebra();
   inline static constexpr double EPSILON_ = 1E-6;
   inline static constexpr int SIEVE_30_ =
@@ -123,8 +122,7 @@ private:
                                           std::int64_t m) {
     std::int64_t res = 1;
     for (; p != 0; p >>= 1) {
-      if (p & 1)
-        res = largeMulMod_(res, a, m);
+      if (p & 1) res = largeMulMod_(res, a, m);
       a = largeSquareMod_(a, m);
     }
 
@@ -135,16 +133,13 @@ private:
     int r = __builtin_ctzll(n - 1);
     std::int64_t d = (n - 1) >> r;
     base %= n;
-    if (base == 0)
-      return true;
+    if (base == 0) return true;
 
     std::int64_t a = smallPowMod_(base, d, n);
-    if (a == 1)
-      return true;
+    if (a == 1) return true;
     int j = 0;
     while (a != n - 1) {
-      if (++j == r)
-        return false;
+      if (++j == r) return false;
       a = smallSquareMod_(a, n);
     }
 
@@ -155,28 +150,24 @@ private:
     int r = __builtin_ctzll(n - 1);
     std::int64_t d = (n - 1) >> r;
     base %= n;
-    if (base == 0)
-      return true;
+    if (base == 0) return true;
 
     std::int64_t a = largePowMod_(base, d, n);
-    if (a == 1)
-      return true;
+    if (a == 1) return true;
     int j = 0;
     while (a != n - 1) {
-      if (++j == r)
-        return false;
+      if (++j == r) return false;
       a = largeSquareMod_(a, n);
     }
 
     return true;
   }
 
-public:
+ public:
   inline static int modPow(int n, int p, int m) {
     std::int64_t result = 1;
     for (std::int64_t i = 1, j = n; i <= p; i <<= 1, j = j * j % m) {
-      if (i & p)
-        result = result * j % m;
+      if (i & p) result = result * j % m;
     }
 
     return static_cast<int>(result);
@@ -258,8 +249,7 @@ public:
   }
 
   inline static bool isPrime(std::int64_t n) {
-    if (n < 2)
-      return false;
+    if (n < 2) return false;
 
     if (n < 66) {
       constexpr std::int64_t mask =
@@ -272,27 +262,22 @@ public:
       return ((mask >> (static_cast<int>(n) - 2)) & 1) != 0;
     }
 
-    if (SIEVE_30_ & (1 << (n % 30)))
-      return false;
+    if (SIEVE_30_ & (1 << (n % 30))) return false;
 
-    if (n % 7 == 0 || n % 11 == 0 || n % 13 == 0)
-      return false;
+    if (n % 7 == 0 || n % 11 == 0 || n % 13 == 0) return false;
 
-    if (n < 17 * 17)
-      return true;
+    if (n < 17 * 17) return true;
 
     for (std::vector<std::int64_t> baseSet : millerRabinBaseSets) {
       if (n <= baseSet[0]) {
         bool small = n <= FLOOR_SQRT_MAX_;
         if (small) {
           for (std::size_t i = 1; i < baseSet.size(); i++) {
-            if (!testWitnessSmall_(baseSet[i], n))
-              return false;
+            if (!testWitnessSmall_(baseSet[i], n)) return false;
           }
         } else {
           for (std::size_t i = 1; i < baseSet.size(); i++) {
-            if (!testWitnessLarge_(baseSet[i], n))
-              return false;
+            if (!testWitnessLarge_(baseSet[i], n)) return false;
           }
         }
       }
@@ -304,26 +289,26 @@ public:
   }
 };
 
-template <typename T> struct SegmentTree {
-
+template <typename T>
+struct SegmentTree {
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::size_t offset_;
   std::unique_ptr<T[]> tree_;
 
   std::function<T(const T &, const T &)> function_;
   T defaultValue_;
 
-public:
+ public:
   SegmentTree(std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
               std::function<T(const T &, const T &)> function)
       : offset_(1 << Algebra::ceilLog2(n)),
-        tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
+        tree_(std::make_unique<T[]>(offset_ << 1)),
+        function_(function),
         defaultValue_(defaultValue) {
-
     std::copy(&array[0], &array[n], &tree_[offset_]);
 
     std::size_t i = offset_;
@@ -352,10 +337,8 @@ public:
 
     T result{defaultValue_};
     while (fromIdx < pastEndIdx) {
-      if (fromIdx & 1)
-        result = function_(result, tree_[fromIdx++]);
-      if (pastEndIdx & 1)
-        result = function_(result, tree_[--pastEndIdx]);
+      if (fromIdx & 1) result = function_(result, tree_[fromIdx++]);
+      if (pastEndIdx & 1) result = function_(result, tree_[--pastEndIdx]);
 
       fromIdx >>= 1, pastEndIdx >>= 1;
     }
@@ -370,8 +353,7 @@ auto run() -> void {
 
   std::unique_ptr<int[]> array(new int[n]);
 
-  for (usize i = 0; i < n; i++)
-    std::cin >> array[i];
+  for (usize i = 0; i < n; i++) std::cin >> array[i];
 
   auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
   auto segmentTree = SegmentTree<int>(array, n, INT_MAX, MIN_SELECT);
@@ -390,7 +372,7 @@ auto run() -> void {
   }
 }
 
-} // namespace _DynamicRangeMinimumQueries
+}  // namespace _DynamicRangeMinimumQueries
 
 int main() {
 #ifdef CROSS
@@ -409,8 +391,7 @@ int main() {
 
   int t{1};
 
-  while (t-- > 0)
-    _DynamicRangeMinimumQueries::run();
+  while (t-- > 0) _DynamicRangeMinimumQueries::run();
 
 #ifdef CROSS
   std::fclose(stdin);
