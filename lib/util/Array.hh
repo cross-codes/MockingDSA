@@ -5,13 +5,12 @@
 #include "Random.hh"
 
 struct Array {
-
   /*
    * Author: github.com/cross-codes
    * TODO: Make implementations for std::array
    */
 
-private:
+ private:
   Array();
   inline static Random &random_ = Random::getInstance();
 
@@ -87,23 +86,17 @@ private:
     std::ptrdiff_t mid = (p + r) >> 1;
     std::swap(nums[mid], nums[p + 1]);
 
-    if (nums[p] < nums[r])
-      std::swap(nums[p], nums[r]);
-    if (nums[p + 1] < nums[r])
-      std::swap(nums[p + 1], nums[r]);
-    if (nums[p] < nums[p + 1])
-      std::swap(nums[p], nums[p + 1]);
+    if (nums[p] < nums[r]) std::swap(nums[p], nums[r]);
+    if (nums[p + 1] < nums[r]) std::swap(nums[p + 1], nums[r]);
+    if (nums[p] < nums[p + 1]) std::swap(nums[p], nums[p + 1]);
 
     T pivot = nums[p + 1];
     std::ptrdiff_t i = p + 1, j = r;
 
     while (true) {
-      while (nums[++i] > pivot)
-        ;
-      while (nums[--j] < pivot)
-        ;
-      if (i > j)
-        break;
+      while (nums[++i] > pivot);
+      while (nums[--j] < pivot);
+      if (i > j) break;
       std::swap(nums[i], nums[j]);
     }
 
@@ -118,23 +111,17 @@ private:
     std::ptrdiff_t mid = (p + r) >> 1;
     std::swap(nums[mid], nums[p + 1]);
 
-    if (nums[p] < nums[r])
-      std::swap(nums[p], nums[r]);
-    if (nums[p + 1] < nums[r])
-      std::swap(nums[p + 1], nums[r]);
-    if (nums[p] < nums[p + 1])
-      std::swap(nums[p], nums[p + 1]);
+    if (nums[p] < nums[r]) std::swap(nums[p], nums[r]);
+    if (nums[p + 1] < nums[r]) std::swap(nums[p + 1], nums[r]);
+    if (nums[p] < nums[p + 1]) std::swap(nums[p], nums[p + 1]);
 
     T pivot = nums[p + 1];
     std::ptrdiff_t i = p + 1, j = r;
 
     while (true) {
-      while (nums[++i] > pivot)
-        ;
-      while (nums[--j] < pivot)
-        ;
-      if (i > j)
-        break;
+      while (nums[++i] > pivot);
+      while (nums[--j] < pivot);
+      if (i > j) break;
       std::swap(nums[i], nums[j]);
     }
 
@@ -143,7 +130,7 @@ private:
     return j;
   }
 
-public:
+ public:
   inline static void integerBucketSort(std::unique_ptr<int[]> &array,
                                        std::size_t length) {
     int bits = 4;
@@ -174,12 +161,10 @@ public:
     {
       int i = 0;
       for (int j = radix >> 1; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++)
-          array[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
       }
       for (int j = 0; j < radix >> 1; j++) {
-        for (int k = 0; k < size[j]; k++)
-          array[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
       }
     }
   }
@@ -214,12 +199,10 @@ public:
     {
       int i = 0;
       for (int j = radix >> 1; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++)
-          vector[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) vector[i++] = buckets[j][k];
       }
       for (int j = 0; j < radix >> 1; j++) {
-        for (int k = 0; k < size[j]; k++)
-          vector[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) vector[i++] = buckets[j][k];
       }
     }
   }
@@ -250,16 +233,13 @@ public:
   inline static auto stableCountingSort(std::unique_ptr<std::uint32_t[]> &A,
                                         std::size_t n, std::uint32_t max)
       -> std::unique_ptr<std::uint32_t[]> {
-
     std::unique_ptr<std::uint32_t[]> B(new std::uint32_t[n]),
         C(new std::uint32_t[max + 1]);
     std::memset(C.get(), 0x00, sizeof(int) * (max + 1));
 
-    for (std::uint32_t j = 0; j < n; j++)
-      C[A[j]]++;
+    for (std::uint32_t j = 0; j < n; j++) C[A[j]]++;
 
-    for (std::uint32_t i = 1; i <= max; i++)
-      C[i] = C[i] + C[i - 1];
+    for (std::uint32_t i = 1; i <= max; i++) C[i] = C[i] + C[i - 1];
 
     for (std::ptrdiff_t j = n - 1; j >= 0; j--) {
       B[C[A[j]] - 1] = A[j];
@@ -272,14 +252,11 @@ public:
   inline static auto stableCountingSort(std::vector<std::uint32_t> &A,
                                         std::size_t n, std::uint32_t max)
       -> std::vector<std::uint32_t> {
-
     std::vector<std::uint32_t> B(n), C(max + 1, 0);
 
-    for (std::uint32_t j = 0; j < n; j++)
-      C[A[j]]++;
+    for (std::uint32_t j = 0; j < n; j++) C[A[j]]++;
 
-    for (std::uint32_t i = 1; i <= max; i++)
-      C[i] = C[i] + C[i - 1];
+    for (std::uint32_t i = 1; i <= max; i++) C[i] = C[i] + C[i - 1];
 
     for (std::ptrdiff_t j = n - 1; j >= 0; j--) {
       B[C[A[j]] - 1] = A[j];
@@ -295,7 +272,6 @@ public:
                                        std::ptrdiff_t start,
                                        std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t {
-
     std::ptrdiff_t i = start, j = pastEnd - 1;
     while (i <= j) {
       std::ptrdiff_t m = (i + j) >> 1;
@@ -316,7 +292,6 @@ public:
                                        std::ptrdiff_t start,
                                        std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t {
-
     std::ptrdiff_t i = start, j = pastEnd - 1;
     while (i <= j) {
       std::ptrdiff_t m = (i + j) >> 1;
@@ -337,7 +312,6 @@ public:
                                         std::ptrdiff_t start,
                                         std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t {
-
     std::ptrdiff_t i = start, j = pastEnd - 1;
     while (i < j - 1) {
       std::ptrdiff_t l = (i + j) / 3;
@@ -366,7 +340,6 @@ public:
                                         std::ptrdiff_t start,
                                         std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t {
-
     std::ptrdiff_t i = start, j = pastEnd - 1;
     while (i < j - 1) {
       std::ptrdiff_t l = (i + j) / 3;
@@ -391,9 +364,10 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto
-  inverseOrderStatistic(std::unique_ptr<T[]> &A, std::ptrdiff_t start,
-                        std::ptrdiff_t pastEnd, std::size_t order) -> T {
+  inline static auto inverseOrderStatistic(std::unique_ptr<T[]> &A,
+                                           std::ptrdiff_t start,
+                                           std::ptrdiff_t pastEnd,
+                                           std::size_t order) -> T {
     std::ptrdiff_t left = start, right = pastEnd - 1;
 
     while (true) {
@@ -405,18 +379,17 @@ public:
 
       std::size_t j = lomutoPartition_(A, left, right);
 
-      if (j >= order - 1)
-        right = j - 1;
-      if (j <= order - 1)
-        left = j + 1;
+      if (j >= order - 1) right = j - 1;
+      if (j <= order - 1) left = j + 1;
     }
   }
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto
-  inverseOrderStatistic(std::vector<T> &A, std::ptrdiff_t start,
-                        std::ptrdiff_t pastEnd, std::size_t order) -> T {
+  inline static auto inverseOrderStatistic(std::vector<T> &A,
+                                           std::ptrdiff_t start,
+                                           std::ptrdiff_t pastEnd,
+                                           std::size_t order) -> T {
     std::ptrdiff_t left = start, right = pastEnd - 1;
 
     while (true) {
@@ -428,10 +401,8 @@ public:
 
       std::size_t j = lomutoPartition_(A, left, right);
 
-      if (j >= order - 1)
-        right = j - 1;
-      if (j <= order - 1)
-        left = j + 1;
+      if (j >= order - 1) right = j - 1;
+      if (j <= order - 1) left = j + 1;
     }
   }
 

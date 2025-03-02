@@ -14,23 +14,23 @@ public:
       freq[c - 'a']++;
   }
 
-  bool operator==(const Anagram &o) const {
+  bool operator==(const Anagram &a) const {
     for (std::size_t i = 0; i < 26; i++)
-      if (freq[i] != o.freq[i])
+      if (freq[i] != a.freq[i])
         return false;
 
     return true;
   }
+};
 
-  struct AnagramHash {
-    std::size_t operator()(const Anagram &a) const {
-      std::size_t hash = 1;
-      for (std::size_t i = 0; i < 26; i++)
-        hash = 31 * hash + a.freq[i];
+template <> struct std::hash<Anagram> {
+  std::size_t operator()(const Anagram &a) const noexcept {
+    std::size_t hash = 1;
+    for (std::size_t i = 0; i < 26; i++)
+      hash = 31 * hash + a.freq[i];
 
-      return hash;
-    }
-  };
+    return hash;
+  }
 };
 
 class Solution {
@@ -39,7 +39,7 @@ public:
   groupAnagrams(std::vector<std::string> &strs) {
 
     std::vector<std::vector<std::string>> res;
-    std::unordered_map<Anagram, std::size_t, Anagram::AnagramHash> typeToIndex{};
+    std::unordered_map<Anagram, std::size_t> typeToIndex{};
 
     for (const auto &string : strs) {
       Anagram equiv(string);

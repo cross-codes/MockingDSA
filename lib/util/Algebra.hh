@@ -7,12 +7,11 @@
 #include <vector>
 
 struct Algebra {
-
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   Algebra();
   inline static constexpr double EPSILON_ = 1E-6;
   inline static constexpr int SIEVE_30_ =
@@ -114,8 +113,7 @@ private:
                                           std::int64_t m) {
     std::int64_t res = 1;
     for (; p != 0; p >>= 1) {
-      if (p & 1)
-        res = largeMulMod_(res, a, m);
+      if (p & 1) res = largeMulMod_(res, a, m);
       a = largeSquareMod_(a, m);
     }
 
@@ -126,16 +124,13 @@ private:
     int r = __builtin_ctzll(n - 1);
     std::int64_t d = (n - 1) >> r;
     base %= n;
-    if (base == 0)
-      return true;
+    if (base == 0) return true;
 
     std::int64_t a = smallPowMod_(base, d, n);
-    if (a == 1)
-      return true;
+    if (a == 1) return true;
     int j = 0;
     while (a != n - 1) {
-      if (++j == r)
-        return false;
+      if (++j == r) return false;
       a = smallSquareMod_(a, n);
     }
 
@@ -146,28 +141,24 @@ private:
     int r = __builtin_ctzll(n - 1);
     std::int64_t d = (n - 1) >> r;
     base %= n;
-    if (base == 0)
-      return true;
+    if (base == 0) return true;
 
     std::int64_t a = largePowMod_(base, d, n);
-    if (a == 1)
-      return true;
+    if (a == 1) return true;
     int j = 0;
     while (a != n - 1) {
-      if (++j == r)
-        return false;
+      if (++j == r) return false;
       a = largeSquareMod_(a, n);
     }
 
     return true;
   }
 
-public:
+ public:
   inline static int modPow(int n, int p, int m) {
     std::int64_t result = 1;
     for (std::int64_t i = 1, j = n; i <= p; i <<= 1, j = j * j % m) {
-      if (i & p)
-        result = result * j % m;
+      if (i & p) result = result * j % m;
     }
 
     return static_cast<int>(result);
@@ -249,8 +240,7 @@ public:
   }
 
   inline static bool isPrime(std::int64_t n) {
-    if (n < 2)
-      return false;
+    if (n < 2) return false;
 
     if (n < 66) {
       constexpr std::int64_t mask =
@@ -263,27 +253,22 @@ public:
       return ((mask >> (static_cast<int>(n) - 2)) & 1) != 0;
     }
 
-    if (SIEVE_30_ & (1 << (n % 30)))
-      return false;
+    if (SIEVE_30_ & (1 << (n % 30))) return false;
 
-    if (n % 7 == 0 || n % 11 == 0 || n % 13 == 0)
-      return false;
+    if (n % 7 == 0 || n % 11 == 0 || n % 13 == 0) return false;
 
-    if (n < 17 * 17)
-      return true;
+    if (n < 17 * 17) return true;
 
     for (std::vector<std::int64_t> baseSet : millerRabinBaseSets) {
       if (n <= baseSet[0]) {
         bool small = n <= FLOOR_SQRT_MAX_;
         if (small) {
           for (std::size_t i = 1; i < baseSet.size(); i++) {
-            if (!testWitnessSmall_(baseSet[i], n))
-              return false;
+            if (!testWitnessSmall_(baseSet[i], n)) return false;
           }
         } else {
           for (std::size_t i = 1; i < baseSet.size(); i++) {
-            if (!testWitnessLarge_(baseSet[i], n))
-              return false;
+            if (!testWitnessLarge_(baseSet[i], n)) return false;
           }
         }
       }
