@@ -8,10 +8,10 @@
 
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
-using i64 = std::int64_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
-using u128 = unsigned __int128;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
 
 namespace _DynamicRangeMinimumQueries {
 
@@ -83,7 +83,7 @@ struct Algebra {
     int remainingPowersOf2 = 32;
     do {
       int shift = std::min(remainingPowersOf2, __builtin_clzll(a));
-      a = remainder(a << shift, m);
+      a         = remainder(a << shift, m);
       remainingPowersOf2 -= shift;
     } while (remainingPowersOf2 > 0);
     return a;
@@ -91,10 +91,10 @@ struct Algebra {
 
   inline static std::int64_t largeMulMod_(std::int64_t a, std::int64_t b,
                                           std::int64_t m) {
-    std::int64_t aHi = a >> 32;
-    std::int64_t bHi = b >> 32;
-    std::int64_t aLo = a & 0xFFFFFFFFLL;
-    std::int64_t bLo = b & 0xFFFFFFFFLL;
+    std::int64_t aHi    = a >> 32;
+    std::int64_t bHi    = b >> 32;
+    std::int64_t aLo    = a & 0xFFFFFFFFLL;
+    std::int64_t bLo    = b & 0xFFFFFFFFLL;
     std::int64_t result = largeTimes2ToThe32Mod_(aHi * bHi, m);
     result += aHi * bLo;
     if (result < 0) {
@@ -106,10 +106,10 @@ struct Algebra {
   }
 
   inline static std::int64_t largeSquareMod_(std::int64_t a, std::int64_t m) {
-    std::int64_t aHi = a >> 32;
-    std::int64_t aLo = a & 0xFFFFFFFFLL;
+    std::int64_t aHi    = a >> 32;
+    std::int64_t aLo    = a & 0xFFFFFFFFLL;
     std::int64_t result = largeTimes2ToThe32Mod_(aHi * aHi /* < 2^62 */, m);
-    std::int64_t hiLo = aHi * aLo * 2;
+    std::int64_t hiLo   = aHi * aLo * 2;
     if (hiLo < 0) {
       hiLo = remainder(hiLo, m);
     }
@@ -130,7 +130,7 @@ struct Algebra {
   }
 
   inline static bool testWitnessSmall_(std::int64_t base, std::int64_t n) {
-    int r = __builtin_ctzll(n - 1);
+    int r          = __builtin_ctzll(n - 1);
     std::int64_t d = (n - 1) >> r;
     base %= n;
     if (base == 0) return true;
@@ -147,7 +147,7 @@ struct Algebra {
   }
 
   inline static bool testWitnessLarge_(std::int64_t base, std::int64_t n) {
-    int r = __builtin_ctzll(n - 1);
+    int r          = __builtin_ctzll(n - 1);
     std::int64_t d = (n - 1) >> r;
     base %= n;
     if (base == 0) return true;
@@ -191,7 +191,7 @@ struct Algebra {
 
   static std::unique_ptr<double[]> solveLinear(double a, double b, double c,
                                                double d, double e, double f) {
-    double D = a * e - b * d;
+    double D  = a * e - b * d;
     double Dx = c * e - b * f;
     double Dy = a * f - c * d;
 
@@ -220,8 +220,8 @@ struct Algebra {
       return 0;
     } else {
       double a2 = a * 2;
-      double x = (-b / a2);
-      double y = std::sqrt(delta) / a2;
+      double x  = (-b / a2);
+      double y  = std::sqrt(delta) / a2;
 
       std::unique_ptr<double[]> result(new double[2]);
       result[0] = x + y, result[1] = x - y;
@@ -244,7 +244,7 @@ struct Algebra {
       return dividend % divisor;
     }
     std::int64_t quotient = ((dividend >> 1) / divisor) << 1;
-    std::int64_t rem = dividend - quotient * divisor;
+    std::int64_t rem      = dividend - quotient * divisor;
     return rem - (compare_(rem, divisor) >= 0 ? divisor : 0);
   }
 
@@ -303,7 +303,7 @@ struct SegmentTree {
   T defaultValue_;
 
  public:
-  SegmentTree(std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
+  SegmentTree(const std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
               std::function<T(const T &, const T &)> function)
       : offset_(1 << Algebra::ceilLog2(n)),
         tree_(std::make_unique<T[]>(offset_ << 1)),
@@ -355,7 +355,7 @@ auto run() -> void {
 
   for (usize i = 0; i < n; i++) std::cin >> array[i];
 
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
+  auto MIN_SELECT  = [&](const int &a, const int &b) { return std::min(a, b); };
   auto segmentTree = SegmentTree<int>(array, n, INT_MAX, MIN_SELECT);
 
   while (q-- > 0) {

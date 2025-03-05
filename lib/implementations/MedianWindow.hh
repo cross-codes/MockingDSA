@@ -2,7 +2,7 @@
 #include <set>
 
 struct MedianWindow {
-private:
+ private:
   std::unique_ptr<int[]> array_;
   std::size_t currentBegin_, currentEnd_;
   std::size_t size_, windowSize_;
@@ -24,23 +24,23 @@ private:
     }
   }
 
-public:
+ public:
   MedianWindow(std::unique_ptr<int[]> &array, std::size_t arraySize,
                std::size_t windowSize)
-      : array_(std::make_unique<int[]>(arraySize)), currentBegin_(0),
-        currentEnd_(0), size_(arraySize), windowSize_(windowSize) {
-
+      : array_(std::make_unique<int[]>(arraySize)),
+        currentBegin_(0),
+        currentEnd_(0),
+        size_(arraySize),
+        windowSize_(windowSize) {
     if (windowSize & 1)
-      expectedLowSize_ = (windowSize >> 1) + 1,
+      expectedLowSize_  = (windowSize >> 1) + 1,
       expectedHighSize_ = windowSize >> 1;
     else
       expectedLowSize_ = expectedHighSize_ = windowSize >> 1;
 
-    for (std::size_t i = 0; i < size_; i++)
-      array_[i] = array[i];
+    for (std::size_t i = 0; i < size_; i++) array_[i] = array[i];
 
-    for (std::size_t i = 0; i < windowSize_; i++)
-      low_.insert(array_[i]);
+    for (std::size_t i = 0; i < windowSize_; i++) low_.insert(array_[i]);
 
     balanceSets_();
   }

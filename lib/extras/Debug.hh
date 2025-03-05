@@ -15,7 +15,8 @@ concept Iterable = requires(T a) {
   { std::end(a) } -> std::input_iterator;
 } && !std::same_as<T, std::string>;
 
-template <typename A, typename B> std::string to_string(std::pair<A, B> p);
+template <typename A, typename B>
+std::string to_string(std::pair<A, B> p);
 
 template <typename A, typename B, typename C>
 std::string to_string(std::tuple<A, B, C> p);
@@ -30,7 +31,7 @@ std::string to_string(const char *s) { return to_string((std::string)s); }
 std::string to_string(bool b) { return (b ? "true" : "false"); }
 
 std::string to_string(std::vector<bool> v) {
-  bool first = true;
+  bool first      = true;
   std::string res = "{";
   for (int i = 0; i < static_cast<int>(v.size()); i++) {
     if (!first) {
@@ -43,7 +44,8 @@ std::string to_string(std::vector<bool> v) {
   return res;
 }
 
-template <std::size_t N> std::string to_string(std::bitset<N> v) {
+template <std::size_t N>
+std::string to_string(std::bitset<N> v) {
   std::string res = "";
   for (std::size_t i = 0; i < N; i++) {
     res += static_cast<char>('0' + v[i]);
@@ -51,8 +53,9 @@ template <std::size_t N> std::string to_string(std::bitset<N> v) {
   return res;
 }
 
-template <Iterable A> std::string to_string(A v) {
-  bool first = true;
+template <Iterable A>
+std::string to_string(A v) {
+  bool first      = true;
   std::string res = "{";
   for (const auto &x : v) {
     if (!first) {
@@ -65,7 +68,8 @@ template <Iterable A> std::string to_string(A v) {
   return res;
 }
 
-template <typename A, typename B> std::string to_string(std::pair<A, B> p) {
+template <typename A, typename B>
+std::string to_string(std::pair<A, B> p) {
   return "(" + to_string(p.first) + ", " + to_string(p.second) + ")";
 }
 
@@ -89,7 +93,8 @@ void print() {
 #endif
 }
 
-template <typename T, typename... Args> void print(T H, Args... args) {
+template <typename T, typename... Args>
+void print(T H, Args... args) {
 #if __cplusplus >= 202302L
   std::print(stderr, " {}", to_string(H));
 #else
@@ -98,7 +103,7 @@ template <typename T, typename... Args> void print(T H, Args... args) {
   print(args...);
 }
 
-} // namespace Debug
+}  // namespace Debug
 
-#define dbg(...)                                                               \
+#define dbg(...) \
   std::cerr << "[" << #__VA_ARGS__ << "]:", Debug::print(__VA_ARGS__)

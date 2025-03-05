@@ -2,20 +2,19 @@
 #include <random>
 
 struct Random {
-
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::random_device randomDevice_;
   std::mt19937_64 engine_;
 
-  Random() : engine_(randomDevice_()) {};
-  Random(const Random &) = delete;
+  Random() : engine_(randomDevice_()) {}
+  Random(const Random &)            = delete;
   Random &operator=(const Random &) = delete;
 
-public:
+ public:
   static Random &getInstance() {
     static Random instance;
     return instance;

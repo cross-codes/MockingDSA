@@ -1,3 +1,7 @@
 BasedOnStyle: Google
 IndentWidth: 2
 UseTab: Never
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: false

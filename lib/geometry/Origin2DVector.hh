@@ -4,12 +4,11 @@
 #include <string>
 
 struct Origin2DVector {
-
   /*
    * Author: github.com/cross-codes
    */
 
-public:
+ public:
   std::int64_t x;
   std::int64_t y;
 
@@ -49,7 +48,7 @@ public:
 
   inline double angleBetween(const Origin2DVector &vector) const {
     std::int64_t dotProduct = (this->dot(vector));
-    double normProduct = this->norm() * vector.norm();
+    double normProduct      = this->norm() * vector.norm();
     if (std::abs(normProduct) < 1e9)
       return (dotProduct > 0) ? std::numeric_limits<double>::infinity()
                               : std::numeric_limits<double>::lowest();
@@ -57,8 +56,7 @@ public:
   }
 
   bool operator==(const Origin2DVector &vector) const {
-    if (this == &vector)
-      return true;
+    if (this == &vector) return true;
     return this->x == vector.x && this->y == vector.y;
   }
 

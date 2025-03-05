@@ -3,17 +3,17 @@
 
 #include "util/Algebra.hh"
 
-template <typename T> struct IdempotentSparseTable {
-
+template <typename T>
+struct IdempotentSparseTable {
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::function<T(const T &, const T &)> function_;
   std::vector<std::vector<T>> table;
 
-public:
+ public:
   IdempotentSparseTable(std::function<T(const T &, const T &)> func,
                         std::unique_ptr<T[]> &array, std::size_t n)
       : function_(func) {

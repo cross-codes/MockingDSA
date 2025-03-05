@@ -9,28 +9,27 @@
 using usize = size_t;
 using ssize = ptrdiff_t;
 
-using i64 = int64_t;
-using u64 = uint64_t;
-using u32 = uint32_t;
-using u128 = unsigned __int128;
+using i64   = int64_t;
+using u64   = uint64_t;
+using u32   = uint32_t;
+using u128  = unsigned __int128;
 
 namespace _2065C2 {
 
 struct Random {
-
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::random_device randomDevice_;
   std::mt19937_64 engine_;
 
-  Random() : engine_(randomDevice_()) {};
-  Random(const Random &) = delete;
+  Random() : engine_(randomDevice_()) {}
+  Random(const Random &)            = delete;
   Random &operator=(const Random &) = delete;
 
-public:
+ public:
   static Random &getInstance() {
     static Random instance;
     return instance;
@@ -129,20 +128,19 @@ public:
 };
 
 struct Array {
-
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   Array();
   inline static Random &random_ = Random::getInstance();
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexPartition_(std::unique_ptr<T[]> &A, ptrdiff_t p,
+  inline static auto indexPartition_(const std::unique_ptr<T[]> &A, ptrdiff_t p,
                                      ptrdiff_t r) -> ptrdiff_t {
-    T x = A[r];
+    T x         = A[r];
     ptrdiff_t i = p - 1;
 
     for (ptrdiff_t j = p; j <= r - 1; j++) {
@@ -158,9 +156,9 @@ private:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexPartition_(std::vector<T> &A, ptrdiff_t p,
+  inline static auto indexPartition_(const std::vector<T> &A, ptrdiff_t p,
                                      ptrdiff_t r) -> ptrdiff_t {
-    T x = A[r];
+    T x         = A[r];
     ptrdiff_t i = p - 1;
 
     for (ptrdiff_t j = p; j <= r - 1; j++) {
@@ -176,8 +174,8 @@ private:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  static ptrdiff_t randomizedParition_(std::unique_ptr<T[]> &A, ptrdiff_t p,
-                                       ptrdiff_t r) {
+  static ptrdiff_t randomizedParition_(const std::unique_ptr<T[]> &A,
+                                       ptrdiff_t p, ptrdiff_t r) {
     ptrdiff_t i = static_cast<ptrdiff_t>(random_.nextUniformRandomInteger<int>(
         static_cast<int>(p), static_cast<int>(r)));
     std::swap(A[i], A[r]);
@@ -187,7 +185,7 @@ private:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  static ptrdiff_t randomizedParition_(std::vector<T> &A, ptrdiff_t p,
+  static ptrdiff_t randomizedParition_(const std::vector<T> &A, ptrdiff_t p,
                                        ptrdiff_t r) {
     ptrdiff_t i = static_cast<ptrdiff_t>(random_.nextUniformRandomInteger<int>(
         static_cast<int>(p), static_cast<int>(r)));
@@ -203,33 +201,27 @@ private:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto lomutoPartition_(std::unique_ptr<T[]> &nums, ptrdiff_t p,
-                                      ptrdiff_t r) -> T {
+  inline static auto lomutoPartition_(const std::unique_ptr<T[]> &nums,
+                                      ptrdiff_t p, ptrdiff_t r) -> T {
     ptrdiff_t mid = (p + r) >> 1;
     std::swap(nums[mid], nums[p + 1]);
 
-    if (nums[p] < nums[r])
-      std::swap(nums[p], nums[r]);
-    if (nums[p + 1] < nums[r - 1])
-      std::swap(nums[p + 1], nums[r - 1]);
-    if (nums[p] < nums[p + 1])
-      std::swap(nums[p], nums[p + 1]);
+    if (nums[p] < nums[r]) std::swap(nums[p], nums[r]);
+    if (nums[p + 1] < nums[r - 1]) std::swap(nums[p + 1], nums[r - 1]);
+    if (nums[p] < nums[p + 1]) std::swap(nums[p], nums[p + 1]);
 
     ptrdiff_t pivot = nums[p + 1];
     ptrdiff_t i = p + 1, j = r - 1;
 
     while (true) {
-      while (nums[++i] > pivot)
-        ;
-      while (nums[--j] < pivot)
-        ;
-      if (i > j)
-        break;
+      while (nums[++i] > pivot);
+      while (nums[--j] < pivot);
+      if (i > j) break;
       std::swap(nums[i], nums[j]);
     }
 
     nums[p + 1] = nums[j];
-    nums[j] = pivot;
+    nums[j]     = pivot;
     return j;
   }
 
@@ -240,42 +232,36 @@ private:
     ptrdiff_t mid = (p + r) >> 1;
     std::swap(nums[mid], nums[p + 1]);
 
-    if (nums[p] < nums[r])
-      std::swap(nums[p], nums[r]);
-    if (nums[p + 1] < nums[r - 1])
-      std::swap(nums[p + 1], nums[r - 1]);
-    if (nums[p] < nums[p + 1])
-      std::swap(nums[p], nums[p + 1]);
+    if (nums[p] < nums[r]) std::swap(nums[p], nums[r]);
+    if (nums[p + 1] < nums[r - 1]) std::swap(nums[p + 1], nums[r - 1]);
+    if (nums[p] < nums[p + 1]) std::swap(nums[p], nums[p + 1]);
 
     ptrdiff_t pivot = nums[p + 1];
     ptrdiff_t i = p + 1, j = r - 1;
 
     while (true) {
-      while (nums[++i] > pivot)
-        ;
-      while (nums[--j] < pivot)
-        ;
-      if (i > j)
-        break;
+      while (nums[++i] > pivot);
+      while (nums[--j] < pivot);
+      if (i > j) break;
       std::swap(nums[i], nums[j]);
     }
 
     nums[p + 1] = nums[j];
-    nums[j] = pivot;
+    nums[j]     = pivot;
     return j;
   }
 
-public:
+ public:
   inline static void integerBucketSort(std::unique_ptr<int[]> &array,
                                        std::size_t length) {
-    int bits = 4;
+    int bits  = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix, std::vector<int>(length));
 
     std::vector<int> size(radix);
     for (std::size_t i = 0; i < length; i++) {
-      int e = array[i];
-      int index = e & radix - 1;
+      int e                         = array[i];
+      int index                     = e & radix - 1;
       buckets[index][size[index]++] = e;
     }
 
@@ -296,25 +282,23 @@ public:
     {
       int i = 0;
       for (int j = radix >> 1; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++)
-          array[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
       }
       for (int j = 0; j < radix >> 1; j++) {
-        for (int k = 0; k < size[j]; k++)
-          array[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) array[i++] = buckets[j][k];
       }
     }
   }
 
   inline static void integerBucketSort(std::vector<int> &vector) {
-    int bits = 4;
+    int bits  = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix,
                                           std::vector<int>(vector.size()));
 
     std::vector<int> size(radix);
     for (int e : vector) {
-      int index = e & radix - 1;
+      int index                     = e & radix - 1;
       buckets[index][size[index]++] = e;
     }
 
@@ -336,12 +320,10 @@ public:
     {
       int i = 0;
       for (int j = radix >> 1; j < radix; j++) {
-        for (int k = 0; k < size[j]; k++)
-          vector[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) vector[i++] = buckets[j][k];
       }
       for (int j = 0; j < radix >> 1; j++) {
-        for (int k = 0; k < size[j]; k++)
-          vector[i++] = buckets[j][k];
+        for (int k = 0; k < size[j]; k++) vector[i++] = buckets[j][k];
       }
     }
   }
@@ -371,15 +353,12 @@ public:
   inline static auto stableCountingSort(std::unique_ptr<uint32_t[]> &A,
                                         std::size_t n, uint32_t max)
       -> std::unique_ptr<uint32_t[]> {
-
     std::unique_ptr<uint32_t[]> B(new uint32_t[n]), C(new uint32_t[max + 1]);
     std::memset(C.get(), 0x00, sizeof(int) * (max + 1));
 
-    for (uint32_t j = 0; j < n; j++)
-      C[A[j]]++;
+    for (uint32_t j = 0; j < n; j++) C[A[j]]++;
 
-    for (uint32_t i = 1; i <= max; i++)
-      C[i] = C[i] + C[i - 1];
+    for (uint32_t i = 1; i <= max; i++) C[i] = C[i] + C[i - 1];
 
     for (ptrdiff_t j = n - 1; j >= 0; j--) {
       B[C[A[j]] - 1] = A[j];
@@ -391,14 +370,11 @@ public:
 
   inline static auto stableCountingSort(std::vector<uint32_t> &A, std::size_t n,
                                         uint32_t max) -> std::vector<uint32_t> {
-
     std::vector<uint32_t> B(n), C(max + 1, 0);
 
-    for (uint32_t j = 0; j < n; j++)
-      C[A[j]]++;
+    for (uint32_t j = 0; j < n; j++) C[A[j]]++;
 
-    for (uint32_t i = 1; i <= max; i++)
-      C[i] = C[i] + C[i - 1];
+    for (uint32_t i = 1; i <= max; i++) C[i] = C[i] + C[i - 1];
 
     for (ptrdiff_t j = n - 1; j >= 0; j--) {
       B[C[A[j]] - 1] = A[j];
@@ -413,7 +389,6 @@ public:
   inline static auto indexBinarySearch(const std::unique_ptr<T[]> &a,
                                        ptrdiff_t start, ptrdiff_t pastEnd,
                                        const T &key) -> ptrdiff_t {
-
     ptrdiff_t i = start, j = pastEnd - 1;
     while (i <= j) {
       ptrdiff_t m = (i + j) >> 1;
@@ -433,7 +408,6 @@ public:
   inline static auto indexBinarySearch(const std::vector<T> &a, ptrdiff_t start,
                                        ptrdiff_t pastEnd, const T &key)
       -> ptrdiff_t {
-
     ptrdiff_t i = start, j = pastEnd - 1;
     while (i <= j) {
       ptrdiff_t m = (i + j) >> 1;
@@ -453,7 +427,6 @@ public:
   inline static auto indexTernarySearch(const std::unique_ptr<T[]> &a,
                                         ptrdiff_t start, ptrdiff_t pastEnd,
                                         const T &key) -> ptrdiff_t {
-
     ptrdiff_t i = start, j = pastEnd - 1;
     while (i < j - 1) {
       ptrdiff_t l = (i + j) / 3;
@@ -481,7 +454,6 @@ public:
   inline static auto indexTernarySearch(const std::vector<T> &a,
                                         ptrdiff_t start, ptrdiff_t pastEnd,
                                         const T &key) -> ptrdiff_t {
-
     ptrdiff_t i = start, j = pastEnd - 1;
     while (i < j - 1) {
       ptrdiff_t l = (i + j) / 3;
@@ -520,10 +492,8 @@ public:
 
       std::size_t j = lomutoPartition_(A, left, right);
 
-      if (j >= order - 1)
-        right = j - 1;
-      if (j <= order - 1)
-        left = j + 1;
+      if (j >= order - 1) right = j - 1;
+      if (j <= order - 1) left = j + 1;
     }
   }
 
@@ -543,10 +513,8 @@ public:
 
       std::size_t j = lomutoPartition_(A, left, right);
 
-      if (j >= order - 1)
-        right = j - 1;
-      if (j <= order - 1)
-        left = j + 1;
+      if (j >= order - 1) right = j - 1;
+      if (j <= order - 1) left = j + 1;
     }
   }
 
@@ -571,16 +539,13 @@ auto run() -> void {
 
   std::unique_ptr<int[]> a(new int[n]), b(new int[m]);
 
-  for (ssize i = 0; i < n; i++)
-    std::cin >> a[i];
+  for (ssize i = 0; i < n; i++) std::cin >> a[i];
 
-  for (ssize i = 0; i < m; i++)
-    std::cin >> b[i];
+  for (ssize i = 0; i < m; i++) std::cin >> b[i];
 
   Array::TRERandomizedQuickSort(b, 0, m);
 
-  if (b[0] - a[0] < a[0])
-    a[0] = b[0] - a[0];
+  if (b[0] - a[0] < a[0]) a[0] = b[0] - a[0];
 
   for (ssize i = 1; i < n - 1; i++) {
     auto it = std::lower_bound(&b[0], &b[m], a[i] + a[i - 1]);
@@ -588,15 +553,13 @@ auto run() -> void {
       continue;
 
     if (a[i] >= a[i - 1]) {
-      if (*it - a[i] < a[i])
-        a[i] = *it - a[i];
+      if (*it - a[i] < a[i]) a[i] = *it - a[i];
     } else {
       a[i] = *it - a[i];
     }
   }
 
-  if (b[m - 1] - a[n - 1] > a[n - 1])
-    a[n - 1] = b[m - 1] - a[n - 1];
+  if (b[m - 1] - a[n - 1] > a[n - 1]) a[n - 1] = b[m - 1] - a[n - 1];
 
   for (ssize i = 0; i < n - 1; i++) {
     if (a[i] > a[i + 1]) {
@@ -608,7 +571,7 @@ auto run() -> void {
   std::println("YES");
 }
 
-} // namespace _2065C2
+}  // namespace _2065C2
 
 int main() {
 #ifdef CROSS
@@ -624,8 +587,7 @@ int main() {
   int t;
   std::cin >> t;
 
-  while (t-- > 0)
-    _2065C2::run();
+  while (t-- > 0) _2065C2::run();
 
 #ifdef CROSS
   std::fclose(stdin);

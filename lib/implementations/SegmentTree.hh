@@ -3,26 +3,26 @@
 
 #include "util/Algebra.hh"
 
-template <typename T> struct SegmentTree {
-
+template <typename T>
+struct SegmentTree {
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::size_t offset_;
   std::unique_ptr<T[]> tree_;
 
   std::function<T(const T &, const T &)> function_;
   T defaultValue_;
 
-public:
-  SegmentTree(std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
+ public:
+  SegmentTree(const std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
               std::function<T(const T &, const T &)> function)
       : offset_(1LL << Algebra::ceilLog2(n)),
-        tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
+        tree_(std::make_unique<T[]>(offset_ << 1)),
+        function_(function),
         defaultValue_(defaultValue) {
-
     std::copy(&array[0], &array[n], &tree_[offset_]);
 
     std::size_t i = offset_;
@@ -51,10 +51,8 @@ public:
 
     T result{defaultValue_};
     while (fromIdx < pastEndIdx) {
-      if (fromIdx & 1)
-        result = function_(result, tree_[fromIdx++]);
-      if (pastEndIdx & 1)
-        result = function_(result, tree_[--pastEndIdx]);
+      if (fromIdx & 1) result = function_(result, tree_[fromIdx++]);
+      if (pastEndIdx & 1) result = function_(result, tree_[--pastEndIdx]);
 
       fromIdx >>= 1, pastEndIdx >>= 1;
     }

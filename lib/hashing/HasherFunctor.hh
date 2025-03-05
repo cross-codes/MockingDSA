@@ -2,8 +2,7 @@
 #include <cstdint>
 
 struct HasherFunctor {
-
-private:
+ private:
   static std::uint64_t randomAddress() {
     char *p = new char;
     delete p;
@@ -24,8 +23,9 @@ private:
     return x ^ (x >> 31);
   }
 
-public:
-  template <typename T> std::uint64_t operator()(T x) const {
+ public:
+  template <typename T>
+  std::uint64_t operator()(T x) const {
     static const std::uint64_t FIXED_RANDOM =
         splitmix64(std::chrono::steady_clock::now().time_since_epoch().count() *
                    (randomAddress() | 1));

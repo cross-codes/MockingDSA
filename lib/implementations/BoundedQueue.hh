@@ -2,20 +2,22 @@
 #include <cstdint>
 #include <memory>
 
-template <typename E> struct BoundedQueue {
-
+template <typename E>
+struct BoundedQueue {
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::int64_t QUEUE_SIZE_;
   std::ptrdiff_t head_, tail_;
   std::unique_ptr<E[]> queue_;
 
-public:
+ public:
   BoundedQueue(std::size_t initialSize)
-      : QUEUE_SIZE_(initialSize + 1), head_(0), tail_(0),
+      : QUEUE_SIZE_(initialSize + 1),
+        head_(0),
+        tail_(0),
         queue_(std::make_unique<E[]>(QUEUE_SIZE_)) {}
 
   void enqueue(E element) {
@@ -30,8 +32,7 @@ public:
   }
 
   E dequeue() {
-    if (head_ == tail_)
-      throw head_;
+    if (head_ == tail_) throw head_;
 
     E value = queue_[head_];
     if (head_ == QUEUE_SIZE_ - 1)

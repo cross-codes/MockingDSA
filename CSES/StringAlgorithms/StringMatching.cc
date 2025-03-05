@@ -2,12 +2,13 @@
 #include <iostream>
 #include <regex>
 
-using i64 = std::int64_t;
-using u64 = std::uint64_t;
-using u32 = std::uint32_t;
+using i64  = std::int64_t;
+using u64  = std::uint64_t;
+using u32  = std::uint32_t;
 using u128 = unsigned __int128;
 
-int main() {
+int main()
+{
   std::cin.tie(nullptr)->sync_with_stdio(false);
 
   std::string input, regex;
@@ -16,9 +17,8 @@ int main() {
 
   std::regex sequence_regex(regex);
 
-  auto match_begin =
-      std::sregex_iterator(input.begin(), input.end(), sequence_regex);
-  auto match_end = std::sregex_iterator();
+  auto match_begin = std::sregex_iterator(input.begin(), input.end(), sequence_regex);
+  auto match_end   = std::sregex_iterator();
 
   std::cout << std::distance(match_begin, match_end) << "\n";
 

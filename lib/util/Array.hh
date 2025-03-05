@@ -18,7 +18,7 @@ struct Array {
     requires std::three_way_comparable<T>
   inline static auto indexPartition_(std::unique_ptr<T[]> &A, std::ptrdiff_t p,
                                      std::ptrdiff_t r) -> std::ptrdiff_t {
-    T x = A[r];
+    T x              = A[r];
     std::ptrdiff_t i = p - 1;
 
     for (std::ptrdiff_t j = p; j <= r - 1; j++) {
@@ -36,7 +36,7 @@ struct Array {
     requires std::three_way_comparable<T>
   inline static auto indexPartition_(std::vector<T> &A, std::ptrdiff_t p,
                                      std::ptrdiff_t r) -> std::ptrdiff_t {
-    T x = A[r];
+    T x              = A[r];
     std::ptrdiff_t i = p - 1;
 
     for (std::ptrdiff_t j = p; j <= r - 1; j++) {
@@ -90,18 +90,18 @@ struct Array {
     if (nums[p + 1] < nums[r]) std::swap(nums[p + 1], nums[r]);
     if (nums[p] < nums[p + 1]) std::swap(nums[p], nums[p + 1]);
 
-    T pivot = nums[p + 1];
+    T pivot          = nums[p + 1];
     std::ptrdiff_t i = p + 1, j = r;
 
     while (true) {
-      while (nums[++i] > pivot);
-      while (nums[--j] < pivot);
+      while (nums[++i] > pivot) continue;
+      while (nums[--j] < pivot) continue;
       if (i > j) break;
       std::swap(nums[i], nums[j]);
     }
 
     nums[p + 1] = nums[j];
-    nums[j] = pivot;
+    nums[j]     = pivot;
     return j;
   }
 
@@ -115,32 +115,32 @@ struct Array {
     if (nums[p + 1] < nums[r]) std::swap(nums[p + 1], nums[r]);
     if (nums[p] < nums[p + 1]) std::swap(nums[p], nums[p + 1]);
 
-    T pivot = nums[p + 1];
+    T pivot          = nums[p + 1];
     std::ptrdiff_t i = p + 1, j = r;
 
     while (true) {
-      while (nums[++i] > pivot);
-      while (nums[--j] < pivot);
+      while (nums[++i] > pivot) continue;
+      while (nums[--j] < pivot) continue;
       if (i > j) break;
       std::swap(nums[i], nums[j]);
     }
 
     nums[p + 1] = nums[j];
-    nums[j] = pivot;
+    nums[j]     = pivot;
     return j;
   }
 
  public:
   inline static void integerBucketSort(std::unique_ptr<int[]> &array,
                                        std::size_t length) {
-    int bits = 4;
+    int bits  = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix, std::vector<int>(length));
 
     std::vector<int> size(radix);
     for (std::size_t i = 0; i < length; i++) {
-      int e = array[i];
-      int index = e & (radix - 1);
+      int e                         = array[i];
+      int index                     = e & (radix - 1);
       buckets[index][size[index]++] = e;
     }
 
@@ -170,14 +170,14 @@ struct Array {
   }
 
   inline static void integerBucketSort(std::vector<int> &vector) {
-    int bits = 4;
+    int bits  = 4;
     int radix = 1 << bits;
     std::vector<std::vector<int>> buckets(radix,
                                           std::vector<int>(vector.size()));
 
     std::vector<int> size(radix);
     for (int e : vector) {
-      int index = e & (radix - 1);
+      int index                     = e & (radix - 1);
       buckets[index][size[index]++] = e;
     }
 
@@ -317,13 +317,14 @@ struct Array {
       std::ptrdiff_t l = (i + j) / 3;
       std::ptrdiff_t u = ((i + j) / 3) << 1;
 
-      if (key > a[u])
+      if (key > a[u]) {
         i = u + 1;
-      else if (key > a[l]) {
+      } else if (key > a[l]) {
         i = l + 1;
         j = u;
-      } else
+      } else {
         j = l;
+      }
     }
 
     if (key == a[i])
@@ -345,13 +346,14 @@ struct Array {
       std::ptrdiff_t l = (i + j) / 3;
       std::ptrdiff_t u = ((i + j) / 3) << 1;
 
-      if (key > a[u])
+      if (key > a[u]) {
         i = u + 1;
-      else if (key > a[l]) {
+      } else if (key > a[l]) {
         i = l + 1;
         j = u;
-      } else
+      } else {
         j = l;
+      }
     }
 
     if (key == a[i])

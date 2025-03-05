@@ -3,30 +3,28 @@
 #include <memory>
 #include <string>
 
-template <typename E> class BoundedStack {
-
+template <typename E>
+class BoundedStack {
   /*
    * Author: github.com/cross-codes
    */
 
-private:
+ private:
   std::int64_t STACK_SIZE_;
   std::ptrdiff_t pos_ = -1;
   std::unique_ptr<E[]> stack_;
 
-public:
+ public:
   BoundedStack(std::size_t initialSize)
       : STACK_SIZE_(initialSize), stack_(std::make_unique<E[]>(STACK_SIZE_)) {};
 
   void pop() {
-    if (pos_ == -1)
-      throw pos_;
+    if (pos_ == -1) throw pos_;
     pos_--;
   }
 
   void push(E element) {
-    if (pos_ >= STACK_SIZE_ - 1)
-      throw STACK_SIZE_;
+    if (pos_ >= STACK_SIZE_ - 1) throw STACK_SIZE_;
     stack_[++pos_] = element;
   }
 
@@ -37,8 +35,7 @@ public:
   void clear() { pos_ = -1; }
 
   E top() {
-    if (pos_ == -1)
-      throw pos_;
+    if (pos_ == -1) throw pos_;
     return stack_[pos_];
   }
 

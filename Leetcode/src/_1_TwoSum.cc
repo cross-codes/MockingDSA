@@ -2,18 +2,18 @@
 #include <vector>
 
 class Solution {
-public:
+ public:
   std::vector<int> twoSum(std::vector<int> &nums, int target) {
-    std::unordered_map<int, int> numToIndex{};
-
     std::size_t n = nums.size();
-    for (unsigned int i = 0; i < n; i++) {
-      int num = nums[i];
-      auto it = numToIndex.find(target - num);
+    std::unordered_map<int, size_t> numToIndex{};
+    numToIndex.reserve(n);
+
+    for (std::size_t i = 0UZ; i < n; i++) {
+      auto it = numToIndex.find(target - nums[i]);
       if (it != numToIndex.end()) [[unlikely]] {
-        return {it->second, static_cast<int>(i)};
-      } else
-        numToIndex[num] = i;
+        return {static_cast<int>(i), static_cast<int>(it->second)};
+      }
+      numToIndex.insert({nums[i], i});
     }
 
     return {};
