@@ -3,17 +3,17 @@
 #include <iostream>
 #include <memory>
 
-using usize = std::size_t;
-using ssize = std::ptrdiff_t;
+using usize              = std::size_t;
+using ssize              = std::ptrdiff_t;
 
-using i64 = std::int64_t;
-using u64 = std::uint64_t;
-using u32 = std::uint32_t;
-using u128 = unsigned __int128;
+using i64                = std::int64_t;
+using u64                = std::uint64_t;
+using u32                = std::uint32_t;
+using u128               = unsigned __int128;
 
-constexpr std::size_t _ = 1000001;
+constexpr std::size_t _  = 1000001;
 constexpr std::size_t __ = 500002;
-constexpr u64 MOD = static_cast<u64>(1e9 + 7);
+constexpr u64 MOD        = static_cast<u64>(1e9 + 7);
 
 inline u64 modPow(u64, u64, const u64 &);
 
@@ -50,8 +50,7 @@ int main() {
 inline auto modPow(u64 base, u64 exponent, const u64 &modulus = ::MOD) -> u64 {
   u64 res = 1;
   while (exponent > 0) {
-    if (exponent & 1)
-      res = res * base % modulus;
+    if (exponent & 1) res = res * base % modulus;
     exponent >>= 1;
     base = (base * base) % modulus;
   }
