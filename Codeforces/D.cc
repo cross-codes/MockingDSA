@@ -1,82 +1,64 @@
 #include <bits/stdc++.h>
 
-#if __cplusplus >= 202302L
-#define dbg(a) std::println(stderr, "{}", a);
-#else
-#define dbg(a) std::cerr << a << "\n";
-#endif
+#pragma GCC optimize("Ofast,unroll-loops")
+#pragma GCC target("avx2,popcnt,lzcnt,abm,bmi,bmi2,fma,tune=native")
 
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
-using i64 = std::int64_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
-using u128 = unsigned __int128;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
+
+template <>
+struct std::hash<std::pair<i64, i64>> {
+  std::size_t operator()(const std::pair<i64, i64> &pair) const noexcept {
+    return (std::hash<i64>()(pair.first) >> 1 ^ std::hash<i64>()(pair.second)
+                                                    << 1)
+           << 2;
+  }
+};
 
 namespace _D {
-
 auto run() -> void {
-  ssize n;
-  std::cin >> n;
+  ssize n, m;
+  std::cin >> n >> m;
 
-  std::unique_ptr<int[]> a(new int[n]);
-
-  for (ssize i = 0Z; i < n; i++)
-    std::cin >> a[i];
-
-  i64 maxNegDiff = INT64_MAX;
-  ssize bestStartIdx = 0Z;
+  std::unique_ptr<std::pair<i64, i64>[]> circles(new std::pair<i64, i64>[n]);
   for (ssize i = 0Z; i < n; i++) {
-    ssize numG{0Z}, numLe{0Z};
-    for (ssize j = i + 1; j < n; j++) {
-      if (a[i] >= a[j])
-        numLe++;
-      else if (a[i] < a[j])
-        numG++;
-    }
-
-    if (numG - numLe < maxNegDiff) {
-      maxNegDiff = numG - numLe;
-      bestStartIdx = i;
-    }
+    i64 x;
+    std::cin >> x;
+    circles[i].first = x;
   }
 
-  if (maxNegDiff == INT64_MAX) {
-    std::println("1 1");
-    return;
+  for (ssize i = 0Z; i < n; i++) {
+    i64 r;
+    std::cin >> r;
+    circles[i].second = r;
   }
 
-  int bestNum = a[bestStartIdx], curScore = 0, bestScore = INT_MIN;
-  ssize bestEndIdx = 0Z;
-  std::vector<int> numsInSwapRange{};
-  for (ssize i = bestStartIdx + 1; i < n; i++) {
-    if (a[i] < bestNum)
-      curScore++;
-    else if (a[i] > bestNum)
-      curScore--;
+  std::unordered_set<std::pair<i64, i64>> points;
+  for (ssize i = 0Z; i < n; i++) {
+    auto &[center, r] = circles[i];
 
-    int test = curScore;
-    for (const int &e : numsInSwapRange) {
-      if (e < a[i])
-        test--;
-    }
-
-    numsInSwapRange.push_back(a[i]);
-    if (test >= bestScore) {
-      bestEndIdx = i;
-      bestScore = test;
+    for (i64 x = -r; x <= r; x++) {
+      i64 xSquare{x * x}, ySquareMax{r * r - xSquare};
+      if (ySquareMax >= 0) {
+        i64 yMax = static_cast<i64>(std::sqrt(ySquareMax));
+        for (i64 y = 0; y <= yMax; y++) {
+          points.insert({center + x, y});
+          points.insert({center + x, -y});
+        }
+      } else {
+        break;
+      }
     }
   }
 
-  if (bestScore == INT_MIN) {
-    std::println("1 1");
-    return;
-  }
-
-  std::println("{} {}", bestStartIdx + 1, bestEndIdx + 1);
+  std::println("{}", points.size());
 }
 
-} // namespace _D
+}  // namespace _D
 
 int main() {
 #ifdef CROSS
@@ -96,8 +78,7 @@ int main() {
   int t{1};
   std::cin >> t;
 
-  while (t-- > 0)
-    _D::run();
+  while (t-- > 0) _D::run();
 
 #ifdef CROSS
   std::fclose(stdin);

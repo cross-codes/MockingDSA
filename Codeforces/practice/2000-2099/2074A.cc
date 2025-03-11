@@ -7,33 +7,19 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _C {
+namespace _A {
 
 auto run() -> void {
-  int x;
-  std::cin >> x;
+  int l, r, d, u;
+  std::cin >> l >> r >> d >> u;
 
-  if ((x & (x - 1)) == 0 || ((x + 1) & x) == 0) {
-    std::println("-1");
-    return;
-  }
-
-  if (x & 1) {
-    int y = ((~x & ~(~x - 1)) << 1) - 1;
-    if (y >= x)
-      std::println("{}", -1);
-    else
-      std::println("{}", y);
-  } else {
-    int y = (x & ~(x - 1)) + 1;
-    if (y >= x)
-      std::println("{}", -1);
-    else
-      std::println("{}", y);
-  }
+  if (l == r && d == u && l == d)
+    std::println("Yes");
+  else
+    std::println("No");
 }
 
-}  // namespace _C
+}  // namespace _A
 
 int main() {
 #ifdef CROSS
@@ -53,7 +39,7 @@ int main() {
   int t{1};
   std::cin >> t;
 
-  while (t-- > 0) _C::run();
+  while (t-- > 0) _A::run();
 
 #ifdef CROSS
   std::fclose(stdin);
