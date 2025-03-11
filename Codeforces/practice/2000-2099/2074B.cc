@@ -7,33 +7,29 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _C {
+namespace _B {
 
 auto run() -> void {
-  int x;
-  std::cin >> x;
+  ssize n;
+  std::cin >> n;
 
-  if ((x & (x - 1)) == 0 || ((x + 1) & x) == 0) {
-    std::println("-1");
-    return;
+  std::vector<i64> a;
+  for (ssize i = 0Z; i < n; i++) {
+    i64 elem;
+    std::cin >> elem;
+    a.push_back(elem);
   }
 
-  if (x & 1) {
-    int y = ((~x & ~(~x - 1)) << 1) - 1;
-    if (y >= x)
-      std::println("{}", -1);
-    else
-      std::println("{}", y);
-  } else {
-    int y = (x & ~(x - 1)) + 1;
-    if (y >= x)
-      std::println("{}", -1);
-    else
-      std::println("{}", y);
+  while (a.size() != 1) {
+    i64 ai = a[a.size() - 1], aj = a[a.size() - 2];
+    a.pop_back(), a.pop_back();
+    a.push_back(ai + aj - 1);
   }
+
+  std::println("{}", a.front());
 }
 
-}  // namespace _C
+}  // namespace _B
 
 int main() {
 #ifdef CROSS
@@ -53,7 +49,7 @@ int main() {
   int t{1};
   std::cin >> t;
 
-  while (t-- > 0) _C::run();
+  while (t-- > 0) _B::run();
 
 #ifdef CROSS
   std::fclose(stdin);

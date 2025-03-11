@@ -1,11 +1,13 @@
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <memory>
-#include <stdexcept>
-#include <unordered_map>
-#include <vector>
+#include <bits/stdc++.h>
+
+using usize = std::size_t;
+using ssize = std::ptrdiff_t;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
+
+namespace _DivisorAnalysis {
 
 struct Algebra {
   /*
@@ -347,3 +349,84 @@ struct Algebra {
     return static_cast<int>(totient);
   }
 };
+
+constexpr u32 MOD = static_cast<u32>(1e9 + 7);
+
+auto run() -> void {
+  usize n;
+  std::cin >> n;
+
+  std::unique_ptr<std::pair<u32, u32>[]> primes(new std::pair<u32, u32>[n]);
+  for (usize i = 0; i < n; i++) {
+    int p, α;
+    std::cin >> p >> α;
+    primes[i] = {p, α};
+  }
+
+  u64 τ{1ULL}, num{1ULL}, σ{1ULL}, primaryExponent{1LL};
+  bool divide = false;
+  for (usize i = 0; i < n; i++) {
+    auto &[p, α] = primes[i];
+
+    τ *= α + 1, τ %= MOD;
+
+    if (!divide && ((α + 1) & 1) == 0) {
+      divide = true;
+      primaryExponent *= (α + 1) >> 1, primaryExponent %= MOD - 1;
+    } else {
+      primaryExponent *= α + 1, primaryExponent %= MOD - 1;
+    }
+
+    σ *= Algebra::modPow(p, α + 1, MOD) - 1, σ %= MOD;
+    σ *= Algebra::primeModInv(p - 1, MOD), σ %= MOD;
+
+    num *= Algebra::modPow(p, α, MOD), num %= MOD;
+  }
+
+  u64 μ{1LL};
+  if (divide) {
+    for (usize i = 0; i < n; i++) {
+      auto &[p, α] = primes[i];
+      u32 term     = Algebra::modPow(p, α, MOD);
+      term = Algebra::modPow(term, static_cast<u32>(primaryExponent), MOD);
+      μ *= term, μ %= MOD;
+    }
+  } else {
+    for (usize i = 0; i < n; i++) {
+      auto &[p, α] = primes[i];
+      u32 term     = Algebra::modPow(p, α >> 1, MOD);
+      term = Algebra::modPow(term, static_cast<u32>(primaryExponent), MOD);
+      μ *= term, μ %= MOD;
+    }
+  }
+
+  std::cout << τ << " " << σ << " " << μ << "\n";
+}
+
+}  // namespace _DivisorAnalysis
+
+int main() {
+#ifdef CROSS
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr) {
+#if __cplusplus >= 202302L
+    std::println(stderr, "Input file not found");
+#else
+    std::cerr << "Input file not found\n";
+#endif
+    __builtin_trap();
+  }
+#else
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+#endif
+
+  int t{1};
+
+  while (t-- > 0) _DivisorAnalysis::run();
+
+#ifdef CROSS
+  std::fclose(stdin);
+#endif
+
+  return 0;
+}
