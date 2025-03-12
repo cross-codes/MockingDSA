@@ -1,5 +1,5 @@
 class Solution {
-public:
+ public:
   double myPow(double x, int n) {
     double res = 1;
     if (n < 0) {

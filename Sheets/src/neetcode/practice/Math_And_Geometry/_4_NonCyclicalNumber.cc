@@ -1,10 +1,10 @@
 #include <unordered_set>
 
 class Solution {
-private:
+ private:
   std::unordered_set<int> seen;
 
-public:
+ public:
   Solution() : seen{} {};
 
   bool isHappy(int n) {

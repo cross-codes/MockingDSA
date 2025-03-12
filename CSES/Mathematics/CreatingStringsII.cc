@@ -3,16 +3,16 @@
 #include <iostream>
 #include <string>
 
-using i64 = std::int64_t;
-using u64 = std::uint64_t;
-using u32 = std::uint32_t;
-using u128 = unsigned __int128;
+using i64               = std::int64_t;
+using u64               = std::uint64_t;
+using u32               = std::uint32_t;
+using u128              = unsigned __int128;
 
 constexpr std::size_t _ = 1000000;
-constexpr u64 MOD = static_cast<u64>(1e9 + 7);
+constexpr u64 MOD       = static_cast<u64>(1e9 + 7);
 u64 factorials[_ + 1], inverseFactorials[_ + 1];
 
-inline u64 modPow(u64, u64, const u64 &);
+inline u64 modPow(u64, u64, const u64&);
 
 int main() {
   std::cin.tie(nullptr)->sync_with_stdio(false);
@@ -30,7 +30,7 @@ int main() {
   u32 freq[26];
   std::memset(freq, 0, 26 * sizeof(u32));
 
-  for (char &c : input)
+  for (char& c : input)
     freq[c - 'a']++;
 
   u64 res = factorials[input.size()];
@@ -45,7 +45,7 @@ int main() {
   return 0;
 }
 
-inline auto modPow(u64 base, u64 exponent, const u64 &modulus = ::MOD) -> u64 {
+inline auto modPow(u64 base, u64 exponent, const u64& modulus = ::MOD) -> u64 {
   u64 res = 1;
   while (exponent > 0) {
     if (exponent & 1)

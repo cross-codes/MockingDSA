@@ -8,10 +8,10 @@
 
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
-using i64 = std::int64_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
-using u128 = unsigned __int128;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
 
 namespace _MeetInTheMiddle {
 
@@ -23,8 +23,7 @@ auto run() -> void {
   std::unique_ptr<u64[]> list(new u64[n]);
   std::memset(list.get(), 0x00, sizeof(u64) * n);
 
-  for (usize i = 0; i < n; i++)
-    std::cin >> list[i];
+  for (usize i = 0; i < n; i++) std::cin >> list[i];
 
   std::sort(&list[0], &list[n]);
 
@@ -34,32 +33,26 @@ auto run() -> void {
   for (int i = 0; i < (1 << (n >> 1)); i++) {
     u64 currentSum = 0U;
     for (u32 j = 0; j < (n >> 1); j++) {
-      if (i & (1 << j))
-        currentSum += list[j];
-      if (currentSum > x)
-        break;
+      if (i & (1 << j)) currentSum += list[j];
+      if (currentSum > x) break;
     }
-    if (currentSum <= x)
-      firstSums[currentSum]++;
+    if (currentSum <= x) firstSums[currentSum]++;
   }
 
   u64 cnt{};
   for (int i = 0; i < (1 << (n - (n >> 1))); i++) {
     u64 currentSum = 0U;
     for (u32 j = 0; j < (n - (n >> 1)); j++) {
-      if (i & (1 << j))
-        currentSum += list[j + (n >> 1)];
-      if (currentSum > x)
-        break;
+      if (i & (1 << j)) currentSum += list[j + (n >> 1)];
+      if (currentSum > x) break;
     }
-    if (currentSum <= x)
-      cnt += firstSums[x - currentSum];
+    if (currentSum <= x) cnt += firstSums[x - currentSum];
   }
 
   std::cout << cnt << "\n";
 }
 
-} // namespace _MeetInTheMiddle
+}  // namespace _MeetInTheMiddle
 
 int main() {
 #ifdef CROSS
@@ -78,8 +71,7 @@ int main() {
 
   int t{1};
 
-  while (t-- > 0)
-    _MeetInTheMiddle::run();
+  while (t-- > 0) _MeetInTheMiddle::run();
 
 #ifdef CROSS
   std::fclose(stdin);
