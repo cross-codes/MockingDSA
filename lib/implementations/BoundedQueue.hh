@@ -14,7 +14,7 @@ struct BoundedQueue {
   std::unique_ptr<E[]> queue_;
 
  public:
-  BoundedQueue(std::size_t initialSize)
+  explicit BoundedQueue(std::size_t initialSize)
       : QUEUE_SIZE_(initialSize + 1),
         head_(0),
         tail_(0),

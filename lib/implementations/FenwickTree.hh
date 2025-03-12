@@ -12,7 +12,7 @@ struct FenwickTree {
  public:
   std::unique_ptr<std::int64_t[]> array;
 
-  FenwickTree(std::size_t n)
+  explicit FenwickTree(std::size_t n)
       : N_(n),
         tree_(std::make_unique<std::int64_t[]>(n + 1)),
         array(std::make_unique<std::int64_t[]>(n + 1)) {}

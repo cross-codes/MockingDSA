@@ -15,8 +15,8 @@ class BoundedStack {
   std::unique_ptr<E[]> stack_;
 
  public:
-  BoundedStack(std::size_t initialSize)
-      : STACK_SIZE_(initialSize), stack_(std::make_unique<E[]>(STACK_SIZE_)) {};
+  explicit BoundedStack(std::size_t initialSize)
+      : STACK_SIZE_(initialSize), stack_(std::make_unique<E[]>(STACK_SIZE_)) {}
 
   void pop() {
     if (pos_ == -1) throw pos_;

@@ -4,7 +4,6 @@
 #include <cstring>
 #include <memory>
 #include <stdexcept>
-#include <unordered_map>
 #include <vector>
 
 struct Algebra {
@@ -14,13 +13,13 @@ struct Algebra {
 
  private:
   Algebra();
-  constexpr inline static double EPSILON_ = 1E-6;
-  constexpr inline static int SIEVE_30_ =
-      ~((1 << 1) | (1 << 7) | (1 << 11) | (1 << 13) | (1 << 17) | (1 << 19) |
-        (1 << 23) | (1 << 29));
-  constexpr inline static std::int64_t FLOOR_SQRT_MAX_ = 3037000499LL;
-  constexpr inline static std::uint64_t MOD =
-      static_cast<std::uint64_t>(1e9 + 7);
+  constexpr inline static double EPSILON_{1E-6};
+  constexpr inline static int SIEVE_30_{~((1 << 1) | (1 << 7) | (1 << 11) |
+                                          (1 << 13) | (1 << 17) | (1 << 19) |
+                                          (1 << 23) | (1 << 29))};
+  constexpr inline static std::int64_t FLOOR_SQRT_MAX_{3037000499LL};
+  constexpr inline static std::uint64_t MOD{
+      static_cast<std::uint64_t>(1e9 + 7)};
 
   inline static const std::vector<std::vector<std::int64_t>>
       millerRabinBaseSets = {
@@ -39,7 +38,7 @@ struct Algebra {
   }
 
   constexpr inline static int compare_(std::int64_t a, std::int64_t b) {
-    std::int64_t flippedA = flip_(a), flippedB = flip_(b);
+    std::int64_t flippedA{flip_(a)}, flippedB{flip_(b)};
 
     if (flippedA < flippedB)
       return -1;
@@ -49,7 +48,8 @@ struct Algebra {
       return 0;
   }
 
-  inline static std::int64_t smallMulMod_(std::int64_t a, std::int64_t b,
+  inline static std::int64_t smallMulMod_(std::int64_t a,
+                                          std::int64_t b,
                                           std::int64_t m) {
     return (a * b) % m;
   }
@@ -58,9 +58,10 @@ struct Algebra {
     return (a * a) % m;
   }
 
-  inline static std::int64_t smallPowMod_(std::int64_t a, std::int64_t p,
+  inline static std::int64_t smallPowMod_(std::int64_t a,
+                                          std::int64_t p,
                                           std::int64_t m) {
-    std::int64_t res = 1;
+    std::int64_t res{1LL};
     for (; p != 0; p >>= 1) {
       if ((p & 1) != 0) {
         res = smallMulMod_(res, a, m);
@@ -70,29 +71,31 @@ struct Algebra {
     return res;
   }
 
-  inline static std::int64_t largePlusMod_(std::int64_t a, std::int64_t b,
+  inline static std::int64_t largePlusMod_(std::int64_t a,
+                                           std::int64_t b,
                                            std::int64_t m) {
     return (a >= m - b) ? (a + b - m) : (a + b);
   }
 
   inline static std::int64_t largeTimes2ToThe32Mod_(std::int64_t a,
                                                     std::int64_t m) {
-    int remainingPowersOf2 = 32;
+    int remainingPowersOf2{32};
     do {
-      int shift = std::min(remainingPowersOf2, __builtin_clzll(a));
-      a         = remainder(a << shift, m);
+      int shift{std::min(remainingPowersOf2, __builtin_clzll(a))};
+      a = remainder(a << shift, m);
       remainingPowersOf2 -= shift;
     } while (remainingPowersOf2 > 0);
     return a;
   }
 
-  inline static std::int64_t largeMulMod_(std::int64_t a, std::int64_t b,
+  inline static std::int64_t largeMulMod_(std::int64_t a,
+                                          std::int64_t b,
                                           std::int64_t m) {
-    std::int64_t aHi    = a >> 32;
-    std::int64_t bHi    = b >> 32;
-    std::int64_t aLo    = a & 0xFFFFFFFFLL;
-    std::int64_t bLo    = b & 0xFFFFFFFFLL;
-    std::int64_t result = largeTimes2ToThe32Mod_(aHi * bHi, m);
+    std::int64_t aHi{a >> 32};
+    std::int64_t bHi{b >> 32};
+    std::int64_t aLo{a & 0xFFFFFFFFLL};
+    std::int64_t bLo{b & 0xFFFFFFFFLL};
+    std::int64_t result{largeTimes2ToThe32Mod_(aHi * bHi, m)};
     result += aHi * bLo;
     if (result < 0) {
       result = remainder(result, m);
@@ -103,23 +106,24 @@ struct Algebra {
   }
 
   inline static std::int64_t largeSquareMod_(std::int64_t a, std::int64_t m) {
-    std::int64_t aHi    = a >> 32;
-    std::int64_t aLo    = a & 0xFFFFFFFFLL;
-    std::int64_t result = largeTimes2ToThe32Mod_(aHi * aHi /* < 2^62 */, m);
-    std::int64_t hiLo   = aHi * aLo * 2;
-    if (hiLo < 0) {
+    std::int64_t aHi{a >> 32};
+    std::int64_t aLo{a & 0xFFFFFFFFLL};
+    std::int64_t result{largeTimes2ToThe32Mod_(aHi * aHi, m)};
+    std::int64_t hiLo{aHi * aLo * 2};
+    if (hiLo < 0)
       hiLo = remainder(hiLo, m);
-    }
     result += hiLo;
     result = largeTimes2ToThe32Mod_(result, m);
     return largePlusMod_(result, remainder(aLo * aLo, m), m);
   }
 
-  inline static std::int64_t largePowMod_(std::int64_t a, std::int64_t p,
+  inline static std::int64_t largePowMod_(std::int64_t a,
+                                          std::int64_t p,
                                           std::int64_t m) {
-    std::int64_t res = 1;
+    std::int64_t res{1LL};
     for (; p != 0; p >>= 1) {
-      if (p & 1) res = largeMulMod_(res, a, m);
+      if (p & 1)
+        res = largeMulMod_(res, a, m);
       a = largeSquareMod_(a, m);
     }
 
@@ -127,16 +131,19 @@ struct Algebra {
   }
 
   inline static bool testWitnessSmall_(std::int64_t base, std::int64_t n) {
-    int r          = __builtin_ctzll(n - 1);
-    std::int64_t d = (n - 1) >> r;
+    int r{__builtin_ctzll(n - 1)};
+    std::int64_t d{(n - 1) >> r};
     base %= n;
-    if (base == 0) return true;
+    if (base == 0)
+      return true;
 
     std::int64_t a = smallPowMod_(base, d, n);
-    if (a == 1) return true;
-    int j = 0;
+    if (a == 1)
+      return true;
+    int j{};
     while (a != n - 1) {
-      if (++j == r) return false;
+      if (++j == r)
+        return false;
       a = smallSquareMod_(a, n);
     }
 
@@ -144,16 +151,19 @@ struct Algebra {
   }
 
   inline static bool testWitnessLarge_(std::int64_t base, std::int64_t n) {
-    int r          = __builtin_ctzll(n - 1);
-    std::int64_t d = (n - 1) >> r;
+    int r{__builtin_ctzll(n - 1)};
+    std::int64_t d{(n - 1) >> r};
     base %= n;
-    if (base == 0) return true;
+    if (base == 0)
+      return true;
 
     std::int64_t a = largePowMod_(base, d, n);
-    if (a == 1) return true;
-    int j = 0;
+    if (a == 1)
+      return true;
+    int j{};
     while (a != n - 1) {
-      if (++j == r) return false;
+      if (++j == r)
+        return false;
       a = largeSquareMod_(a, n);
     }
 
@@ -162,9 +172,10 @@ struct Algebra {
 
  public:
   constexpr inline static int modPow(int n, int p, int m) {
-    std::int64_t result = 1;
+    std::int64_t result{1LL};
     for (std::int64_t i = 1, j = n; i <= p; i <<= 1, j = j * j % m) {
-      if (i & p) result = result * j % m;
+      if (i & p)
+        result = result * j % m;
     }
 
     return static_cast<int>(result);
@@ -190,11 +201,15 @@ struct Algebra {
     return std::abs(a) < EPSILON_;
   }
 
-  static std::unique_ptr<double[]> solveLinear(double a, double b, double c,
-                                               double d, double e, double f) {
-    double D  = a * e - b * d;
-    double Dx = c * e - b * f;
-    double Dy = a * f - c * d;
+  static std::unique_ptr<double[]> solveLinear(double a,
+                                               double b,
+                                               double c,
+                                               double d,
+                                               double e,
+                                               double f) {
+    double D{a * e - b * d};
+    double Dx{c * e - b * f};
+    double Dy{a * f - c * d};
 
     if (equal0(D)) {
       std::size_t size = equal0(Dx) && equal0(Dy) ? 1 : 0;
@@ -208,9 +223,10 @@ struct Algebra {
     }
   }
 
-  inline static std::unique_ptr<double[]> solveQuadratic(double a, double b,
+  inline static std::unique_ptr<double[]> solveQuadratic(double a,
+                                                         double b,
                                                          double c) {
-    double delta = b * b - 4 * a * c;
+    double delta{b * b - 4 * a * c};
     if (equal0(delta)) {
       std::unique_ptr<double[]> result(new double[1]);
       result[0] = -b / (a * 2);
@@ -220,9 +236,9 @@ struct Algebra {
       result[0] = 0;
       return 0;
     } else {
-      double a2 = a * 2;
-      double x  = (-b / a2);
-      double y  = std::sqrt(delta) / a2;
+      double a2{a * 2};
+      double x{(-b / a2)};
+      double y{std::sqrt(delta) / a2};
 
       std::unique_ptr<double[]> result(new double[2]);
       result[0] = x + y, result[1] = x - y;
@@ -244,41 +260,47 @@ struct Algebra {
     if (dividend >= 0) {
       return dividend % divisor;
     }
-    std::int64_t quotient = ((dividend >> 1) / divisor) << 1;
-    std::int64_t rem      = dividend - quotient * divisor;
+    std::int64_t quotient{((dividend >> 1) / divisor) << 1};
+    std::int64_t rem{dividend - quotient * divisor};
     return rem - (compare_(rem, divisor) >= 0 ? divisor : 0);
   }
 
   inline static bool isPrime(std::int64_t n) {
-    if (n < 2) return false;
+    if (n < 2)
+      return false;
 
     if (n < 66) {
-      constexpr std::int64_t mask =
+      constexpr std::int64_t mask{
           (1LL << (2 - 2)) | (1LL << (3 - 2)) | (1LL << (5 - 2)) |
           (1LL << (7 - 2)) | (1LL << (11 - 2)) | (1LL << (13 - 2)) |
           (1LL << (17 - 2)) | (1LL << (19 - 2)) | (1LL << (23 - 2)) |
           (1LL << (29 - 2)) | (1LL << (31 - 2)) | (1LL << (37 - 2)) |
           (1LL << (41 - 2)) | (1LL << (43 - 2)) | (1LL << (47 - 2)) |
-          (1LL << (53 - 2)) | (1LL << (59 - 2)) | (1LL << (61 - 2));
+          (1LL << (53 - 2)) | (1LL << (59 - 2)) | (1LL << (61 - 2))};
       return ((mask >> (static_cast<int>(n) - 2)) & 1) != 0;
     }
 
-    if (SIEVE_30_ & (1 << (n % 30))) return false;
+    if (SIEVE_30_ & (1 << (n % 30)))
+      return false;
 
-    if (n % 7 == 0 || n % 11 == 0 || n % 13 == 0) return false;
+    if (n % 7 == 0 || n % 11 == 0 || n % 13 == 0)
+      return false;
 
-    if (n < 17 * 17) return true;
+    if (n < 17 * 17)
+      return true;
 
     for (std::vector<std::int64_t> baseSet : millerRabinBaseSets) {
       if (n <= baseSet[0]) {
         bool small = n <= FLOOR_SQRT_MAX_;
         if (small) {
           for (std::size_t i = 1; i < baseSet.size(); i++) {
-            if (!testWitnessSmall_(baseSet[i], n)) return false;
+            if (!testWitnessSmall_(baseSet[i], n))
+              return false;
           }
         } else {
           for (std::size_t i = 1; i < baseSet.size(); i++) {
-            if (!testWitnessLarge_(baseSet[i], n)) return false;
+            if (!testWitnessLarge_(baseSet[i], n))
+              return false;
           }
         }
       }
@@ -290,8 +312,10 @@ struct Algebra {
   }
 
   constexpr inline static std::uint64_t fibonnaciNumber(
-      std::uint64_t n, std::uint64_t modulus = MOD) {
-    if (n == 1) return 1ULL;
+      std::uint64_t n,
+      std::uint64_t modulus = MOD) {
+    if (n == 1)
+      return 1ULL;
 
     std::uint64_t a{1U}, b{0U}, p{0U}, q{1U};
     std::uint64_t aq, qq;
@@ -311,39 +335,5 @@ struct Algebra {
     }
 
     return b % modulus;
-  }
-
-  inline static std::unordered_map<std::int64_t, std::uint32_t>
-  generatePrimeFactors(std::int64_t n) {
-    std::unordered_map<std::int64_t, std::uint32_t> factors;
-    std::int64_t x{2LL};
-
-    while (x * x <= n) {
-      while (n % x == 0) {
-        factors[x]++;
-        n /= x;
-      }
-
-      x++;
-    }
-
-    if (n > 1) factors[n]++;
-
-    return factors;
-  }
-
-  inline static int totientFunction(int n, int m) {
-    auto primes = generatePrimeFactors(n);
-    std::int64_t totient{1LL};
-
-    for (const auto &[prime, freq] : primes) {
-      totient *= Algebra::modPow(static_cast<int>(prime), freq - 1, m);
-      totient %= m;
-
-      totient *= prime - 1;
-      totient %= m;
-    }
-
-    return static_cast<int>(totient);
   }
 };

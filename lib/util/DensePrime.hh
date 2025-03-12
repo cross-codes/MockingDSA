@@ -1,14 +1,7 @@
-#include <bits/stdc++.h>
-#include <algorithm>
-
-using usize = std::size_t;
-using ssize = std::ptrdiff_t;
-using i64   = std::int64_t;
-using u32   = std::uint32_t;
-using u64   = std::uint64_t;
-using u128  = unsigned __int128;
-
-namespace _CommonDivisors {
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <vector>
 
 struct DensePrime {
   /*
@@ -155,53 +148,3 @@ struct DensePrime {
     }
   }
 };
-
-auto run() -> void {
-  usize n;
-  std::cin >> n;
-
-  DensePrime prime(1000001);
-  std::array<int, 1000001> count{};
-
-  for (usize i = 0; i < n; i++) {
-    int x;
-    std::cin >> x;
-    prime.forFactors(x, true, true, [&count](int factor) { count[factor]++; });
-  }
-
-  for (ssize i = count.size() - 1; i >= 0; i--) {
-    if (count[i] > 1) {
-      std::cout << i << "\n";
-      break;
-    }
-  }
-}
-
-}  // namespace _CommonDivisors
-
-int main() {
-#ifdef CROSS
-  FILE* stream = std::freopen("input.txt", "r", stdin);
-  if (stream == nullptr) {
-#if __cplusplus >= 202302L
-    std::println(stderr, "Input file not found");
-#else
-    std::cerr << "Input file not found\n";
-#endif
-    __builtin_trap();
-  }
-#else
-  std::cin.tie(nullptr)->sync_with_stdio(false);
-#endif
-
-  int t{1};
-
-  while (t-- > 0)
-    _CommonDivisors::run();
-
-#ifdef CROSS
-  std::fclose(stdin);
-#endif
-
-  return 0;
-}
