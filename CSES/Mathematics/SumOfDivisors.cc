@@ -2,25 +2,51 @@
 
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
-using i64 = std::int64_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
-using u128 = unsigned __int128;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
 
 namespace _SumOfDivisors {
 
-constexpr int MOD = static_cast<int>(1e9 + 7);
+constexpr u64 MOD = static_cast<u64>(1e9 + 7);
+
+auto autoRangeAPSum(u64 firstTerm, u64 lastTerm) -> u64 {
+  u64 res;
+  if ((lastTerm - firstTerm + 1) & 1) {
+    res = (lastTerm - firstTerm + 1) % MOD;
+    res *= ((firstTerm + lastTerm) >> 1) % MOD;
+  } else {
+    res = ((lastTerm - firstTerm + 1) >> 1) % MOD;
+    res *= (firstTerm + lastTerm) % MOD;
+  }
+
+  return res % MOD;
+}
 
 auto run() -> void {
   u64 n;
   std::cin >> n;
+
+  u64 i{1ULL}, total{};
+  while (i <= n) {
+    u64 divisors{n / i};
+    u64 rangeEndInclusive{n / divisors};
+
+    total += divisors * autoRangeAPSum(i, rangeEndInclusive);
+    total %= MOD;
+
+    i = rangeEndInclusive + 1;
+  }
+
+  std::cout << total << "\n";
 }
 
-} // namespace _SumOfDivisors
+}  // namespace _SumOfDivisors
 
 int main() {
 #ifdef CROSS
-  FILE *stream = std::freopen("input.txt", "r", stdin);
+  FILE* stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr) {
 #if __cplusplus >= 202302L
     std::println(stderr, "Input file not found");
@@ -34,7 +60,6 @@ int main() {
 #endif
 
   int t{1};
-  std::cin >> t;
 
   while (t-- > 0)
     _SumOfDivisors::run();
