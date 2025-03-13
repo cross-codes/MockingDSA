@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <algorithm>
 
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
@@ -10,48 +9,60 @@ using u128  = unsigned __int128;
 
 namespace _CommonDivisors {
 
-struct DensePrime {
+struct FixedDensePrime {
   /*
    * Author: github.com/cross-codes
    */
 
  private:
-  std::unique_ptr<int[]> minima_;
-  std::unique_ptr<int[]> powers_;
+  constexpr inline static int N = 1000001;
+  std::array<int, N> minima_, powers_;
+  std::bitset<N> parity_, squareFree_;
 
  public:
-  explicit DensePrime(int n)
-      : minima_(std::make_unique<int[]>(n)),
-        powers_(std::make_unique<int[]>(n)) {
-    std::memset(minima_.get(), 0x00, sizeof(int) * n);
-    std::memset(powers_.get(), 0x00, sizeof(int) * n);
+  std::vector<int> primes_;
 
-    std::vector<int> primes{};
-    for (int i = 2; i < (n + 1) >> 1; i++) {
+  explicit FixedDensePrime() : minima_{}, powers_{} {
+    for (int i = 2; i < (N + 1) >> 1; i++) {
       int minimum, power;
       if (minima_[i] == 0) {
         minimum = i;
         power   = 1;
-        primes.push_back(i);
+        parity_.set(i, true);
+        squareFree_.set(i, true);
+        primes_.push_back(i);
       } else {
         minimum = minima_[i];
         power   = powers_[i];
       }
 
-      for (int e : primes) {
+      for (int e : primes_) {
         int index{e * i};
-        if (index < n) {
+        if (index < N) {
           minima_[index] = e;
+          parity_.set(index, !parity_[i]);
           if (e == minimum) {
             powers_[index] = power + 1;
             break;
-          } else
+          } else {
             powers_[index] = 1;
+            squareFree_.set(index, squareFree_[i]);
+          }
         } else
           break;
       }
     }
+
+    for (int i = (N + 1) >> 1 | 1; i < N; i += 2) {
+      if (minima_[i] == 0) {
+        parity_.set(i, true);
+        squareFree_.set(i, true);
+      }
+    }
   }
+
+  auto isSquareFree(int n) -> bool { return squareFree_[n]; }
+  auto getParity(int n) -> bool { return parity_[n]; }
 
   auto totient(int n) -> int {
     int result{1};
@@ -160,7 +171,7 @@ auto run() -> void {
   usize n;
   std::cin >> n;
 
-  DensePrime prime(1000001);
+  FixedDensePrime prime;
   std::array<int, 1000001> count{};
 
   for (usize i = 0; i < n; i++) {

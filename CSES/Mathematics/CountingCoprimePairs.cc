@@ -7,7 +7,7 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _CountingDivisors {
+namespace _CountingCoprimePairs {
 
 struct FixedDensePrime {
   /*
@@ -168,22 +168,32 @@ struct FixedDensePrime {
 };
 
 auto run() -> void {
-  u32 n;
+  FixedDensePrime prime;
+  std::array<int, 1000001> factors{};
+
+  i64 n;
   std::cin >> n;
 
-  FixedDensePrime primes;
+  i64 total = (n * (n - 1)) >> 1;
 
-  while (n-- > 0) {
-    u32 num;
-    std::cin >> num;
-    u64 τ{1LL};
-    primes.forPowers(num, [&τ](int power) { τ *= power + 1; });
-
-    std::cout << τ << "\n";
+  for (i64 i = 0; i < n; i++) {
+    int x;
+    std::cin >> x;
+    prime.forFactors(x, false, true,
+                     [&factors](const int& factor) { factors[factor]++; });
   }
+
+  for (int i = 2; i < static_cast<int>(factors.size()); i++) {
+    if (factors[i] > 1 && prime.isSquareFree(i)) {
+      i64 count = (static_cast<i64>(factors[i]) * (factors[i] - 1)) >> 1;
+      total += prime.getParity(i) ? -count : count;
+    }
+  }
+
+  std::cout << total << "\n";
 }
 
-}  // namespace _CountingDivisors
+}  // namespace _CountingCoprimePairs
 
 int main() {
 #ifdef CROSS
@@ -203,7 +213,7 @@ int main() {
   int t{1};
 
   while (t-- > 0)
-    _CountingDivisors::run();
+    _CountingCoprimePairs::run();
 
 #ifdef CROSS
   std::fclose(stdin);
