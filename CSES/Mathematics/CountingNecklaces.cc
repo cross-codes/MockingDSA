@@ -7,7 +7,7 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _BracketSequencesI
+namespace _CountingNecklaces
 {
 
 struct Algebra
@@ -187,6 +187,22 @@ private:
     }
 
     return true;
+  }
+
+  constexpr inline static auto gcd_(int a, int b, int &x, int &y) -> int
+  {
+    if (b == 0)
+    {
+      x = 1;
+      y = 0;
+      return a;
+    }
+
+    int x1, y1;
+    int d = gcd_(b, a % b, x1, y1);
+    x     = y1;
+    y     = x1 - y1 * (a / b);
+    return d;
   }
 
 public:
@@ -388,55 +404,43 @@ public:
   }
 
   constexpr inline static auto solveDiophantine(int a, int b, int c, int &x,
-                                                int &y) -> bool
+                                                int &y, int &g) -> bool
   {
-    if (a == 0 && b == 0)
-      return c == 0;
-
-    int g{std::gcd(a, b)};
-    if (c % g != 0)
+    g = gcd_(std::abs(a), std::abs(b), x, y);
+    if (c % g)
       return false;
 
-    x = ((c / g) * Algebra::coprimeModInv(a / g, b / g)) % (b / g);
-    y = (c - (a * x)) / b;
+    x *= c / g;
+    y *= c / g;
+    if (a < 0)
+      x = -x;
+    if (b < 0)
+      y = -y;
 
     return true;
   }
 };
 
-constexpr int N       = 1000001;
-constexpr int INV_LIM = N / 2 + 2;
-constexpr int MOD     = static_cast<int>(1e9 + 7);
+constexpr int MOD = static_cast<int>(1e9 + 7);
 
 auto run() -> void
 {
-  std::unique_ptr<int[]> factorials(new int[N]),
-      inverseFactorials(new int[INV_LIM]);
+  int n, m;
+  std::cin >> n >> m;
 
-  factorials[0] = 1;
-  for (int i = 1; i < N; i++)
-    factorials[i] = (static_cast<i64>(factorials[i - 1]) * i) % MOD;
-
-  for (int i = 0; i < INV_LIM; i++)
-    inverseFactorials[i] = Algebra::coprimeModInv(factorials[i], MOD);
-
-  int n;
-  std::cin >> n;
-
-  if (n & 1)
-    std::cout << "0\n";
-  else
+  int res{};
+  for (int i = 0; i <= n - 1; i++)
   {
-    int catalanNumber = ((static_cast<i64>(factorials[n]) *
-                          inverseFactorials[(n >> 1) + 1] % MOD) *
-                         inverseFactorials[n >> 1]) %
-                        MOD;
-
-    std::cout << catalanNumber << "\n";
+    res += Algebra::modPow(m, std::gcd(i, n), MOD);
+    res %= MOD;
   }
+
+  res = (static_cast<i64>(res) * Algebra::coprimeModInv(n, MOD)) % MOD;
+
+  std::cout << res << "\n";
 }
 
-} // namespace _BracketSequencesI
+} // namespace _CountingNecklaces
 
 int main()
 {
@@ -458,7 +462,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _BracketSequencesI::run();
+    _CountingNecklaces::run();
 
 #ifdef CROSS
   std::fclose(stdin);

@@ -7,7 +7,7 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _BracketSequencesI
+namespace _BracketSequencesII
 {
 
 struct Algebra
@@ -404,39 +404,67 @@ public:
   }
 };
 
-constexpr int N       = 1000001;
-constexpr int INV_LIM = N / 2 + 2;
+constexpr int N_MAX   = 1000001;
+constexpr int INV_MAX = (N_MAX >> 1) + 2;
 constexpr int MOD     = static_cast<int>(1e9 + 7);
 
 auto run() -> void
 {
-  std::unique_ptr<int[]> factorials(new int[N]),
-      inverseFactorials(new int[INV_LIM]);
+
+  std::unique_ptr<int[]> factorials(new int[N_MAX]),
+      inverseFactorials(new int[N_MAX]);
 
   factorials[0] = 1;
-  for (int i = 1; i < N; i++)
+  for (int i = 1; i < N_MAX; i++)
     factorials[i] = (static_cast<i64>(factorials[i - 1]) * i) % MOD;
 
-  for (int i = 0; i < INV_LIM; i++)
+  for (int i = 0; i < INV_MAX; i++)
     inverseFactorials[i] = Algebra::coprimeModInv(factorials[i], MOD);
 
   int n;
   std::cin >> n;
 
   if (n & 1)
-    std::cout << "0\n";
-  else
   {
-    int catalanNumber = ((static_cast<i64>(factorials[n]) *
-                          inverseFactorials[(n >> 1) + 1] % MOD) *
-                         inverseFactorials[n >> 1]) %
-                        MOD;
-
-    std::cout << catalanNumber << "\n";
+    std::cout << "0\n";
+    return;
   }
+
+  int N = n >> 1;
+
+  int L{}, K{}, balance{};
+  char c;
+  while (std::cin >> c)
+  {
+    K++;
+    if (c == ')')
+    {
+      L++;
+      balance--;
+    }
+    if (c == '(')
+      balance++;
+
+    if (balance < 0)
+    {
+      std::cout << "0\n";
+      return;
+    }
+  }
+
+  int numerator =
+      (static_cast<i64>(factorials[(N << 1) - K]) * (K - (L << 1) + 1)) % MOD;
+
+  int denominator = (static_cast<i64>(inverseFactorials[N - L + 1]) *
+                     inverseFactorials[N + L - K]) %
+                    MOD;
+
+  int catalanConvolution = (static_cast<i64>(numerator) * denominator) % MOD;
+
+  std::cout << catalanConvolution << "\n";
 }
 
-} // namespace _BracketSequencesI
+} // namespace _BracketSequencesII
 
 int main()
 {
@@ -458,7 +486,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _BracketSequencesI::run();
+    _BracketSequencesII::run();
 
 #ifdef CROSS
   std::fclose(stdin);
