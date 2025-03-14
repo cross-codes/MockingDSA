@@ -1,4 +1,4 @@
-BasedOnStyle: Chromium
+BasedOnStyle: Microsoft
 IndentWidth: 2
 UseTab: Never
 ColumnLimit: 80
