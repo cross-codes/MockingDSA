@@ -1,11 +1,14 @@
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <memory>
-#include <numeric>
-#include <stdexcept>
-#include <vector>
+#include <bits/stdc++.h>
+
+using usize = std::size_t;
+using ssize = std::ptrdiff_t;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
+
+namespace _633A
+{
 
 struct Algebra
 {
@@ -184,6 +187,22 @@ private:
     }
 
     return true;
+  }
+
+  constexpr inline static auto gcd_(int a, int b, int &x, int &y) -> int
+  {
+    if (b == 0)
+    {
+      x = 1;
+      y = 0;
+      return a;
+    }
+
+    int x1, y1;
+    int d = gcd_(b, a % b, x1, y1);
+    x     = y1;
+    y     = x1 - y1 * (a / b);
+    return d;
   }
 
 public:
@@ -385,18 +404,69 @@ public:
   }
 
   constexpr inline static auto solveDiophantine(int a, int b, int c, int &x,
-                                                int &y) -> bool
+                                                int &y, int &g) -> bool
   {
-    if (a == 0 && b == 0)
-      return c == 0;
-
-    int g{std::gcd(a, b)};
-    if (c % g != 0)
+    g = gcd_(std::abs(a), std::abs(b), x, y);
+    if (c % g)
       return false;
 
-    x = ((c / g) * Algebra::coprimeModInv(a / g, b / g)) % (b / g);
-    y = (c - (a * x)) / b;
+    x *= c / g;
+    y *= c / g;
+    if (a < 0)
+      x = -x;
+    if (b < 0)
+      y = -y;
 
     return true;
   }
 };
+
+auto run() -> void
+{
+  int a, b, c;
+  std::cin >> a >> b >> c;
+
+  int x{INT_MIN}, y{INT_MIN}, g{};
+
+  bool res = Algebra::solveDiophantine(a, b, c, x, y, g);
+  if (!res)
+    std::println("No");
+  else
+  {
+    double kx = -static_cast<double>(g) * x / b,
+           ky = static_cast<double>(g) * y / a;
+
+    std::println("{}", std::floor(ky) - std::ceil(kx) >= 0 ? "Yes" : "No");
+  }
+}
+
+} // namespace _633A
+
+int main()
+{
+#ifdef CROSS
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr)
+  {
+#if __cplusplus >= 202302L
+    std::println(stderr, "Input file not found");
+#else
+    std::cerr << "Input file not found\n";
+#endif
+    __builtin_trap();
+  }
+#else
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+#endif
+
+  int t{1};
+
+  while (t-- > 0)
+    _633A::run();
+
+#ifdef CROSS
+  std::fclose(stdin);
+#endif
+
+  return 0;
+}

@@ -1,8 +1,14 @@
-#include <bitset>
-#include <cstring>
-#include <functional>
-#include <memory>
-#include <vector>
+#include <bits/stdc++.h>
+
+using usize = std::size_t;
+using ssize = std::ptrdiff_t;
+using i64   = std::int64_t;
+using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using u128  = unsigned __int128;
+
+namespace _687B
+{
 
 struct FixedDensePrime
 {
@@ -195,3 +201,67 @@ public:
     }
   }
 };
+
+auto run() -> void
+{
+  FixedDensePrime denseSieve;
+  int n, k;
+  std::cin >> n >> k;
+
+  std::unordered_map<int, int> primes{};
+  primes.reserve(n);
+
+  auto updateMap = [&primes](int prime, int power) {
+    primes[prime] = std::max(primes[prime], power);
+  };
+
+  for (int i = 0; i < n; i++)
+  {
+    int x;
+    std::cin >> x;
+    denseSieve.forPrimeFactorsAndPowers(x, updateMap);
+  }
+
+  bool valid = true;
+
+  auto check = [&primes, &valid](int prime, int power) {
+    int maxPower = primes[prime];
+    if (maxPower < power)
+      valid = false;
+  };
+
+  denseSieve.forPrimeFactorsAndPowers(k, check);
+
+  std::println("{}", valid ? "Yes" : "No");
+}
+
+} // namespace _687B
+
+int main()
+{
+#ifdef CROSS
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr)
+  {
+#if __cplusplus >= 202302L
+    std::println(stderr, "Input file not found");
+#else
+    std::cerr << "Input file not found\n";
+#endif
+    __builtin_trap();
+  }
+#else
+  std::cin.tie(nullptr)->sync_with_stdio(false);
+#endif
+
+  int t{1};
+
+  while (t-- > 0)
+    _687B::run();
+
+#ifdef CROSS
+  std::fclose(stdin);
+#endif
+
+  return 0;
+}
