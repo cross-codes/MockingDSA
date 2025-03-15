@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 
+#pragma GCC target("popcnt")
+
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
