@@ -26,7 +26,7 @@ public:
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  inline T nextUniformRandomInteger(T p, T r)
+  inline T nextUniformInteger(T p, T r)
   {
     std::uniform_int_distribution<T> distribution(p, r);
     return distribution(engine_);
@@ -34,7 +34,7 @@ public:
 
   template <typename T>
     requires std::integral<T> || std::floating_point<T>
-  inline T nextUniformRandomReal(T p, T r)
+  inline T nextUniformReal(T p, T r)
   {
     std::uniform_real_distribution<T> distribution(p, r);
     return distribution(engine_);

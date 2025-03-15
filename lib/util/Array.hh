@@ -63,7 +63,7 @@ private:
                                   std::ptrdiff_t r) -> std::ptrdiff_t
   {
     std::ptrdiff_t i =
-        static_cast<std::ptrdiff_t>(random_.nextUniformRandomInteger<int>(
+        static_cast<std::ptrdiff_t>(random_.nextUniformInteger<int>(
             static_cast<int>(p), static_cast<int>(r)));
     std::swap(A[i], A[r]);
 
@@ -76,7 +76,7 @@ private:
                                   std::ptrdiff_t r) -> std::ptrdiff_t
   {
     std::ptrdiff_t i =
-        static_cast<std::ptrdiff_t>(random_.nextUniformRandomInteger<int>(
+        static_cast<std::ptrdiff_t>(random_.nextUniformInteger<int>(
             static_cast<int>(p), static_cast<int>(r)));
     std::swap(A[i], A[r]);
 
