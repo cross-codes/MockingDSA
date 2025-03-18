@@ -24,12 +24,8 @@ public:
     std::copy(&array[0], &array[n], table[0].begin());
 
     for (std::size_t y = 1; y < table.size(); y++)
-    {
       for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-      {
         table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
-      }
-    }
   }
 
   T queryRange(std::size_t fromIdx, std::size_t pastEndIdx)
