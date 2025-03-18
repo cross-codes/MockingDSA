@@ -9,45 +9,46 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _BeautifulSubgrids
 {
 
 auto run() -> void
 {
-  u64 n;
+  usize n;
   std::cin >> n;
 
-  usize k;
-  std::cin >> k;
+  std::array<std::array<u32, 100>, 3000> grid{};
 
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
-
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  for (usize y = 0; y < n; y++)
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
+    std::string row;
+    std::cin >> row;
 
-    for (usize j = 1ULL; j < k; j++)
+    usize x{};
+    while (x != row.size())
     {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
+      if (row[x] == '1')
+        grid[y][x / 30] |= (1U << (x % 30));
+      x++;
     }
-
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
   }
 
-  std::cout << res << "\n";
+  i64 subGrids{};
+  for (usize ya = 0; ya < 3000; ya++)
+  {
+    for (usize yb = ya + 1; yb < 3000; yb++)
+    {
+      i64 count{};
+      for (usize k = 0; k < 100; k++)
+        count += std::popcount(grid[ya][k] & grid[yb][k]);
+      subGrids += (count * (count - 1)) >> 1;
+    }
+  }
+
+  std::cout << subGrids << "\n";
 }
 
-} // namespace _PrimeMultiples
+} // namespace _BeautifulSubgrids
 
 int main()
 {
@@ -69,7 +70,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _BeautifulSubgrids::run();
 
 #ifdef CROSS
   std::fclose(stdin);

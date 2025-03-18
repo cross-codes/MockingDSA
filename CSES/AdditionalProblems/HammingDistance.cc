@@ -9,45 +9,35 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _HammingDistance
 {
 
 auto run() -> void
 {
-  u64 n;
-  std::cin >> n;
+  usize n, k;
+  std::cin >> n >> k;
 
-  usize k;
-  std::cin >> k;
+  std::unique_ptr<u32[]> nums(new u32[n]);
 
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
-
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  for (usize i = 0; i < n; i++)
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
-
-    for (usize j = 1ULL; j < k; j++)
-    {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
-    }
-
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
+    std::string bitString;
+    std::cin >> bitString;
+    nums[i] = static_cast<u32>(std::bitset<30>(bitString).to_ulong());
   }
 
-  std::cout << res << "\n";
+  int minHammingDistance{INT_MAX};
+  for (usize i = 0; i < n; i++)
+  {
+    for (usize j = i + 1; j < n; j++)
+      minHammingDistance =
+          std::min(minHammingDistance, std::popcount(nums[i] ^ nums[j]));
+  }
+
+  std::cout << minHammingDistance << "\n";
 }
 
-} // namespace _PrimeMultiples
+} // namespace _HammingDistance
 
 int main()
 {
@@ -69,7 +59,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _HammingDistance::run();
 
 #ifdef CROSS
   std::fclose(stdin);

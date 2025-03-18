@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 
-#pragma GCC target("popcnt")
-
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
@@ -9,45 +7,41 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _149A
 {
 
 auto run() -> void
 {
-  u64 n;
-  std::cin >> n;
-
-  usize k;
+  int k;
   std::cin >> k;
 
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
+  std::array<int, 12> growth{};
+  for (usize i = 0UZ; i < 12UZ; i++)
+    std::cin >> growth[i];
 
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  if (k == 0) [[unlikely]]
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
-
-    for (usize j = 1ULL; j < k; j++)
-    {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
-    }
-
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
+    std::println("0");
+    return;
   }
 
-  std::cout << res << "\n";
+  std::ranges::sort(growth);
+
+  int offset{};
+  for (ssize i = 11Z; i >= 0Z; i--)
+  {
+    offset += growth[i];
+    if (offset >= k)
+    {
+      std::println("{}", growth.size() - i);
+      return;
+    }
+  }
+
+  std::println("-1");
 }
 
-} // namespace _PrimeMultiples
+} // namespace _149A
 
 int main()
 {
@@ -69,7 +63,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _149A::run();
 
 #ifdef CROSS
   std::fclose(stdin);

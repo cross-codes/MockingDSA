@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 
-#pragma GCC target("popcnt")
-
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
@@ -9,45 +7,37 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _43A
 {
 
 auto run() -> void
 {
-  u64 n;
+  usize n;
   std::cin >> n;
 
-  usize k;
-  std::cin >> k;
-
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
-
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  int score1{1}, score2{};
+  std::string team1{}, team2{};
+  std::cin >> team1;
+  for (usize i = 1UZ; i < n; i++)
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
+    std::string team;
+    std::cin >> team;
 
-    for (usize j = 1ULL; j < k; j++)
+    if (team == team1)
+      score1++;
+    else if (team2.empty())
     {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
+      score2++;
+      team2 = team;
     }
-
-    if (__builtin_parity(i))
-      res += term;
     else
-      res -= term;
+      score2++;
   }
 
-  std::cout << res << "\n";
+  std::println("{}", score1 > score2 ? team1 : team2);
 }
 
-} // namespace _PrimeMultiples
+} // namespace _43A
 
 int main()
 {
@@ -69,7 +59,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _43A::run();
 
 #ifdef CROSS
   std::fclose(stdin);

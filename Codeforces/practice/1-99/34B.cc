@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 
-#pragma GCC target("popcnt")
-
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
@@ -9,45 +7,35 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _34B
 {
 
 auto run() -> void
 {
-  u64 n;
-  std::cin >> n;
+  usize n, m;
+  std::cin >> n >> m;
 
-  usize k;
-  std::cin >> k;
+  std::unique_ptr<int[]> a(new int[n]);
+  for (usize i = 0UZ; i < n; i++)
+    std::cin >> a[i];
 
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
+  std::sort(a.get(), a.get() + n);
 
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  usize amtToCarry{};
+  i64 maxMoney{};
+  for (usize i = 0UZ; i < n; i++)
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
+    if (amtToCarry == m || a[i] >= 0)
+      break;
 
-    for (usize j = 1ULL; j < k; j++)
-    {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
-    }
-
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
+    maxMoney += std::abs(a[i]);
+    amtToCarry++;
   }
 
-  std::cout << res << "\n";
+  std::println("{}", maxMoney);
 }
 
-} // namespace _PrimeMultiples
+} // namespace _34B
 
 int main()
 {
@@ -69,7 +57,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _34B::run();
 
 #ifdef CROSS
   std::fclose(stdin);

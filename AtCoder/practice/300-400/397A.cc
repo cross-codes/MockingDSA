@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 
-#pragma GCC target("popcnt")
-
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
@@ -9,45 +7,30 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _A
 {
 
 auto run() -> void
 {
-  u64 n;
-  std::cin >> n;
+  double x;
+  std::cin >> x;
 
-  usize k;
-  std::cin >> k;
-
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
-
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  if (x >= 38.0)
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
-
-    for (usize j = 1ULL; j < k; j++)
-    {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
-    }
-
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
+    std::cout << "1\n";
+    return;
   }
 
-  std::cout << res << "\n";
+  if (x >= 37.5)
+  {
+    std::cout << "2\n";
+    return;
+  }
+
+  std::cout << "3\n";
 }
 
-} // namespace _PrimeMultiples
+} // namespace _A
 
 int main()
 {
@@ -69,7 +52,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _A::run();
 
 #ifdef CROSS
   std::fclose(stdin);

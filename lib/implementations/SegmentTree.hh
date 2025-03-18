@@ -38,6 +38,28 @@ public:
     }
   }
 
+  template <std::size_t N>
+  SegmentTree(const std::array<T, N> &array, T defaultValue,
+              std::function<T(const T &, const T &)> function)
+      : offset_(1LL << Algebra::ceilLog2(N)),
+        tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
+        defaultValue_(defaultValue)
+  {
+    std::copy(array.begin(), array.end(), &tree_[offset_]);
+
+    std::size_t i = offset_;
+    while (i != 1)
+    {
+      std::size_t j = i;
+      while (j < i << 1)
+      {
+        tree_[j >> 1] = function_(tree_[j], tree_[j + 1]);
+        j += 2;
+      }
+      i >>= 1;
+    }
+  }
+
   void setAtIndex(std::size_t index, T value)
   {
     index += offset_;

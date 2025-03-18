@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 
-#pragma GCC target("popcnt")
-
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
@@ -9,45 +7,35 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _215A
 {
 
 auto run() -> void
 {
-  u64 n;
+  usize n, m;
   std::cin >> n;
 
-  usize k;
-  std::cin >> k;
+  std::unique_ptr<int[]> a(new int[n]);
+  for (usize i = 0UZ; i < n; i++)
+    std::cin >> a[i];
 
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
+  std::cin >> m;
+  std::unique_ptr<int[]> b(new int[m]);
+  for (usize i = 0UZ; i < m; i++)
+    std::cin >> b[i];
 
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
-  {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
-
-    for (usize j = 1ULL; j < k; j++)
+  std::map<int, int> gearRatio{};
+  for (usize i = 0UZ; i < n; i++)
+    for (usize j = 0UZ; j < m; j++)
     {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
+      if (b[j] % a[i] == 0)
+        gearRatio[b[j] / a[i]]++;
     }
 
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
-  }
-
-  std::cout << res << "\n";
+  std::println("{}", (--gearRatio.end())->second);
 }
 
-} // namespace _PrimeMultiples
+} // namespace _215A
 
 int main()
 {
@@ -69,7 +57,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _215A::run();
 
 #ifdef CROSS
   std::fclose(stdin);

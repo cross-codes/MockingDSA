@@ -23,7 +23,7 @@ private:
       static_cast<std::uint64_t>(1e9 + 7)};
 
   inline static const std::vector<std::vector<std::int64_t>>
-      millerRabinBaseSets = {
+      millerRabinBaseSets_ = {
           {291830, 126401071349994536LL},
           {885594168, 725270293939359937LL, 3569819667048198375LL},
           {273919523040LL, 15, 7363882082LL, 992620450144556LL},
@@ -34,14 +34,9 @@ private:
            43835965440333360LL, 761179012939631437LL, 1263739024124850375LL},
           {INT64_MAX, 2, 325, 9375, 28178, 450775, 9780504, 1795265022}};
 
-  constexpr inline static std::int64_t flip_(std::int64_t a)
-  {
-    return a ^ INT64_MIN;
-  }
-
   constexpr inline static int compare_(std::int64_t a, std::int64_t b)
   {
-    std::int64_t flippedA{flip_(a)}, flippedB{flip_(b)};
+    std::int64_t flippedA{flip(a)}, flippedB{flip(b)};
 
     if (flippedA < flippedB)
       return -1;
@@ -51,19 +46,22 @@ private:
       return 0;
   }
 
-  inline static std::int64_t smallMulMod_(std::int64_t a, std::int64_t b,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t smallMulMod_(std::int64_t a,
+                                                    std::int64_t b,
+                                                    std::int64_t m)
   {
     return (a * b) % m;
   }
 
-  inline static std::int64_t smallSquareMod_(std::int64_t a, std::int64_t m)
+  constexpr inline static std::int64_t smallSquareMod_(std::int64_t a,
+                                                       std::int64_t m)
   {
     return (a * a) % m;
   }
 
-  inline static std::int64_t smallPowMod_(std::int64_t a, std::int64_t p,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t smallPowMod_(std::int64_t a,
+                                                    std::int64_t p,
+                                                    std::int64_t m)
   {
     std::int64_t res{1LL};
     for (; p != 0; p >>= 1)
@@ -77,14 +75,15 @@ private:
     return res;
   }
 
-  inline static std::int64_t largePlusMod_(std::int64_t a, std::int64_t b,
-                                           std::int64_t m)
+  constexpr inline static std::int64_t largePlusMod_(std::int64_t a,
+                                                     std::int64_t b,
+                                                     std::int64_t m)
   {
     return (a >= m - b) ? (a + b - m) : (a + b);
   }
 
-  inline static std::int64_t largeTimes2ToThe32Mod_(std::int64_t a,
-                                                    std::int64_t m)
+  constexpr inline static std::int64_t largeTimes2ToThe32Mod_(std::int64_t a,
+                                                              std::int64_t m)
   {
     int remainingPowersOf2{32};
     do
@@ -96,8 +95,9 @@ private:
     return a;
   }
 
-  inline static std::int64_t largeMulMod_(std::int64_t a, std::int64_t b,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t largeMulMod_(std::int64_t a,
+                                                    std::int64_t b,
+                                                    std::int64_t m)
   {
     std::int64_t aHi{a >> 32};
     std::int64_t bHi{b >> 32};
@@ -114,7 +114,8 @@ private:
     return largePlusMod_(result, remainder(aLo * bLo, m), m);
   }
 
-  inline static std::int64_t largeSquareMod_(std::int64_t a, std::int64_t m)
+  constexpr inline static std::int64_t largeSquareMod_(std::int64_t a,
+                                                       std::int64_t m)
   {
     std::int64_t aHi{a >> 32};
     std::int64_t aLo{a & 0xFFFFFFFFLL};
@@ -127,8 +128,9 @@ private:
     return largePlusMod_(result, remainder(aLo * aLo, m), m);
   }
 
-  inline static std::int64_t largePowMod_(std::int64_t a, std::int64_t p,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t largePowMod_(std::int64_t a,
+                                                    std::int64_t p,
+                                                    std::int64_t m)
   {
     std::int64_t res{1LL};
     for (; p != 0; p >>= 1)
@@ -185,7 +187,7 @@ private:
     return true;
   }
 
-  constexpr inline static auto gcd_(int a, int b, int &x, int &y) -> int
+  constexpr inline static auto exGCD_(int a, int b, int &x, int &y) -> int
   {
     if (b == 0)
     {
@@ -195,13 +197,23 @@ private:
     }
 
     int x1, y1;
-    int d = gcd_(b, a % b, x1, y1);
+    int d = exGCD_(b, a % b, x1, y1);
     x     = y1;
     y     = x1 - y1 * (a / b);
     return d;
   }
 
 public:
+  constexpr inline static std::int64_t flip(std::int64_t a)
+  {
+    return a ^ INT64_MIN;
+  }
+
+  constexpr inline static int mulMod(int a, int b, int m)
+  {
+    return static_cast<int>(smallMulMod_(a, b, m));
+  }
+
   constexpr inline static int modPow(int n, int p, int m)
   {
     std::int64_t result{1LL};
@@ -296,19 +308,14 @@ public:
     if (divisor < 0)
     {
       if (compare_(dividend, divisor) < 0)
-      {
         return dividend;
-      }
       else
-      {
         return dividend - divisor;
-      }
     }
 
     if (dividend >= 0)
-    {
       return dividend % divisor;
-    }
+
     std::int64_t quotient{((dividend >> 1) / divisor) << 1};
     std::int64_t rem{dividend - quotient * divisor};
     return rem - (compare_(rem, divisor) >= 0 ? divisor : 0);
@@ -340,7 +347,7 @@ public:
     if (n < 17 * 17)
       return true;
 
-    for (std::vector<std::int64_t> baseSet : millerRabinBaseSets)
+    for (std::vector<std::int64_t> baseSet : millerRabinBaseSets_)
     {
       if (n <= baseSet[0])
       {
@@ -402,7 +409,7 @@ public:
   constexpr inline static auto solveDiophantine(int a, int b, int c, int &x,
                                                 int &y, int &g) -> bool
   {
-    g = gcd_(std::abs(a), std::abs(b), x, y);
+    g = exGCD_(std::abs(a), std::abs(b), x, y);
     if (c % g)
       return false;
 
