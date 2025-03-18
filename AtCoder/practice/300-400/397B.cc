@@ -1,7 +1,5 @@
 #include <bits/stdc++.h>
 
-#pragma GCC target("popcnt")
-
 using usize = std::size_t;
 using ssize = std::ptrdiff_t;
 using i64   = std::int64_t;
@@ -9,45 +7,47 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using u128  = unsigned __int128;
 
-namespace _PrimeMultiples
+namespace _B
 {
 
 auto run() -> void
 {
-  u64 n;
-  std::cin >> n;
+  std::string s;
+  std::cin >> s;
 
-  usize k;
-  std::cin >> k;
+  usize n = s.size();
+  usize toAdd{};
 
-  std::unique_ptr<u64[]> primes(new u64[k]);
-  for (usize i = 0; i < k; i++)
-    std::cin >> primes[i];
-
-  u64 res{};
-  for (u32 i = 1U; i < (1U << k); i++)
+  bool I = true;
+  for (usize i = 0; i < n; i++)
   {
-    u64 term{n}, pos{1LL};
-    if (pos & i)
-      term /= primes[0];
-
-    for (usize j = 1ULL; j < k; j++)
+    if (I)
     {
-      pos <<= 1;
-      if (pos & i)
-        term /= primes[j];
+      if (s[i] != 'i')
+      {
+        toAdd++;
+        I = !I;
+      }
+    }
+    else
+    {
+      if (s[i] != 'o')
+      {
+        toAdd++;
+        I = !I;
+      }
     }
 
-    if (__builtin_parity(i))
-      res += term;
-    else
-      res -= term;
+    I = !I;
   }
 
-  std::cout << res << "\n";
+  if ((toAdd + n) & 1)
+    toAdd++;
+
+  std::cout << toAdd << "\n";
 }
 
-} // namespace _PrimeMultiples
+} // namespace _B
 
 int main()
 {
@@ -69,7 +69,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _PrimeMultiples::run();
+    _B::run();
 
 #ifdef CROSS
   std::fclose(stdin);
