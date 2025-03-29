@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -7,17 +8,16 @@
 struct Array
 {
   /*
-   * Author: github.com/cross-codes
    * TODO: Make implementations for std::array
    */
 
 private:
   Array();
-  inline static Random &random_ = Random::getInstance();
+  inline static Random &random_ = Random::get_instance();
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexPartition_(std::unique_ptr<T[]> &A, std::ptrdiff_t p,
+  inline static auto index_partition_(std::unique_ptr<T[]> &A, std::ptrdiff_t p,
                                      std::ptrdiff_t r) -> std::ptrdiff_t
   {
     T x              = A[r];
@@ -38,7 +38,7 @@ private:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexPartition_(std::vector<T> &A, std::ptrdiff_t p,
+  inline static auto index_partition_(std::vector<T> &A, std::ptrdiff_t p,
                                      std::ptrdiff_t r) -> std::ptrdiff_t
   {
     T x              = A[r];
@@ -59,24 +59,24 @@ private:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  static auto randomizedParition_(std::unique_ptr<T[]> &A, std::ptrdiff_t p,
+  static auto randomized_partition_(std::unique_ptr<T[]> &A, std::ptrdiff_t p,
                                   std::ptrdiff_t r) -> std::ptrdiff_t
   {
     std::ptrdiff_t i =
-        static_cast<std::ptrdiff_t>(random_.nextUniformInteger<int>(
+        static_cast<std::ptrdiff_t>(random_.next_uniform_integer<int>(
             static_cast<int>(p), static_cast<int>(r)));
     std::swap(A[i], A[r]);
 
-    return indexPartition_(A, p, r);
+    return index_partition_(A, p, r);
   }
 
   template <typename T>
     requires std::three_way_comparable<T>
-  static auto randomizedParition_(std::vector<T> &A, std::ptrdiff_t p,
+  static auto randomized_parition_(std::vector<T> &A, std::ptrdiff_t p,
                                   std::ptrdiff_t r) -> std::ptrdiff_t
   {
     std::ptrdiff_t i =
-        static_cast<std::ptrdiff_t>(random_.nextUniformInteger<int>(
+        static_cast<std::ptrdiff_t>(random_.next_uniform_integer<int>(
             static_cast<int>(p), static_cast<int>(r)));
     std::swap(A[i], A[r]);
 
@@ -89,7 +89,7 @@ private:
   }
 
   template <typename T>
-  inline static auto lomutoPartition_(std::unique_ptr<T[]> &nums,
+  inline static auto lomuto_partition_(std::unique_ptr<T[]> &nums,
                                       std::ptrdiff_t p, std::ptrdiff_t r)
       -> std::ptrdiff_t
   {
@@ -123,7 +123,7 @@ private:
   }
 
   template <typename T>
-  inline static auto lomutoPartition_(std::vector<T> &nums, std::ptrdiff_t p,
+  inline static auto lomuto_partition_(std::vector<T> &nums, std::ptrdiff_t p,
                                       std::ptrdiff_t r) -> std::ptrdiff_t
   {
     std::ptrdiff_t mid = (p + r) >> 1;
@@ -156,7 +156,7 @@ private:
   }
 
 public:
-  inline static void integerBucketSort(std::unique_ptr<int[]> &array,
+  inline static void integer_bucket_sort(std::unique_ptr<int[]> &array,
                                        std::size_t length)
   {
     int bits  = 4;
@@ -171,21 +171,21 @@ public:
       buckets[index][size[index]++] = e;
     }
 
-    std::vector<std::vector<int>> newBuckets(radix, std::vector<int>(length));
+    std::vector<std::vector<int>> new_buckets(radix, std::vector<int>(length));
     for (unsigned int i = bits; i < sizeof(int) * 8; i += bits)
     {
-      std::vector<int> newSize(radix);
+      std::vector<int> new_size(radix);
       for (int j = 0; j < radix; j++)
       {
         for (int k = 0; k < size[j]; k++)
         {
           int index =
               (static_cast<unsigned int>(buckets[j][k]) >> i) & (radix - 1);
-          newBuckets[index][newSize[index]++] = buckets[j][k];
+          new_buckets[index][new_size[index]++] = buckets[j][k];
         }
       }
-      std::swap(buckets, newBuckets);
-      size = newSize;
+      std::swap(buckets, new_buckets);
+      size = new_size;
     }
 
     {
@@ -203,7 +203,7 @@ public:
     }
   }
 
-  inline static void integerBucketSort(std::vector<int> &vector)
+  inline static void integer_bucket_sort(std::vector<int> &vector)
   {
     int bits  = 4;
     int radix = 1 << bits;
@@ -217,22 +217,22 @@ public:
       buckets[index][size[index]++] = e;
     }
 
-    std::vector<std::vector<int>> newBuckets(radix,
+    std::vector<std::vector<int>> new_buckets(radix,
                                              std::vector<int>(vector.size()));
     for (unsigned int i = bits; i < sizeof(int) * 8; i += bits)
     {
-      std::vector<int> newSize(radix);
+      std::vector<int> new_size(radix);
       for (int j = 0; j < radix; j++)
       {
         for (int k = 0; k < size[j]; k++)
         {
           int index =
               (static_cast<unsigned int>(buckets[j][k]) >> i) & (radix - 1);
-          newBuckets[index][newSize[index]++] = buckets[j][k];
+          new_buckets[index][new_size[index]++] = buckets[j][k];
         }
       }
-      std::swap(buckets, newBuckets);
-      size = newSize;
+      std::swap(buckets, new_buckets);
+      size = new_size;
     }
 
     {
@@ -252,32 +252,32 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  static void TRERandomizedQuickSort(std::unique_ptr<T[]> &A,
+  static void randomized_quick_sort(std::unique_ptr<T[]> &A,
                                      std::ptrdiff_t start,
                                      std::ptrdiff_t pastEnd)
   {
     while (start < pastEnd - 1)
     {
-      std::ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
-      TRERandomizedQuickSort(A, start, q);
+      std::ptrdiff_t q = randomized_partition_(A, start, pastEnd - 1);
+      randomized_quick_sort(A, start, q);
       start = q + 1;
     }
   }
 
   template <typename T>
     requires std::three_way_comparable<T>
-  static void TRERandomizedQuickSort(std::vector<T> &A, std::ptrdiff_t start,
+  static void randomized_quick_sort(std::vector<T> &A, std::ptrdiff_t start,
                                      std::ptrdiff_t pastEnd)
   {
     while (start < pastEnd - 1)
     {
-      std::ptrdiff_t q = randomizedParition_(A, start, pastEnd - 1);
-      TRERandomizedQuickSort(A, start, q);
+      std::ptrdiff_t q = randomized_partition_(A, start, pastEnd - 1);
+      randomized_quick_sort(A, start, q);
       start = q + 1;
     }
   }
 
-  inline static auto stableCountingSort(std::unique_ptr<std::uint32_t[]> &A,
+  inline static auto stable_counting_sort(std::unique_ptr<std::uint32_t[]> &A,
                                         std::size_t n, std::uint32_t max)
       -> std::unique_ptr<std::uint32_t[]>
   {
@@ -300,7 +300,7 @@ public:
     return B;
   }
 
-  inline static auto stableCountingSort(std::vector<std::uint32_t> &A,
+  inline static auto stable_counting_sort(std::vector<std::uint32_t> &A,
                                         std::size_t n, std::uint32_t max)
       -> std::vector<std::uint32_t>
   {
@@ -323,7 +323,7 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexBinarySearch(const std::unique_ptr<T[]> &a,
+  inline static auto index_binary_search(const std::unique_ptr<T[]> &a,
                                        std::ptrdiff_t start,
                                        std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t
@@ -345,7 +345,7 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexBinarySearch(const std::vector<T> &a,
+  inline static auto index_binary_search(const std::vector<T> &a,
                                        std::ptrdiff_t start,
                                        std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t
@@ -367,7 +367,7 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexTernarySearch(const std::unique_ptr<T[]> &a,
+  inline static auto index_ternary_search(const std::unique_ptr<T[]> &a,
                                         std::ptrdiff_t start,
                                         std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t
@@ -403,7 +403,7 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto indexTernarySearch(const std::vector<T> &a,
+  inline static auto index_ternary_search(const std::vector<T> &a,
                                         std::ptrdiff_t start,
                                         std::ptrdiff_t pastEnd, const T &key)
       -> std::ptrdiff_t
@@ -439,7 +439,7 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto inverseOrderStatistic(std::unique_ptr<T[]> &A,
+  inline static auto inverse_order_statistic(std::unique_ptr<T[]> &A,
                                            std::ptrdiff_t start,
                                            std::ptrdiff_t pastEnd,
                                            std::size_t order) -> T
@@ -455,7 +455,7 @@ public:
         return A[order - 1];
       }
 
-      std::size_t j = lomutoPartition_(A, left, right);
+      std::size_t j = lomuto_partition_(A, left, right);
 
       if (j >= order - 1)
         right = j - 1;
@@ -466,7 +466,7 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto inverseOrderStatistic(std::vector<T> &A,
+  inline static auto inverse_order_statistic(std::vector<T> &A,
                                            std::ptrdiff_t start,
                                            std::ptrdiff_t pastEnd,
                                            std::size_t order) -> T
@@ -482,7 +482,7 @@ public:
         return A[order - 1];
       }
 
-      std::size_t j = lomutoPartition_(A, left, right);
+      std::size_t j = lomuto_partition_(A, left, right);
 
       if (j >= order - 1)
         right = j - 1;
@@ -493,22 +493,22 @@ public:
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto orderStatistic(std::unique_ptr<T[]> &A,
+  inline static auto order_statistic(std::unique_ptr<T[]> &A,
                                     std::ptrdiff_t start,
                                     std::ptrdiff_t pastEnd, std::size_t order)
       -> T
   {
-    return inverseOrderStatistic(A, start, pastEnd,
+    return inverse_order_statistic(A, start, pastEnd,
                                  pastEnd - start - order + 1);
   }
 
   template <typename T>
     requires std::three_way_comparable<T>
-  inline static auto orderStatistic(std::vector<T> &A, std::ptrdiff_t start,
+  inline static auto order_statistic(std::vector<T> &A, std::ptrdiff_t start,
                                     std::ptrdiff_t pastEnd, std::size_t order)
       -> T
   {
-    return inverseOrderStatistic(A, start, pastEnd,
+    return inverse_order_statistic(A, start, pastEnd,
                                  pastEnd - start - order + 1);
   }
 };

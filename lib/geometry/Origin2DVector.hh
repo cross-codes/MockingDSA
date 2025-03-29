@@ -5,10 +5,6 @@
 
 struct Origin2DVector
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 public:
   std::int64_t x;
   std::int64_t y;
@@ -42,7 +38,7 @@ public:
     return (this->x) * vector.y - (this->y) * vector.x;
   }
 
-  inline Origin2DVector perpendicularVector() const
+  inline Origin2DVector perpendicular_vector() const
   {
     return Origin2DVector(-(this->y), this->x);
   }
@@ -56,7 +52,7 @@ public:
                            static_cast<double>(this->x));
   }
 
-  inline double angleBetween(const Origin2DVector &vector) const
+  inline double angle_between(const Origin2DVector &vector) const
   {
     std::int64_t dotProduct = (this->dot(vector));
     double normProduct      = this->norm() * vector.norm();

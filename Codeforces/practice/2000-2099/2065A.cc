@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 
-#ifdef CROSS
+#ifdef ANTUMBRA
 #include "extras/Debug.hh"
 #else
 #define dbg(...) 249
@@ -30,7 +30,7 @@ auto run() -> void {
 } // namespace _2065A
 
 int main() {
-#ifdef CROSS
+#ifdef ANTUMBRA
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr) {
     std::println(stderr, "Input file not found");
@@ -46,7 +46,7 @@ int main() {
   while (t-- > 0)
     _2065A::run();
 
-#ifdef CROSS
+#ifdef ANTUMBRA
   std::fclose(stdin);
 #endif
 

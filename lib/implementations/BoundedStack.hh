@@ -5,10 +5,6 @@
 
 template <typename E> class BoundedStack
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   std::int64_t STACK_SIZE_;
   std::ptrdiff_t pos_ = -1;

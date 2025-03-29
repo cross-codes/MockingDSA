@@ -45,7 +45,7 @@ auto run() -> void
 
 int main()
 {
-#ifdef CROSS
+#ifdef ANTUMBRA
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr)
   {
@@ -65,7 +65,7 @@ int main()
   while (t-- > 0)
     _149A::run();
 
-#ifdef CROSS
+#ifdef ANTUMBRA
   std::fclose(stdin);
 #endif
 

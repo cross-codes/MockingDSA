@@ -4,27 +4,27 @@
 template <typename T> struct IndexCompress
 {
 private:
-  std::vector<T> compressedValues;
+  std::vector<T> compressed_values;
 
 public:
   explicit IndexCompress(std::vector<T> &&vec)
-      : compressedValues(std::move(vec))
+      : compressed_values(std::move(vec))
   {
-    std::ranges::sort(compressedValues);
-    compressedValues.erase(
-        std::unique(compressedValues.begin(), compressedValues.end()),
-        compressedValues.end());
+    std::ranges::sort(compressed_values);
+    compressed_values.erase(
+        std::unique(compressed_values.begin(), compressed_values.end()),
+        compressed_values.end());
   }
 
-  std::size_t getCompressedIndex(T value)
+  std::size_t get_comp_index(T value)
   {
-    return std::lower_bound(compressedValues.begin(), compressedValues.end(),
+    return std::lower_bound(compressed_values.begin(), compressed_values.end(),
                             value) -
-           compressedValues.begin();
+           compressed_values.begin();
   }
 
-  std::size_t getMaxRange()
+  std::size_t get_max_range()
   {
-    return compressedValues.size() - 1;
+    return compressed_values.size() - 1;
   }
 };

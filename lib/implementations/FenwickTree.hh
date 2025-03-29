@@ -2,10 +2,6 @@
 
 struct FenwickTree
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   std::size_t N_;
   std::unique_ptr<std::int64_t[]> tree_;
@@ -19,7 +15,7 @@ public:
   {
   }
 
-  void advanceValue(std::size_t k, std::int64_t x)
+  void advance_value(std::size_t k, std::int64_t x)
   {
     while (k <= N_)
     {
@@ -28,7 +24,7 @@ public:
     }
   }
 
-  std::int64_t prefixSumAt(std::size_t k)
+  std::int64_t prefix_sum_at(std::size_t k)
   {
     std::int64_t s = 0LL;
     while (k >= 1)

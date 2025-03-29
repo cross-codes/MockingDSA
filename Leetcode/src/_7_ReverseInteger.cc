@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <charconv>
 
+#pragma GCC optimise("tune=native")
+
 class Solution
 {
 public:
@@ -20,6 +22,7 @@ public:
       return result;
     else if (rec == std::errc::result_out_of_range)
       return 0;
+
 
     __builtin_unreachable();
   }

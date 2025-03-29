@@ -4,10 +4,6 @@
 
 template <typename E> struct BoundedQueue
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   std::int64_t QUEUE_SIZE_;
   std::ptrdiff_t head_, tail_;

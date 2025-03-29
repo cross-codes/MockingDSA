@@ -5,10 +5,6 @@
 
 template <typename T> struct IdempotentSparseTable
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   std::function<T(const T &, const T &)> function_;
   std::vector<std::vector<T>> table;
@@ -28,7 +24,7 @@ public:
         table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
   }
 
-  T queryRange(std::size_t fromIdx, std::size_t pastEndIdx)
+  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
   {
     std::size_t log2 = Algebra::log2(pastEndIdx - fromIdx);
     return function_(table[log2][fromIdx],

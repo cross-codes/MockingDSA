@@ -4,12 +4,13 @@
 #include <memory>
 #include <vector>
 
+/*
+TL/ML warning
+Statistic: Highest tested on N = 2 x 10⁷ occupies nearly 200MB, and took 500 ms
+*/
+
 struct FixedDensePrime
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   constexpr inline static int N = 1000001;
   std::array<int, N> minima_, powers_;
@@ -70,12 +71,12 @@ public:
     }
   }
 
-  auto isSquareFree(int n) -> bool
+  auto is_square_free(int n) -> bool
   {
     return squareFree_[n];
   }
 
-  auto getParity(int n) -> bool
+  auto get_parity(int n) -> bool
   {
     return parity_[n];
   }
@@ -98,7 +99,7 @@ public:
     return result;
   }
 
-  void forPrimeFactors(int n, std::function<void(const int &)> consume)
+  void for_prime_factors(int n, std::function<void(const int &)> consume)
   {
     while (minima_[n] != 0)
     {
@@ -113,7 +114,7 @@ public:
       consume(n);
   }
 
-  void forPowers(int n, std::function<void(const int &)> consume)
+  void for_powers(int n, std::function<void(const int &)> consume)
   {
     while (minima_[n] != 0)
     {
@@ -128,12 +129,12 @@ public:
       consume(1);
   }
 
-  void forPrimeFactorsAndPowers(
-      int n, std::function<void(const int &, const int &)> biConsume)
+  void for_prime_factors_and_powers(
+      int n, std::function<void(const int &, const int &)> bi_consume)
   {
     while (minima_[n] != 0)
     {
-      biConsume(minima_[n], powers_[n]);
+      bi_consume(minima_[n], powers_[n]);
       int factor{1};
       for (int i = 0; i < powers_[n]; i++)
         factor *= minima_[n];
@@ -141,10 +142,10 @@ public:
     }
 
     if (n != 1)
-      biConsume(n, 1);
+      bi_consume(n, 1);
   }
 
-  void forFactors(int n, bool include1, bool includeN,
+  void for_factors(int n, bool include1, bool includeN,
                   std::function<void(const int &)> consume)
   {
     if (n == 1)
@@ -159,7 +160,7 @@ public:
 
       std::vector<int> primeFactors{}, powers{};
 
-      forPrimeFactorsAndPowers(n, [&primeFactors, &powers](int a, int b) {
+      for_prime_factors_and_powers(n, [&primeFactors, &powers](int a, int b) {
         primeFactors.push_back(a), powers.push_back(b);
       });
 

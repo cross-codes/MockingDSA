@@ -8,10 +8,6 @@
 
 struct Algebra
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   Algebra();
   constexpr inline static double EPSILON_{1E-6};
@@ -23,7 +19,7 @@ private:
       static_cast<std::uint64_t>(1e9 + 7)};
 
   inline static const std::vector<std::vector<std::int64_t>>
-      millerRabinBaseSets_ = {
+      miller_rabin_base_sets_ = {
           {291830, 126401071349994536LL},
           {885594168, 725270293939359937LL, 3569819667048198375LL},
           {273919523040LL, 15, 7363882082LL, 992620450144556LL},
@@ -46,20 +42,20 @@ private:
       return 0;
   }
 
-  constexpr inline static std::int64_t smallMulMod_(std::int64_t a,
+  constexpr inline static std::int64_t small_mul_mod(std::int64_t a,
                                                     std::int64_t b,
                                                     std::int64_t m)
   {
     return (a * b) % m;
   }
 
-  constexpr inline static std::int64_t smallSquareMod_(std::int64_t a,
+  constexpr inline static std::int64_t small_square_mod_(std::int64_t a,
                                                        std::int64_t m)
   {
     return (a * a) % m;
   }
 
-  constexpr inline static std::int64_t smallPowMod_(std::int64_t a,
+  constexpr inline static std::int64_t small_pow_mod_(std::int64_t a,
                                                     std::int64_t p,
                                                     std::int64_t m)
   {
@@ -68,21 +64,21 @@ private:
     {
       if ((p & 1) != 0)
       {
-        res = smallMulMod_(res, a, m);
+        res = small_mul_mod(res, a, m);
       }
-      a = smallSquareMod_(a, m);
+      a = small_square_mod_(a, m);
     }
     return res;
   }
 
-  constexpr inline static std::int64_t largePlusMod_(std::int64_t a,
+  constexpr inline static std::int64_t large_plus_mod_(std::int64_t a,
                                                      std::int64_t b,
                                                      std::int64_t m)
   {
     return (a >= m - b) ? (a + b - m) : (a + b);
   }
 
-  constexpr inline static std::int64_t largeTimes2ToThe32Mod_(std::int64_t a,
+  constexpr inline static std::int64_t large_times_2_to_the_32_mod_(std::int64_t a,
                                                               std::int64_t m)
   {
     int remainingPowersOf2{32};
@@ -95,7 +91,7 @@ private:
     return a;
   }
 
-  constexpr inline static std::int64_t largeMulMod_(std::int64_t a,
+  constexpr inline static std::int64_t large_mul_mod_(std::int64_t a,
                                                     std::int64_t b,
                                                     std::int64_t m)
   {
@@ -103,32 +99,32 @@ private:
     std::int64_t bHi{b >> 32};
     std::int64_t aLo{a & 0xFFFFFFFFLL};
     std::int64_t bLo{b & 0xFFFFFFFFLL};
-    std::int64_t result{largeTimes2ToThe32Mod_(aHi * bHi, m)};
+    std::int64_t result{large_times_2_to_the_32_mod_(aHi * bHi, m)};
     result += aHi * bLo;
     if (result < 0)
     {
       result = remainder(result, m);
     }
     result += aLo * bHi;
-    result = largeTimes2ToThe32Mod_(result, m);
-    return largePlusMod_(result, remainder(aLo * bLo, m), m);
+    result = large_times_2_to_the_32_mod_(result, m);
+    return large_plus_mod_(result, remainder(aLo * bLo, m), m);
   }
 
-  constexpr inline static std::int64_t largeSquareMod_(std::int64_t a,
+  constexpr inline static std::int64_t large_square_mod_(std::int64_t a,
                                                        std::int64_t m)
   {
     std::int64_t aHi{a >> 32};
     std::int64_t aLo{a & 0xFFFFFFFFLL};
-    std::int64_t result{largeTimes2ToThe32Mod_(aHi * aHi, m)};
+    std::int64_t result{large_times_2_to_the_32_mod_(aHi * aHi, m)};
     std::int64_t hiLo{aHi * aLo * 2};
     if (hiLo < 0)
       hiLo = remainder(hiLo, m);
     result += hiLo;
-    result = largeTimes2ToThe32Mod_(result, m);
-    return largePlusMod_(result, remainder(aLo * aLo, m), m);
+    result = large_times_2_to_the_32_mod_(result, m);
+    return large_plus_mod_(result, remainder(aLo * aLo, m), m);
   }
 
-  constexpr inline static std::int64_t largePowMod_(std::int64_t a,
+  constexpr inline static std::int64_t large_pow_mod_(std::int64_t a,
                                                     std::int64_t p,
                                                     std::int64_t m)
   {
@@ -136,14 +132,14 @@ private:
     for (; p != 0; p >>= 1)
     {
       if (p & 1)
-        res = largeMulMod_(res, a, m);
-      a = largeSquareMod_(a, m);
+        res = large_mul_mod_(res, a, m);
+      a = large_square_mod_(a, m);
     }
 
     return res;
   }
 
-  inline static bool testWitnessSmall_(std::int64_t base, std::int64_t n)
+  inline static bool test_witness_small_(std::int64_t base, std::int64_t n)
   {
     int r{__builtin_ctzll(n - 1)};
     std::int64_t d{(n - 1) >> r};
@@ -151,7 +147,7 @@ private:
     if (base == 0)
       return true;
 
-    std::int64_t a = smallPowMod_(base, d, n);
+    std::int64_t a = small_pow_mod_(base, d, n);
     if (a == 1)
       return true;
     int j{};
@@ -159,13 +155,13 @@ private:
     {
       if (++j == r)
         return false;
-      a = smallSquareMod_(a, n);
+      a = small_square_mod_(a, n);
     }
 
     return true;
   }
 
-  inline static bool testWitnessLarge_(std::int64_t base, std::int64_t n)
+  inline static bool test_witness_large_(std::int64_t base, std::int64_t n)
   {
     int r{__builtin_ctzll(n - 1)};
     std::int64_t d{(n - 1) >> r};
@@ -173,7 +169,7 @@ private:
     if (base == 0)
       return true;
 
-    std::int64_t a = largePowMod_(base, d, n);
+    std::int64_t a = large_pow_mod_(base, d, n);
     if (a == 1)
       return true;
     int j{};
@@ -181,13 +177,13 @@ private:
     {
       if (++j == r)
         return false;
-      a = largeSquareMod_(a, n);
+      a = large_square_mod_(a, n);
     }
 
     return true;
   }
 
-  constexpr inline static auto exGCD_(int a, int b, int &x, int &y) -> int
+  constexpr inline static auto ex_GCD_(int a, int b, int &x, int &y) -> int
   {
     if (b == 0)
     {
@@ -197,7 +193,7 @@ private:
     }
 
     int x1, y1;
-    int d = exGCD_(b, a % b, x1, y1);
+    int d = ex_GCD_(b, a % b, x1, y1);
     x     = y1;
     y     = x1 - y1 * (a / b);
     return d;
@@ -209,12 +205,12 @@ public:
     return a ^ INT64_MIN;
   }
 
-  constexpr inline static int mulMod(int a, int b, int m)
+  constexpr inline static int mul_mod(int a, int b, int m)
   {
-    return static_cast<int>(smallMulMod_(a, b, m));
+    return static_cast<int>(small_mul_mod(a, b, m));
   }
 
-  constexpr inline static int modPow(int n, int p, int m)
+  constexpr inline static int mod_pow(int n, int p, int m)
   {
     std::int64_t result{1LL};
     for (std::int64_t i = 1, j = n; i <= p; i <<= 1, j = j * j % m)
@@ -226,9 +222,9 @@ public:
     return static_cast<int>(result);
   }
 
-  constexpr inline static int coprimeModInv(int n, int m)
+  constexpr inline static int coprime_mod_inv(int n, int m)
   {
-    return modPow(n, m - 2, m);
+    return mod_pow(n, m - 2, m);
   }
 
   inline static int log2(std::int64_t n)
@@ -236,7 +232,7 @@ public:
     return (n == 0) ? 0 : 63 - __builtin_clzll(n);
   }
 
-  constexpr inline static int ceilLog2(std::int64_t n)
+  constexpr inline static int ceil_log2(std::int64_t n)
   {
     return (n == 1) ? 1 : 64 - __builtin_clzll(n - 1);
   }
@@ -251,7 +247,7 @@ public:
     return std::abs(a) < EPSILON_;
   }
 
-  static std::unique_ptr<double[]> solveLinear(double a, double b, double c,
+  static std::unique_ptr<double[]> solve_linear(double a, double b, double c,
                                                double d, double e, double f)
   {
     double D{a * e - b * d};
@@ -273,7 +269,7 @@ public:
     }
   }
 
-  inline static std::unique_ptr<double[]> solveQuadratic(double a, double b,
+  inline static std::unique_ptr<double[]> solve_quadratic(double a, double b,
                                                          double c)
   {
     double delta{b * b - 4 * a * c};
@@ -347,7 +343,7 @@ public:
     if (n < 17 * 17)
       return true;
 
-    for (std::vector<std::int64_t> baseSet : millerRabinBaseSets_)
+    for (std::vector<std::int64_t> baseSet : miller_rabin_base_sets_)
     {
       if (n <= baseSet[0])
       {
@@ -356,7 +352,7 @@ public:
         {
           for (std::size_t i = 1; i < baseSet.size(); i++)
           {
-            if (!testWitnessSmall_(baseSet[i], n))
+            if (!test_witness_small_(baseSet[i], n))
               return false;
           }
         }
@@ -364,7 +360,7 @@ public:
         {
           for (std::size_t i = 1; i < baseSet.size(); i++)
           {
-            if (!testWitnessLarge_(baseSet[i], n))
+            if (!test_witness_large_(baseSet[i], n))
               return false;
           }
         }
@@ -376,7 +372,7 @@ public:
     throw new std::runtime_error("Assertion failed");
   }
 
-  constexpr inline static std::uint64_t fibonnaciNumber(
+  constexpr inline static std::uint64_t fibonnaci_number(
       std::uint64_t n, std::uint64_t modulus = MOD)
   {
     if (n == 1)
@@ -406,10 +402,10 @@ public:
     return b % modulus;
   }
 
-  constexpr inline static auto solveDiophantine(int a, int b, int c, int &x,
+  constexpr inline static auto solve_diophantine(int a, int b, int c, int &x,
                                                 int &y, int &g) -> bool
   {
-    g = exGCD_(std::abs(a), std::abs(b), x, y);
+    g = ex_GCD_(std::abs(a), std::abs(b), x, y);
     if (c % g)
       return false;
 

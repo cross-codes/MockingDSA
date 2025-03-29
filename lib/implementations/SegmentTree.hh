@@ -5,10 +5,6 @@
 
 template <typename T> struct SegmentTree
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   std::size_t offset_;
   std::unique_ptr<T[]> tree_;
@@ -19,7 +15,7 @@ private:
 public:
   SegmentTree(const std::unique_ptr<T[]> &array, std::size_t n, T defaultValue,
               std::function<T(const T &, const T &)> function)
-      : offset_(1LL << Algebra::ceilLog2(n)),
+      : offset_(1LL << Algebra::ceil_log2(n)),
         tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
         defaultValue_(defaultValue)
   {
@@ -41,7 +37,7 @@ public:
   template <std::size_t N>
   SegmentTree(const std::array<T, N> &array, T defaultValue,
               std::function<T(const T &, const T &)> function)
-      : offset_(1LL << Algebra::ceilLog2(N)),
+      : offset_(1LL << Algebra::ceil_log2(N)),
         tree_(std::make_unique<T[]>(offset_ << 1)), function_(function),
         defaultValue_(defaultValue)
   {
@@ -60,7 +56,7 @@ public:
     }
   }
 
-  void setAtIndex(std::size_t index, T value)
+  void set_at_index(std::size_t index, T value)
   {
     index += offset_;
     tree_[index] = value;
@@ -72,7 +68,7 @@ public:
     }
   }
 
-  T queryRange(std::size_t fromIdx, std::size_t pastEndIdx)
+  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
   {
     fromIdx += offset_, pastEndIdx += offset_;
 

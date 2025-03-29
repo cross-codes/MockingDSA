@@ -11,7 +11,7 @@ private:
   std::size_t expectedLowSize_, expectedHighSize_;
   std::multiset<int> low_, high_;
 
-  void balanceSets_()
+  void balance_sets_()
   {
     while (low_.size() < expectedLowSize_)
     {
@@ -46,10 +46,10 @@ public:
     for (std::size_t i = 0; i < windowSize_; i++)
       low_.insert(array_[i]);
 
-    balanceSets_();
+    balance_sets_();
   }
 
-  int nextMedian()
+  int next_median()
   {
     if (currentEnd_ == 0) [[unlikely]]
     {
@@ -70,7 +70,7 @@ public:
     else
       low_.insert(e);
 
-    balanceSets_();
+    balance_sets_();
     return *low_.rbegin();
   }
 };
