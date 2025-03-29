@@ -9,7 +9,6 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
-#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -268,13 +267,6 @@ private:
   std::size_t idx = 0, size = 0;
   int const fd;
 
-  InputReader &operator>>(char &c) noexcept
-  {
-    flush();
-    c = buffer[idx++];
-    return *this;
-  }
-
 public:
   [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
   {
@@ -297,6 +289,13 @@ public:
       size = s;
       idx  = 0;
     }
+  }
+
+  InputReader &operator>>(char &c) noexcept
+  {
+    flush();
+    c = buffer[idx++];
+    return *this;
   }
 
   InputReader &operator>>(std::string &x) noexcept
@@ -342,28 +341,34 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _1917B
+namespace _399A
 {
+
+auto hamming_distance(const std::string &a, const std::string &b) -> int
+{
+  size_t minLength{std::min(a.size(), b.size())};
+  int diff{};
+  for (size_t i = 0; i < minLength; i++)
+  {
+    if (a[i] != b[i])
+      diff++;
+  }
+
+  return diff;
+}
 
 auto run() -> void
 {
   int n;
   console_in >> n;
 
-  int64_t res{};
-  std::unordered_set<char> encountered{};
-  std::string row;
-  console_in >> row;
-  for (int i = 0; i < n; i++)
-  {
-    encountered.insert(row[i]);
-    res += encountered.size();
-  }
+  std::string s, t;
+  console_in >> s >> t;
 
-  console_out << res << "\n";
+  console_out << hamming_distance(s, t) << "\n";
 }
 
-} // namespace _1917B
+} // namespace _399A
 
 int main()
 {
@@ -377,10 +382,9 @@ int main()
 #endif
 
   int t{1};
-  console_in >> t;
 
   while (t-- > 0)
-    _1917B::run();
+    _399A::run();
 
   console_out.flush();
 
