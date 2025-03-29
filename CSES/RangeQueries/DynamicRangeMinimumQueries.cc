@@ -375,7 +375,7 @@ auto run() -> void {
 }  // namespace _DynamicRangeMinimumQueries
 
 int main() {
-#ifdef CROSS
+#ifdef ANTUMBRA
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr) {
 #if __cplusplus >= 202302L
@@ -393,7 +393,7 @@ int main() {
 
   while (t-- > 0) _DynamicRangeMinimumQueries::run();
 
-#ifdef CROSS
+#ifdef ANTUMBRA
   std::fclose(stdin);
 #endif
 

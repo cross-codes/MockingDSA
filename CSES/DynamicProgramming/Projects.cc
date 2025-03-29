@@ -50,7 +50,7 @@ auto run() -> void {
 }  // namespace _Projects
 
 int main() {
-#ifdef CROSS
+#ifdef ANTUMBRA
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr) {
 #if __cplusplus >= 202302L
@@ -68,7 +68,7 @@ int main() {
 
   while (t-- > 0) _Projects::run();
 
-#ifdef CROSS
+#ifdef ANTUMBRA
   std::fclose(stdin);
 #endif
 

@@ -1,5 +1,5 @@
 -xc++
--std=c++23
+-std=c++20
 -O2
 -I/home/cross/MockingDSA/Leetcode/include
 -funroll-loops
@@ -11,12 +11,14 @@
 -Wshadow
 -Wconversion
 -Wfloat-equal
--Wno-unused-const-variable
+-Wno-unused-const-variable=2
+-Wno-duplicate-decl-specifier
 -Wno-sign-conversion
 -Wshift-overflow
+-Wno-vla-cxx-extension
 -Wcast-qual
 -Wcast-align
--DCROSS
+-DANTUMBRA
 -D_GLIBCXX_DEBUG
 -D_GLIBCXX_DEBUG_PEDANTIC
 -D_GLIBCXX_SANITIZE_VECTOR

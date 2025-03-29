@@ -331,7 +331,7 @@ interface Debug {
 
   public static boolean getLocal() {
     try {
-      return System.getProperty("CROSS_DEBUG") != null;
+      return System.getProperty("ANTUMBRA_DEBUG") != null;
     } catch (SecurityException ex) {
       return false;
     }

@@ -51,7 +51,7 @@ inline auto modPow(u64 base, u64 exponent, const u64 &modulus = MOD) -> u64 {
 }  // namespace _BinomialCoefficients
 
 int main() {
-#ifdef CROSS
+#ifdef ANTUMBRA
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr) {
 #if __cplusplus >= 202302L
@@ -69,7 +69,7 @@ int main() {
 
   while (t-- > 0) _BinomialCoefficients::run();
 
-#ifdef CROSS
+#ifdef ANTUMBRA
   std::fclose(stdin);
 #endif
 
