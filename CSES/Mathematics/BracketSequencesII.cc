@@ -1,21 +1,352 @@
-#include <bits/stdc++.h>
+#include <algorithm> // IWYU pragma: keep
+#include <array>
+#include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <fcntl.h>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <unistd.h>
+#include <utility> // IWYU pragma: keep
+#include <vector>  // IWYU pragma: keep
 
-using usize = std::size_t;
-using ssize = std::ptrdiff_t;
-using i64   = std::int64_t;
-using u32   = std::uint32_t;
-using u64   = std::uint64_t;
-using u128  = unsigned __int128;
+namespace IO
+{
+
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1 << 20
+#endif
+
+#if (__cpp_nontype_template_parameter_class ||                                 \
+     (__cpp_nontype_template_args >= 201411L))
+template <std::size_t N> struct fixed_string
+{
+public:
+  std::array<char, N> buf;
+
+  constexpr fixed_string(char const s[]) noexcept
+  {
+    for (std::size_t i = 0; i < N; i++)
+      buf[i] = s[i];
+  }
+
+  constexpr auto begin() noexcept
+  {
+    return buf.begin();
+  }
+
+  constexpr auto end() noexcept
+  {
+    return buf.end();
+  }
+
+  constexpr auto begin() const noexcept
+  {
+    return buf.begin();
+  }
+
+  constexpr auto end() const noexcept
+  {
+    return buf.end();
+  }
+};
+
+template <std::size_t N> fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
+#endif
+
+struct OutputWriter
+{
+private:
+  std::array<char, BUFFER_SIZE> buffer;
+  std::size_t idx = 0;
+  int const fd;
+
+public:
+  [[nodiscard]] explicit OutputWriter(int const fd) noexcept : fd(fd)
+  {
+  }
+
+  [[nodiscard]] explicit OutputWriter(char const f[]) noexcept
+      : fd(open(f, O_WRONLY | O_CREAT, 0644))
+  {
+  }
+
+  OutputWriter(OutputWriter const &)            = delete;
+  OutputWriter &operator=(OutputWriter const &) = delete;
+
+  void flush() noexcept
+  {
+    [[maybe_unused]] ssize_t rc = write(fd, buffer.data(), idx);
+    assert(rc >= 0);
+    idx = 0;
+  }
+
+  void flush_if_overflow(std::size_t x) noexcept
+  {
+#ifndef NO_AUTO_FLUSH
+    if (buffer.size() - idx < x)
+      flush();
+#endif
+  }
+
+  OutputWriter &operator<<(char const c) noexcept
+  {
+    flush_if_overflow(1);
+    buffer[idx++] = c;
+    return *this;
+  }
+
+  template <class T, class = std::enable_if_t<std::is_integral<T>::value>,
+            class unsT = typename std::make_unsigned<T>::type>
+  OutputWriter &operator<<(T const a) noexcept
+  {
+    std::array<char,
+               (long)(sizeof(T) * 2.40823996531) + 1 + std::is_signed<T>::value>
+        d;
+    std::uint8_t i = d.size();
+
+    static_assert(d.size() <= 256);
+
+    unsT u = a;
+
+    if constexpr (std::is_signed<T>::value)
+      if (std::signbit(a))
+        u = -u;
+
+    do
+    {
+      d[--i] = u % 10 + '0';
+      u /= 10;
+    } while (u);
+
+    if constexpr (std::is_signed<T>::value)
+      if (std::signbit(a))
+        d[--i] = '-';
+
+    flush_if_overflow(d.size() - i);
+    std::memcpy(&buffer[idx], &d[i], d.size() - i);
+    idx += d.size() - i;
+    return *this;
+  }
+
+  OutputWriter &operator<<(char const s[]) noexcept
+  {
+    size_t len = strlen(s);
+    flush_if_overflow(len);
+    std::memcpy(&buffer[idx], s, len);
+    idx += len;
+    return *this;
+  }
+
+  OutputWriter &operator<<(std::string_view const s) noexcept
+  {
+    flush_if_overflow(s.size());
+    std::memcpy(&buffer[idx], s.data(), s.size());
+    idx += s.size();
+    return *this;
+  }
+
+  OutputWriter &operator<<(std::string const &s) noexcept
+  {
+    flush_if_overflow(s.size());
+    std::memcpy(&buffer[idx], s.data(), s.size());
+    idx += s.size();
+    return *this;
+  }
+
+  template <class T, class = std::enable_if_t<std::is_floating_point<T>::value>>
+  OutputWriter &operator<<(T f) noexcept
+  {
+    constexpr std::size_t precision = 6;
+
+    if constexpr (std::is_signed<T>::value)
+      if (std::signbit(f))
+      {
+        *this << '-';
+        f *= -1;
+      }
+
+    int e = 0;
+    while (f < 1)
+    {
+      f *= 10;
+      e -= 1;
+    }
+    while (f >= 10)
+    {
+      f /= 10;
+      e += 1;
+    }
+
+    if (e <= -5 || e >= 6)
+    {
+      flush_if_overflow(precision + 2);
+      for (std::size_t i = 0; i < precision; i++)
+      {
+        if (i == 1)
+          buffer[idx++] = '.';
+
+        buffer[idx++] = int(f) + '0';
+        f -= int(f);
+        f *= 10;
+      }
+
+      buffer[idx++] = 'e';
+      return *this << e;
+    }
+    else
+    {
+      f *= std::pow(10, e);
+      return *this << (unsigned)f << '.'
+                   << (unsigned)(std::pow(10, precision - e - 1) *
+                                 (f - (unsigned)f));
+    }
+  }
+
+  OutputWriter &operator<<(void *p) noexcept
+  {
+    constexpr char const *digits = "0123456789abcdef";
+
+    std::array<char, 2 * sizeof(void *) + 2> d;
+    std::uint8_t i = d.size();
+
+    static_assert(d.size() <= 256);
+    static_assert(sizeof(size_t) == sizeof(void *));
+
+    do
+    {
+      d[--i] = digits[(std::size_t)p & 0xF];
+      p      = (void *)((std::size_t)p >> 4);
+    } while (p);
+
+    d[--i] = 'x';
+    d[--i] = '0';
+
+    flush_if_overflow(d.size() - i);
+    std::memcpy(&buffer[idx], &d[i], d.size() - i);
+    idx += d.size() - i;
+
+    return *this;
+  }
+
+#if (__cpp_nontype_template_parameter_class ||                                 \
+     (__cpp_nontype_template_args >= 201411L))
+  template <fixed_string s, class... T> void append(T &&...v) noexcept
+  {
+    static_assert(std::count(s.begin(), s.end(), '%') == sizeof...(T),
+                  "Number of parameters does not match format string");
+
+    auto pos                           = s.begin();
+
+    [[maybe_unused]] auto const helper = [this, &pos](auto &&v) {
+      auto npos = std::find(pos, s.end(), '%');
+      *this << std::string_view(pos, npos);
+      *this << std::forward<decltype(v)>(v);
+      pos = npos + 1;
+    };
+
+    (helper(std::forward<T>(v)), ...);
+    *this << std::string_view(pos, s.end());
+  }
+#endif
+};
+
+constexpr static auto is_digit = [] {
+  std::array<bool, 256> is_digit{};
+  for (char c = '0'; c <= '9'; c++)
+    is_digit[c] = true;
+  return is_digit;
+}();
+
+struct InputReader
+{
+private:
+  std::array<char, BUFFER_SIZE> buffer;
+  std::size_t idx = 0, size = 0;
+  int const fd;
+
+  InputReader &operator>>(char &c) noexcept
+  {
+    flush();
+    c = buffer[idx++];
+    return *this;
+  }
+
+public:
+  [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
+  {
+  }
+
+  [[nodiscard]] explicit InputReader(char const f[]) noexcept
+      : fd(open(f, O_RDONLY))
+  {
+  }
+
+  InputReader(InputReader const &)            = delete;
+  InputReader &operator=(InputReader const &) = delete;
+
+  void flush() noexcept
+  {
+    if (idx == size)
+    {
+      ssize_t s = read(fd, buffer.data(), buffer.size());
+      assert(s >= 0);
+      size = s;
+      idx  = 0;
+    }
+  }
+
+  InputReader &operator>>(std::string &x) noexcept
+  {
+    char c;
+    while (*this >> c, c < ' ')
+      continue;
+    x = c;
+    while (*this >> c, c >= ' ')
+      x += c;
+
+    return *this;
+  }
+
+  template <class T, class = std::enable_if_t<std::is_integral<T>::value>>
+  InputReader &operator>>(T &i) noexcept
+  {
+    while (flush(), buffer[idx] <= 32)
+      idx++;
+
+    bool sign = false;
+    if constexpr (std::is_signed<T>::value)
+      if (buffer[idx] == '-')
+      {
+        sign = 1;
+        idx++;
+      }
+
+    i = 0;
+    while (flush(), is_digit[buffer[idx]])
+      i = 10 * i + buffer[idx++] - '0';
+
+    if constexpr (std::is_signed<T>::value)
+      if (sign)
+        i *= -1;
+
+    return *this;
+  }
+};
+} // namespace IO
+
+IO::InputReader console_in(STDIN_FILENO);
+IO::OutputWriter console_out(STDOUT_FILENO);
+IO::OutputWriter console_err(STDERR_FILENO);
 
 namespace _BracketSequencesII
 {
 
 struct Algebra
 {
-  /*
-   * Author: github.com/cross-codes
-   */
-
 private:
   Algebra();
   constexpr inline static double EPSILON_{1E-6};
@@ -27,7 +358,7 @@ private:
       static_cast<std::uint64_t>(1e9 + 7)};
 
   inline static const std::vector<std::vector<std::int64_t>>
-      millerRabinBaseSets = {
+      miller_rabin_base_sets_ = {
           {291830, 126401071349994536LL},
           {885594168, 725270293939359937LL, 3569819667048198375LL},
           {273919523040LL, 15, 7363882082LL, 992620450144556LL},
@@ -38,14 +369,9 @@ private:
            43835965440333360LL, 761179012939631437LL, 1263739024124850375LL},
           {INT64_MAX, 2, 325, 9375, 28178, 450775, 9780504, 1795265022}};
 
-  constexpr inline static std::int64_t flip_(std::int64_t a)
-  {
-    return a ^ INT64_MIN;
-  }
-
   constexpr inline static int compare_(std::int64_t a, std::int64_t b)
   {
-    std::int64_t flippedA{flip_(a)}, flippedB{flip_(b)};
+    std::int64_t flippedA{flip(a)}, flippedB{flip(b)};
 
     if (flippedA < flippedB)
       return -1;
@@ -55,40 +381,44 @@ private:
       return 0;
   }
 
-  inline static std::int64_t smallMulMod_(std::int64_t a, std::int64_t b,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t small_mul_mod(std::int64_t a,
+                                                     std::int64_t b,
+                                                     std::int64_t m)
   {
     return (a * b) % m;
   }
 
-  inline static std::int64_t smallSquareMod_(std::int64_t a, std::int64_t m)
+  constexpr inline static std::int64_t small_square_mod_(std::int64_t a,
+                                                         std::int64_t m)
   {
     return (a * a) % m;
   }
 
-  inline static std::int64_t smallPowMod_(std::int64_t a, std::int64_t p,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t small_pow_mod_(std::int64_t a,
+                                                      std::int64_t p,
+                                                      std::int64_t m)
   {
     std::int64_t res{1LL};
     for (; p != 0; p >>= 1)
     {
       if ((p & 1) != 0)
       {
-        res = smallMulMod_(res, a, m);
+        res = small_mul_mod(res, a, m);
       }
-      a = smallSquareMod_(a, m);
+      a = small_square_mod_(a, m);
     }
     return res;
   }
 
-  inline static std::int64_t largePlusMod_(std::int64_t a, std::int64_t b,
-                                           std::int64_t m)
+  constexpr inline static std::int64_t large_plus_mod_(std::int64_t a,
+                                                       std::int64_t b,
+                                                       std::int64_t m)
   {
     return (a >= m - b) ? (a + b - m) : (a + b);
   }
 
-  inline static std::int64_t largeTimes2ToThe32Mod_(std::int64_t a,
-                                                    std::int64_t m)
+  constexpr inline static std::int64_t large_times_2_to_the_32_mod_(
+      std::int64_t a, std::int64_t m)
   {
     int remainingPowersOf2{32};
     do
@@ -100,52 +430,55 @@ private:
     return a;
   }
 
-  inline static std::int64_t largeMulMod_(std::int64_t a, std::int64_t b,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t large_mul_mod_(std::int64_t a,
+                                                      std::int64_t b,
+                                                      std::int64_t m)
   {
     std::int64_t aHi{a >> 32};
     std::int64_t bHi{b >> 32};
     std::int64_t aLo{a & 0xFFFFFFFFLL};
     std::int64_t bLo{b & 0xFFFFFFFFLL};
-    std::int64_t result{largeTimes2ToThe32Mod_(aHi * bHi, m)};
+    std::int64_t result{large_times_2_to_the_32_mod_(aHi * bHi, m)};
     result += aHi * bLo;
     if (result < 0)
     {
       result = remainder(result, m);
     }
     result += aLo * bHi;
-    result = largeTimes2ToThe32Mod_(result, m);
-    return largePlusMod_(result, remainder(aLo * bLo, m), m);
+    result = large_times_2_to_the_32_mod_(result, m);
+    return large_plus_mod_(result, remainder(aLo * bLo, m), m);
   }
 
-  inline static std::int64_t largeSquareMod_(std::int64_t a, std::int64_t m)
+  constexpr inline static std::int64_t large_square_mod_(std::int64_t a,
+                                                         std::int64_t m)
   {
     std::int64_t aHi{a >> 32};
     std::int64_t aLo{a & 0xFFFFFFFFLL};
-    std::int64_t result{largeTimes2ToThe32Mod_(aHi * aHi, m)};
+    std::int64_t result{large_times_2_to_the_32_mod_(aHi * aHi, m)};
     std::int64_t hiLo{aHi * aLo * 2};
     if (hiLo < 0)
       hiLo = remainder(hiLo, m);
     result += hiLo;
-    result = largeTimes2ToThe32Mod_(result, m);
-    return largePlusMod_(result, remainder(aLo * aLo, m), m);
+    result = large_times_2_to_the_32_mod_(result, m);
+    return large_plus_mod_(result, remainder(aLo * aLo, m), m);
   }
 
-  inline static std::int64_t largePowMod_(std::int64_t a, std::int64_t p,
-                                          std::int64_t m)
+  constexpr inline static std::int64_t large_pow_mod_(std::int64_t a,
+                                                      std::int64_t p,
+                                                      std::int64_t m)
   {
     std::int64_t res{1LL};
     for (; p != 0; p >>= 1)
     {
       if (p & 1)
-        res = largeMulMod_(res, a, m);
-      a = largeSquareMod_(a, m);
+        res = large_mul_mod_(res, a, m);
+      a = large_square_mod_(a, m);
     }
 
     return res;
   }
 
-  inline static bool testWitnessSmall_(std::int64_t base, std::int64_t n)
+  inline static bool test_witness_small_(std::int64_t base, std::int64_t n)
   {
     int r{__builtin_ctzll(n - 1)};
     std::int64_t d{(n - 1) >> r};
@@ -153,7 +486,7 @@ private:
     if (base == 0)
       return true;
 
-    std::int64_t a = smallPowMod_(base, d, n);
+    std::int64_t a = small_pow_mod_(base, d, n);
     if (a == 1)
       return true;
     int j{};
@@ -161,13 +494,13 @@ private:
     {
       if (++j == r)
         return false;
-      a = smallSquareMod_(a, n);
+      a = small_square_mod_(a, n);
     }
 
     return true;
   }
 
-  inline static bool testWitnessLarge_(std::int64_t base, std::int64_t n)
+  inline static bool test_witness_large_(std::int64_t base, std::int64_t n)
   {
     int r{__builtin_ctzll(n - 1)};
     std::int64_t d{(n - 1) >> r};
@@ -175,7 +508,7 @@ private:
     if (base == 0)
       return true;
 
-    std::int64_t a = largePowMod_(base, d, n);
+    std::int64_t a = large_pow_mod_(base, d, n);
     if (a == 1)
       return true;
     int j{};
@@ -183,14 +516,40 @@ private:
     {
       if (++j == r)
         return false;
-      a = largeSquareMod_(a, n);
+      a = large_square_mod_(a, n);
     }
 
     return true;
+  }
+
+  constexpr inline static auto ex_GCD_(int a, int b, int &x, int &y) -> int
+  {
+    if (b == 0)
+    {
+      x = 1;
+      y = 0;
+      return a;
+    }
+
+    int x1, y1;
+    int d = ex_GCD_(b, a % b, x1, y1);
+    x     = y1;
+    y     = x1 - y1 * (a / b);
+    return d;
   }
 
 public:
-  constexpr inline static int modPow(int n, int p, int m)
+  constexpr inline static std::int64_t flip(std::int64_t a)
+  {
+    return a ^ INT64_MIN;
+  }
+
+  constexpr inline static int mul_mod(int a, int b, int m)
+  {
+    return static_cast<int>(small_mul_mod(a, b, m));
+  }
+
+  constexpr inline static int mod_pow(int n, int p, int m)
   {
     std::int64_t result{1LL};
     for (std::int64_t i = 1, j = n; i <= p; i <<= 1, j = j * j % m)
@@ -202,9 +561,9 @@ public:
     return static_cast<int>(result);
   }
 
-  constexpr inline static int coprimeModInv(int n, int m)
+  constexpr inline static int coprime_mod_inv(int n, int m)
   {
-    return modPow(n, m - 2, m);
+    return mod_pow(n, m - 2, m);
   }
 
   inline static int log2(std::int64_t n)
@@ -212,7 +571,7 @@ public:
     return (n == 0) ? 0 : 63 - __builtin_clzll(n);
   }
 
-  constexpr inline static int ceilLog2(std::int64_t n)
+  constexpr inline static int ceil_log2(std::int64_t n)
   {
     return (n == 1) ? 1 : 64 - __builtin_clzll(n - 1);
   }
@@ -227,8 +586,8 @@ public:
     return std::abs(a) < EPSILON_;
   }
 
-  static std::unique_ptr<double[]> solveLinear(double a, double b, double c,
-                                               double d, double e, double f)
+  static std::unique_ptr<double[]> solve_linear(double a, double b, double c,
+                                                double d, double e, double f)
   {
     double D{a * e - b * d};
     double Dx{c * e - b * f};
@@ -249,8 +608,8 @@ public:
     }
   }
 
-  inline static std::unique_ptr<double[]> solveQuadratic(double a, double b,
-                                                         double c)
+  inline static std::unique_ptr<double[]> solve_quadratic(double a, double b,
+                                                          double c)
   {
     double delta{b * b - 4 * a * c};
     if (equal0(delta))
@@ -284,19 +643,14 @@ public:
     if (divisor < 0)
     {
       if (compare_(dividend, divisor) < 0)
-      {
         return dividend;
-      }
       else
-      {
         return dividend - divisor;
-      }
     }
 
     if (dividend >= 0)
-    {
       return dividend % divisor;
-    }
+
     std::int64_t quotient{((dividend >> 1) / divisor) << 1};
     std::int64_t rem{dividend - quotient * divisor};
     return rem - (compare_(rem, divisor) >= 0 ? divisor : 0);
@@ -328,7 +682,7 @@ public:
     if (n < 17 * 17)
       return true;
 
-    for (std::vector<std::int64_t> baseSet : millerRabinBaseSets)
+    for (std::vector<std::int64_t> baseSet : miller_rabin_base_sets_)
     {
       if (n <= baseSet[0])
       {
@@ -337,7 +691,7 @@ public:
         {
           for (std::size_t i = 1; i < baseSet.size(); i++)
           {
-            if (!testWitnessSmall_(baseSet[i], n))
+            if (!test_witness_small_(baseSet[i], n))
               return false;
           }
         }
@@ -345,7 +699,7 @@ public:
         {
           for (std::size_t i = 1; i < baseSet.size(); i++)
           {
-            if (!testWitnessLarge_(baseSet[i], n))
+            if (!test_witness_large_(baseSet[i], n))
               return false;
           }
         }
@@ -357,7 +711,7 @@ public:
     throw new std::runtime_error("Assertion failed");
   }
 
-  constexpr inline static std::uint64_t fibonnaciNumber(
+  constexpr inline static std::uint64_t fibonnaci_number(
       std::uint64_t n, std::uint64_t modulus = MOD)
   {
     if (n == 1)
@@ -387,18 +741,19 @@ public:
     return b % modulus;
   }
 
-  constexpr inline static auto solveDiophantine(int a, int b, int c, int &x,
-                                                int &y) -> bool
+  constexpr inline static auto solve_diophantine(int a, int b, int c, int &x,
+                                                 int &y, int &g) -> bool
   {
-    if (a == 0 && b == 0)
-      return c == 0;
-
-    int g{std::gcd(a, b)};
-    if (c % g != 0)
+    g = ex_GCD_(std::abs(a), std::abs(b), x, y);
+    if (c % g)
       return false;
 
-    x = ((c / g) * Algebra::coprimeModInv(a / g, b / g)) % (b / g);
-    y = (c - (a * x)) / b;
+    x *= c / g;
+    y *= c / g;
+    if (a < 0)
+      x = -x;
+    if (b < 0)
+      y = -y;
 
     return true;
   }
@@ -411,30 +766,30 @@ constexpr int MOD     = static_cast<int>(1e9 + 7);
 auto run() -> void
 {
 
-  std::unique_ptr<int[]> factorials(new int[N_MAX]),
-      inverseFactorials(new int[N_MAX]);
+  int factorials[N_MAX], inverse_factorials[INV_MAX];
 
   factorials[0] = 1;
   for (int i = 1; i < N_MAX; i++)
-    factorials[i] = (static_cast<i64>(factorials[i - 1]) * i) % MOD;
+    factorials[i] = (static_cast<int64_t>(factorials[i - 1]) * i) % MOD;
 
   for (int i = 0; i < INV_MAX; i++)
-    inverseFactorials[i] = Algebra::coprimeModInv(factorials[i], MOD);
+    inverse_factorials[i] = Algebra::coprime_mod_inv(factorials[i], MOD);
 
   int n;
-  std::cin >> n;
+  console_in >> n;
 
   if (n & 1)
   {
-    std::cout << "0\n";
+    console_out << "0\n";
     return;
   }
 
   int N = n >> 1;
 
   int L{}, K{}, balance{};
-  char c;
-  while (std::cin >> c)
+  std::string prefix;
+  console_in >> prefix;
+  for (const char &c : prefix)
   {
     K++;
     if (c == ')')
@@ -447,21 +802,22 @@ auto run() -> void
 
     if (balance < 0)
     {
-      std::cout << "0\n";
+      console_out << "0\n";
       return;
     }
   }
 
   int numerator =
-      (static_cast<i64>(factorials[(N << 1) - K]) * (K - (L << 1) + 1)) % MOD;
+      (static_cast<int64_t>(factorials[(N << 1) - K]) * (K - (L << 1) + 1)) %
+      MOD;
 
-  int denominator = (static_cast<i64>(inverseFactorials[N - L + 1]) *
-                     inverseFactorials[N + L - K]) %
+  int denominator = (static_cast<int64_t>(inverse_factorials[N - L + 1]) *
+                     inverse_factorials[N + L - K]) %
                     MOD;
 
-  int catalanConvolution = (static_cast<i64>(numerator) * denominator) % MOD;
+  int catalan_conv = (static_cast<int64_t>(numerator) * denominator) % MOD;
 
-  std::cout << catalanConvolution << "\n";
+  console_out << catalan_conv << "\n";
 }
 
 } // namespace _BracketSequencesII
@@ -472,21 +828,17 @@ int main()
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr)
   {
-#if __cplusplus >= 202302L
-    std::println(stderr, "Input file not found");
-#else
-    std::cerr << "Input file not found\n";
-#endif
+    console_err << "Input file not found\n";
     __builtin_trap();
   }
-#else
-  std::cin.tie(nullptr)->sync_with_stdio(false);
 #endif
 
   int t{1};
 
   while (t-- > 0)
     _BracketSequencesII::run();
+
+  console_out.flush();
 
 #ifdef ANTUMBRA
   std::fclose(stdin);
