@@ -267,6 +267,13 @@ private:
   std::size_t idx = 0, size = 0;
   int const fd;
 
+  InputReader &operator>>(char &c) noexcept
+  {
+    flush();
+    c = buffer[idx++];
+    return *this;
+  }
+
 public:
   [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
   {
@@ -289,13 +296,6 @@ public:
       size = s;
       idx  = 0;
     }
-  }
-
-  InputReader &operator>>(char &c) noexcept
-  {
-    flush();
-    c = buffer[idx++];
-    return *this;
   }
 
   InputReader &operator>>(std::string &x) noexcept
@@ -341,7 +341,7 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _D
+namespace _E
 {
 
 auto run() -> void
@@ -363,7 +363,7 @@ auto run() -> void
   console_out << f[W] << "\n";
 }
 
-} // namespace _D
+} // namespace _E
 
 int main()
 {
@@ -379,7 +379,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _D::run();
+    _E::run();
 
   console_out.flush();
 

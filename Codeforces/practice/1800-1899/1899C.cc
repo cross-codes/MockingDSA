@@ -1,6 +1,7 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -267,6 +268,13 @@ private:
   std::size_t idx = 0, size = 0;
   int const fd;
 
+  InputReader &operator>>(char &c) noexcept
+  {
+    flush();
+    c = buffer[idx++];
+    return *this;
+  }
+
 public:
   [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
   {
@@ -289,13 +297,6 @@ public:
       size = s;
       idx  = 0;
     }
-  }
-
-  InputReader &operator>>(char &c) noexcept
-  {
-    flush();
-    c = buffer[idx++];
-    return *this;
   }
 
   InputReader &operator>>(std::string &x) noexcept
@@ -341,29 +342,38 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _D
+namespace _1899C
 {
+
+auto have_same_parity(int a, int b) -> bool
+{
+  return (((a & 1) && (b & 1)) || (!(a & 1) && !(b & 1)));
+}
 
 auto run() -> void
 {
-  int N, W;
-  console_in >> N >> W;
+  int n;
+  console_in >> n;
 
-  int w[N + 1], v[N + 1];
-  int64_t f[W + 1];
-  for (int i = 1; i <= N; i++)
-    console_in >> w[i] >> v[i];
+  int a[n + 1], s[n + 1], last{}, max_sum{INT_MIN};
+  console_in >> a[1];
+  s[1] = last = max_sum = a[1];
+  for (int i = 2; i <= n; i++)
+  {
+    console_in >> a[i];
+    if (!have_same_parity(a[i], last))
+      s[i] = std::max(s[i - 1] + a[i], a[i]);
+    else
+      s[i] = a[i];
 
-  std::fill(f, f + W + 1, 0);
+    last    = a[i];
+    max_sum = std::max(max_sum, s[i]);
+  }
 
-  for (int i = 1; i <= N; i++)
-    for (int j = W; j >= w[i]; j--)
-      f[j] = std::max(f[j], f[j - w[i]] + v[i]);
-
-  console_out << f[W] << "\n";
+  console_out << max_sum << "\n";
 }
 
-} // namespace _D
+} // namespace _1899C
 
 int main()
 {
@@ -377,9 +387,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _D::run();
+    _1899C::run();
 
   console_out.flush();
 

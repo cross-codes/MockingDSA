@@ -267,6 +267,13 @@ private:
   std::size_t idx = 0, size = 0;
   int const fd;
 
+  InputReader &operator>>(char &c) noexcept
+  {
+    flush();
+    c = buffer[idx++];
+    return *this;
+  }
+
 public:
   [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
   {
@@ -289,13 +296,6 @@ public:
       size = s;
       idx  = 0;
     }
-  }
-
-  InputReader &operator>>(char &c) noexcept
-  {
-    flush();
-    c = buffer[idx++];
-    return *this;
   }
 
   InputReader &operator>>(std::string &x) noexcept
@@ -341,29 +341,90 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _D
+namespace _1904B
 {
+
+auto num_elements(int init, int sorted[], int64_t prefix[], int n) -> int
+{
+  int64_t left{-1}, right{}, score{init};
+  int num_elements{};
+  bool first{true};
+  while (true)
+  {
+    auto right_max = std::upper_bound(sorted, sorted + n, score) - sorted;
+    right          = right_max - 1;
+
+    if (first)
+    {
+      score += prefix[right + 1] - prefix[0];
+      score -= sorted[right];
+      left = right;
+      num_elements += right;
+      first = false;
+      continue;
+    }
+
+    if (right == n)
+    {
+      num_elements += n - 1 - left;
+      break;
+    }
+
+    if (sorted[right] > score)
+    {
+      if (left >= right - 1)
+        break;
+
+      score += prefix[right] - prefix[left + 1];
+      num_elements += right - 1 - left;
+      left = right - 1;
+    }
+    else
+    {
+      if (left == right)
+        break;
+
+      score += prefix[right + 1] - prefix[left + 1];
+      num_elements += right - left;
+      left = right;
+    }
+  }
+
+  return num_elements;
+}
 
 auto run() -> void
 {
-  int N, W;
-  console_in >> N >> W;
+  int n;
+  console_in >> n;
 
-  int w[N + 1], v[N + 1];
-  int64_t f[W + 1];
-  for (int i = 1; i <= N; i++)
-    console_in >> w[i] >> v[i];
+  int a[n], sorted_a[n], result[n];
+  for (int i = 0; i < n; i++)
+  {
+    console_in >> a[i];
+    sorted_a[i] = a[i];
+  }
 
-  std::fill(f, f + W + 1, 0);
+  std::sort(sorted_a, sorted_a + n);
 
-  for (int i = 1; i <= N; i++)
-    for (int j = W; j >= w[i]; j--)
-      f[j] = std::max(f[j], f[j - w[i]] + v[i]);
+  int64_t prefix[n + 1];
+  prefix[0] = 0;
+  for (int i = 1; i <= n; i++)
+    prefix[i] = prefix[i - 1] + sorted_a[i - 1];
 
-  console_out << f[W] << "\n";
+  for (int i = 0; i < n; i++)
+  {
+    int num   = a[i];
+    result[i] = num_elements(num, sorted_a, prefix, n);
+  }
+
+  for (const int &num : result)
+    console_out << num << " ";
+
+  console_out << "\n";
 }
 
-} // namespace _D
+} // namespace _1904B
 
 int main()
 {
@@ -377,9 +438,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _D::run();
+    _1904B::run();
 
   console_out.flush();
 
