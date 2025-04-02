@@ -2,9 +2,11 @@
 #include <memory>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  int minCostClimbingStairs(std::vector<int> &cost) {
+  int minCostClimbingStairs(std::vector<int> &cost)
+  {
     std::size_t n = cost.size();
     std::unique_ptr<int[]> minCost(new int[n + 1]);
 

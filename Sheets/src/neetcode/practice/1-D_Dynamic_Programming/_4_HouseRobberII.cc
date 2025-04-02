@@ -3,18 +3,23 @@
 #include <memory>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  int rob(std::vector<int> &nums) {
+  int rob(std::vector<int> &nums)
+  {
     std::size_t n = nums.size();
 
-    if (n <= 3) {
+    if (n <= 3)
+    {
       int maxVal = INT_MIN;
       for (const int &num : nums)
         maxVal = std::max(maxVal, num);
 
       return maxVal;
-    } else {
+    }
+    else
+    {
 
       std::unique_ptr<int[]> maxMoneyA(new int[n]), maxMoneyB(new int[n]);
       std::memset(maxMoneyA.get(), 0x00, sizeof(int) * n);

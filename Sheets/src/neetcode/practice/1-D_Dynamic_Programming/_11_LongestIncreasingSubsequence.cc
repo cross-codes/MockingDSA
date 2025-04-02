@@ -1,5 +1,5 @@
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <functional>
 #include <memory>
@@ -17,10 +17,6 @@ private:
 
   template <typename T> struct SegmentTree
   {
-    /*
-     * Author: github.com/cross-codes
-     */
-
   private:
     std::size_t offset_;
     std::unique_ptr<T[]> tree_;

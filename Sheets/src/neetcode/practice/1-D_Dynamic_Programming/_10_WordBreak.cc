@@ -1,7 +1,10 @@
 #include <string>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  bool wordBreak(std::string s, std::vector<std::string> &dict) {}
+  bool wordBreak(std::string s, std::vector<std::string> &dict)
+  {
+  }
 };

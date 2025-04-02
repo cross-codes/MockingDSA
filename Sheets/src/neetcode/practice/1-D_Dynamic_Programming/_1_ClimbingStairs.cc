@@ -1,9 +1,11 @@
 #include <cstring>
 #include <memory>
 
-class Solution {
+class Solution
+{
 public:
-  int climbStairs(int n) {
+  int climbStairs(int n)
+  {
     std::unique_ptr<int[]> distinctWays(new int[n + 1]);
 
     std::memset(distinctWays.get(), 0x00, sizeof(int) * n);

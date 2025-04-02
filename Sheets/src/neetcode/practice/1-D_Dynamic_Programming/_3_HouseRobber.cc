@@ -3,9 +3,11 @@
 #include <memory>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  int rob(std::vector<int> &nums) {
+  int rob(std::vector<int> &nums)
+  {
     std::size_t n = nums.size();
     std::unique_ptr<int[]> maxMoney(new int[n]);
 
