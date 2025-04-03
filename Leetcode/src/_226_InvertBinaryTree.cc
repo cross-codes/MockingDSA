@@ -1,4 +1,4 @@
-#include "./TreeNode.hh"
+#include "TreeNode.hh"
 #include <utility>
 
 class Solution

@@ -1,4 +1,5 @@
-struct ListNode {
+struct ListNode
+{
 public:
   int val;
   ListNode *next;
