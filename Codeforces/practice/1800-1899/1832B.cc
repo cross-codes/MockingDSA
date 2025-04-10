@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,58 +341,33 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _StaticRangeMinimumQueries
+namespace _1869B
 {
-
-template <typename T> struct IdempotentSparseTable
-{
-private:
-  std::function<T(const T &, const T &)> function_;
-  std::vector<std::vector<T>> table;
-
-public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
-                        std::size_t n)
-      : function_(func)
-  {
-    std::size_t K = std::__lg(n);
-
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(array, array + n, table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++)
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
-  }
-
-  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
-  {
-    std::size_t row = std::__lg(pastEndIdx - fromIdx);
-    return function_(table[row][fromIdx], table[row][pastEndIdx - (1 << row)]);
-  }
-};
 
 auto run() -> void
 {
-  int n, q;
-  console_in >> n >> q;
+  int n, k;
+  console_in >> n >> k;
 
-  int array[n];
+  int a[n];
   for (int i = 0; i < n; i++)
-    console_in >> array[i];
+    console_in >> a[i];
 
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto table      = IdempotentSparseTable<int>(MIN_SELECT, array, n);
+  std::sort(a, a + n);
 
-  while (q-- > 0)
-  {
-    size_t a, b;
-    console_in >> a >> b;
-    console_out << table.query_range(--a, b) << "\n";
-  }
+  int64_t prefix_sum[n + 1], max_sum{INT64_MIN};
+
+  prefix_sum[0] = 0;
+  for (int i = 1; i <= n; i++)
+    prefix_sum[i] = prefix_sum[i - 1] + a[i - 1];
+
+  for (int m = 0; m <= k; m++)
+    max_sum = std::max(max_sum, prefix_sum[n - k + m] - prefix_sum[m << 1]);
+
+  console_out.append<"%\n">(max_sum);
 }
 
-} // namespace _StaticRangeMinimumQueries
+} // namespace _1869B
 
 int main()
 {
@@ -407,9 +381,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _1869B::run();
 
   console_out.flush();
 

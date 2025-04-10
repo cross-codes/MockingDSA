@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,58 +341,117 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _StaticRangeMinimumQueries
+namespace _D
 {
 
-template <typename T> struct IdempotentSparseTable
+auto position_query(int64_t d, int64_t n) -> std::pair<int, int>
 {
-private:
-  std::function<T(const T &, const T &)> function_;
-  std::vector<std::vector<T>> table;
-
-public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
-                        std::size_t n)
-      : function_(func)
+  int64_t grid_x{1 << (n >> 1)}, grid_y{1 << (n >> 1)};
+  int64_t base{};
+  while (n != 1)
   {
-    std::size_t K = std::__lg(n);
-
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(array, array + n, table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++)
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
+    if (base + 1 <= d && d <= base + (1 << ((2 * n) - 2)))
+    {
+      n--;
+      grid_x -= (1 << (n >> 1));
+      grid_y -= (1 << (n >> 1));
+    }
+    else if (base + (3 * (1 << ((2 * n) - 2)) + 1) <= d &&
+             d <= base + (1 << (2 * n)))
+    {
+      base += 3 * (1 << ((2 * n) - 2));
+      n--;
+      grid_x += (1 << (n >> 1));
+      grid_y -= (1 << (n >> 1));
+    }
+    else if (base + (1 << ((2 * n) - 2)) + 1 <= d &&
+             d <= base + (1 << ((2 * n) - 1)))
+    {
+      base += (1 << ((2 * n) - 2));
+      n--;
+      grid_x += (1 << (n >> 1));
+      grid_y += (1 << (n >> 1));
+    }
+    else
+    {
+      base += (1 << ((2 * n) - 1));
+      n--;
+      grid_x -= (1 << (n >> 1));
+      grid_y += (1 << (n >> 1));
+    }
   }
 
-  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
+  if (d == base + 1)
+    return std::make_pair(grid_x - 1, grid_y - 1);
+  else if (d == base + 2)
+    return std::make_pair(grid_x, grid_y);
+  else if (d == base + 3)
+    return std::make_pair(grid_x - 1, grid_y);
+  else if (d == base + 4)
+    return std::make_pair(grid_x, grid_y - 1);
+
+  __builtin_unreachable();
+}
+
+auto cell_query(int64_t x, int64_t y, int64_t n) -> int64_t
+{
+  int64_t start_d{1}, N{n};
+  while (n != 1)
   {
-    std::size_t row = std::__lg(pastEndIdx - fromIdx);
-    return function_(table[row][fromIdx], table[row][pastEndIdx - (1 << row)]);
+    if (1 <= x && x <= (1 << (n - 1)) && 1 <= y && y <= (1 << (n - 1)))
+      start_d = 1;
+    else if (1 + (1 << (n - 1)) <= x && x <= (1 << n) && 1 <= y &&
+             y <= (1 << (n - 1)))
+      start_d = 3 * (1 << ((2 * n) - 2)) + 1;
+    else if (1 + (1 << (n - 1)) <= x && x <= (1 << n) &&
+             1 + (1 << (n - 1)) <= y && y <= (1 << n))
+      start_d = 1 + (1 << (2 * n - 2));
+    else
+      start_d = 1 + (1 << (2 * n - 1));
+    n--;
   }
-};
+
+  auto pair = position_query(start_d, N);
+  if (pair.first + 1 == x && pair.second + 1 == y)
+    return start_d;
+
+  pair = position_query(start_d + 1, N);
+  if (pair.first + 1 == x && pair.second + 1 == y)
+    return start_d + 1;
+
+  pair = position_query(start_d + 2, N);
+  if (pair.first + 1 == x && pair.second + 1 == y)
+    return start_d + 2;
+  else
+    return start_d + 3;
+}
 
 auto run() -> void
 {
   int n, q;
   console_in >> n >> q;
 
-  int array[n];
-  for (int i = 0; i < n; i++)
-    console_in >> array[i];
-
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto table      = IdempotentSparseTable<int>(MIN_SELECT, array, n);
-
   while (q-- > 0)
   {
-    size_t a, b;
-    console_in >> a >> b;
-    console_out << table.query_range(--a, b) << "\n";
+    std::string query;
+    console_in >> query;
+    if (query.substr(0, 2) == "->")
+    {
+      auto space = query.substr(3).find(" ") + 3;
+      int64_t y  = std::stoll(query.substr(3, space + 1)),
+              x  = std::stoll(query.substr(space + 1));
+      console_out << cell_query(x, y, n) << "\n";
+    }
+    else
+    {
+      int64_t d       = std::stoi(query.substr(3));
+      const auto pair = position_query(d, n);
+      console_out.append<"% %\n">(pair.second + 1, pair.first + 1);
+    }
   }
 }
 
-} // namespace _StaticRangeMinimumQueries
+} // namespace _D
 
 int main()
 {
@@ -407,9 +465,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _D::run();
 
   console_out.flush();
 

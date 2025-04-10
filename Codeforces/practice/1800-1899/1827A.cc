@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,58 +341,130 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _StaticRangeMinimumQueries
+namespace _1827A
 {
 
-template <typename T> struct IdempotentSparseTable
+struct MontgomeryRepresentative
 {
-private:
-  std::function<T(const T &, const T &)> function_;
-  std::vector<std::vector<T>> table;
-
 public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
-                        std::size_t n)
-      : function_(func)
+  std::uint64_t value;
+
+  explicit constexpr MontgomeryRepresentative() : value(0)
   {
-    std::size_t K = std::__lg(n);
-
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(array, array + n, table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++)
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
   }
 
-  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
+private:
+  explicit constexpr MontgomeryRepresentative(std::uint64_t v) : value(v)
   {
-    std::size_t row = std::__lg(pastEndIdx - fromIdx);
-    return function_(table[row][fromIdx], table[row][pastEndIdx - (1 << row)]);
+  }
+
+  friend struct Montgomery;
+};
+
+struct Montgomery
+{
+public:
+  std::uint32_t MOD, MODR;
+  constexpr explicit Montgomery(std::uint32_t n) : MOD(n), MODR(1)
+  {
+    for (int i = 0; i < 5; i++)
+      MODR *= 2 - n * MODR;
+  }
+
+  auto reduce(std::uint64_t x) const noexcept -> std::uint32_t
+  {
+    std::uint32_t q = static_cast<std::uint32_t>(x) * MODR;
+    std::uint64_t m = static_cast<std::uint64_t>(q) * MOD;
+    std::uint32_t y = (x - m) >> 32;
+    return x < m ? y + MOD : y;
+  }
+
+  auto reduce(MontgomeryRepresentative x) const noexcept -> std::uint32_t
+  {
+    return reduce(x.value);
+  }
+
+  auto multiply(MontgomeryRepresentative x,
+                MontgomeryRepresentative y) const noexcept
+      -> MontgomeryRepresentative
+  {
+    return MontgomeryRepresentative(
+        reduce(static_cast<std::uint64_t>(x.value) * y.value));
+  }
+
+  auto transform(std::uint64_t x) const noexcept -> MontgomeryRepresentative
+  {
+    return MontgomeryRepresentative((x << 32) % MOD);
+  }
+
+  auto add(MontgomeryRepresentative x,
+           MontgomeryRepresentative y) const noexcept
+      -> MontgomeryRepresentative
+  {
+    auto res = x.value + y.value;
+    if (res >= MOD)
+      res -= MOD;
+    return MontgomeryRepresentative(res);
+  }
+
+  auto mod_pow(MontgomeryRepresentative base,
+               std::uint64_t power) const noexcept -> MontgomeryRepresentative
+  {
+    MontgomeryRepresentative result = transform(1ULL);
+    MontgomeryRepresentative j      = base;
+    for (std::uint64_t i = 1; i <= power; i <<= 1, j = multiply(j, j))
+      if (i & power)
+        result = multiply(result, j);
+
+    return result;
+  }
+
+  auto mod_pow(std::uint64_t base, std::uint64_t power) const noexcept
+      -> MontgomeryRepresentative
+  {
+    return mod_pow(transform(base), power);
+  }
+
+  auto coprime_mod_inv(MontgomeryRepresentative n) const noexcept
+      -> MontgomeryRepresentative
+  {
+    return mod_pow(n, MOD - 2);
   }
 };
 
+constexpr uint32_t MOD = static_cast<uint32_t>(1e9 + 7);
+constexpr int max_n    = 200000;
+std::array<int, max_n> a, b;
+
+constexpr Montgomery space(MOD);
+
 auto run() -> void
 {
-  int n, q;
-  console_in >> n >> q;
+  int n;
+  console_in >> n;
 
-  int array[n];
   for (int i = 0; i < n; i++)
-    console_in >> array[i];
+    console_in >> a[i];
 
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto table      = IdempotentSparseTable<int>(MIN_SELECT, array, n);
+  for (int j = 0; j < n; j++)
+    console_in >> b[j];
 
-  while (q-- > 0)
+  std::sort(a.begin(), a.begin() + n);
+  std::sort(b.begin(), b.begin() + n, std::greater<>());
+
+  auto res = space.transform(1ULL);
+  for (int i = 0; i < n; i++)
   {
-    size_t a, b;
-    console_in >> a >> b;
-    console_out << table.query_range(--a, b) << "\n";
+    auto it  = std::upper_bound(a.begin(), a.begin() + n, b[i]);
+    auto cnt = n - (std::distance(a.begin(), it));
+    auto mt = space.transform(std::max(cnt - i, static_cast<decltype(cnt)>(0)));
+    res     = space.multiply(res, mt);
   }
+
+  console_out << space.reduce(res) << "\n";
 }
 
-} // namespace _StaticRangeMinimumQueries
+} // namespace _1827A
 
 int main()
 {
@@ -407,9 +478,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _1827A::run();
 
   console_out.flush();
 

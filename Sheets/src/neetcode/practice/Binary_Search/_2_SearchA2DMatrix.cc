@@ -5,19 +5,23 @@ class Solution
 public:
   bool searchMatrix(std::vector<std::vector<int>> &matrix, int target)
   {
-    std::ptrdiff_t numberOfColumns = matrix[0].size(),
-                   numberOfRows    = matrix.size();
-    std::ptrdiff_t low = 0, high = (numberOfRows * numberOfColumns) - 1;
-    while (low <= high)
+    int num_rows = static_cast<int>(matrix.size()),
+        num_cols = static_cast<int>(matrix[0].size());
+
+    int L{-1}, R{num_rows * num_cols};
+    while (R - L > 1)
     {
-      std::size_t mid = (low + high) >> 1;
-      if (matrix[mid / numberOfColumns][mid % numberOfColumns] > target)
-        high = mid - 1;
-      else if (matrix[mid / numberOfColumns][mid % numberOfColumns] < target)
-        low = mid + 1;
+      int M = L + ((R - L) >> 1);
+      int Y = M / num_cols, X = M % num_cols;
+      if (target < matrix[Y][X])
+        R = M;
       else
-        return true;
+        L = M;
     }
-    return false;
+
+    if (L == -1)
+      return false;
+    else
+      return matrix[L / num_cols][L % num_cols] == target;
   }
 };

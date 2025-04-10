@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,58 +341,38 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _StaticRangeMinimumQueries
+namespace _400B
 {
 
-template <typename T> struct IdempotentSparseTable
+auto attempt_query(int N, int M) -> __int128_t
 {
-private:
-  std::function<T(const T &, const T &)> function_;
-  std::vector<std::vector<T>> table;
+  if (N == 1)
+    return (M + 1);
 
-public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
-                        std::size_t n)
-      : function_(func)
+  __int128_t res{1};
+  for (int i = 0; i < M + 1; i++)
   {
-    std::size_t K = std::__lg(n);
-
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(array, array + n, table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++)
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
+    res *= N;
+    if (res > static_cast<__int128_t>(1e18))
+      return -1;
   }
 
-  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
-  {
-    std::size_t row = std::__lg(pastEndIdx - fromIdx);
-    return function_(table[row][fromIdx], table[row][pastEndIdx - (1 << row)]);
-  }
-};
+  return (res - 1) / (N - 1);
+}
 
 auto run() -> void
 {
-  int n, q;
-  console_in >> n >> q;
+  int N, M;
+  console_in >> N >> M;
 
-  int array[n];
-  for (int i = 0; i < n; i++)
-    console_in >> array[i];
-
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto table      = IdempotentSparseTable<int>(MIN_SELECT, array, n);
-
-  while (q-- > 0)
-  {
-    size_t a, b;
-    console_in >> a >> b;
-    console_out << table.query_range(--a, b) << "\n";
-  }
+  auto res = attempt_query(N, M);
+  if (res == -1 || res > static_cast<int>(1e9))
+    console_out << "inf\n";
+  else
+    console_out << static_cast<int>(res) << "\n";
 }
 
-} // namespace _StaticRangeMinimumQueries
+} // namespace _400B
 
 int main()
 {
@@ -409,7 +388,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _400B::run();
 
   console_out.flush();
 

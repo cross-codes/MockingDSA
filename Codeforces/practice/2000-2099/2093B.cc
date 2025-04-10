@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,58 +341,35 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _StaticRangeMinimumQueries
+namespace _B
 {
-
-template <typename T> struct IdempotentSparseTable
-{
-private:
-  std::function<T(const T &, const T &)> function_;
-  std::vector<std::vector<T>> table;
-
-public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
-                        std::size_t n)
-      : function_(func)
-  {
-    std::size_t K = std::__lg(n);
-
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(array, array + n, table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++)
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
-  }
-
-  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
-  {
-    std::size_t row = std::__lg(pastEndIdx - fromIdx);
-    return function_(table[row][fromIdx], table[row][pastEndIdx - (1 << row)]);
-  }
-};
 
 auto run() -> void
 {
-  int n, q;
-  console_in >> n >> q;
+  std::string num;
+  console_in >> num;
 
-  int array[n];
-  for (int i = 0; i < n; i++)
-    console_in >> array[i];
-
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto table      = IdempotentSparseTable<int>(MIN_SELECT, array, n);
-
-  while (q-- > 0)
+  int n = static_cast<int>(num.size());
+  int last_non_zero{}, res{};
+  for (int i = n - 1; i >= 0; i--)
   {
-    size_t a, b;
-    console_in >> a >> b;
-    console_out << table.query_range(--a, b) << "\n";
+    if (num[i] != '0')
+    {
+      last_non_zero = i;
+      break;
+    }
+    else
+      res++;
   }
+
+  for (int i = 0; i < last_non_zero; i++)
+    if (num[i] != '0')
+      res++;
+
+  console_out << res << "\n";
 }
 
-} // namespace _StaticRangeMinimumQueries
+} // namespace _B
 
 int main()
 {
@@ -407,9 +383,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _B::run();
 
   console_out.flush();
 

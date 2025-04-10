@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,58 +342,102 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _StaticRangeMinimumQueries
+namespace _1842B
 {
 
-template <typename T> struct IdempotentSparseTable
+class StatefulQueue : public std::queue<uint32_t>
 {
 private:
-  std::function<T(const T &, const T &)> function_;
-  std::vector<std::vector<T>> table;
+  bool killed_;
 
 public:
-  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
-                        std::size_t n)
-      : function_(func)
+  StatefulQueue() : killed_(false)
   {
-    std::size_t K = std::__lg(n);
-
-    table.resize(K + 1, std::vector<T>(n));
-    std::copy(array, array + n, table[0].begin());
-
-    for (std::size_t y = 1; y < table.size(); y++)
-      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
-        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
   }
 
-  T query_range(std::size_t fromIdx, std::size_t pastEndIdx)
+  explicit StatefulQueue(bool killed) : killed_(killed)
   {
-    std::size_t row = std::__lg(pastEndIdx - fromIdx);
-    return function_(table[row][fromIdx], table[row][pastEndIdx - (1 << row)]);
+  }
+
+  auto is_usable() const noexcept -> bool
+  {
+    return !empty() && !killed_;
+  }
+
+  void set_usable()
+  {
+    killed_ = false;
+  }
+
+  void set_unusable()
+  {
+    killed_ = true;
   }
 };
 
-auto run() -> void
+void build_queue(StatefulQueue &stack, uint32_t n)
 {
-  int n, q;
-  console_in >> n >> q;
-
-  int array[n];
-  for (int i = 0; i < n; i++)
-    console_in >> array[i];
-
-  auto MIN_SELECT = [&](const int &a, const int &b) { return std::min(a, b); };
-  auto table      = IdempotentSparseTable<int>(MIN_SELECT, array, n);
-
-  while (q-- > 0)
+  for (uint32_t i = 0U; i < n; i++)
   {
-    size_t a, b;
-    console_in >> a >> b;
-    console_out << table.query_range(--a, b) << "\n";
+    uint32_t num;
+    console_in >> num;
+    stack.push(num);
   }
 }
 
-} // namespace _StaticRangeMinimumQueries
+auto is_conflict(uint32_t updater, uint32_t target) -> bool
+{
+  for (int i = 0; i < 32; i++)
+  {
+    uint32_t mask = 1U << i;
+    if (!(mask & target) && (mask & updater))
+      return true;
+  }
+
+  return false;
+}
+
+void attempt_inclusion(StatefulQueue &queue, uint32_t &to_update,
+                       uint32_t target)
+{
+  int v = queue.front();
+  if (!is_conflict(v, target))
+  {
+    queue.pop();
+    to_update |= v;
+  }
+  else
+    queue.set_unusable();
+}
+
+auto run() -> void
+{
+  uint32_t n, x;
+  console_in >> n >> x;
+
+  StatefulQueue a{}, b{}, c{};
+
+  build_queue(a, n);
+  build_queue(b, n);
+  build_queue(c, n);
+
+  uint32_t u{};
+  while (a.is_usable() || b.is_usable() || c.is_usable())
+  {
+    if (a.is_usable())
+      attempt_inclusion(a, u, x);
+
+    if (b.is_usable())
+      attempt_inclusion(b, u, x);
+
+    if (c.is_usable())
+      attempt_inclusion(c, u, x);
+  }
+
+  console_out << (u == x ? "Yes\n" : "No\n");
+}
+
+} // namespace _1842B
 
 int main()
 {
@@ -407,9 +451,10 @@ int main()
 #endif
 
   int t{1};
+  console_in >> t;
 
   while (t-- > 0)
-    _StaticRangeMinimumQueries::run();
+    _1842B::run();
 
   console_out.flush();
 

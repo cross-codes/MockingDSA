@@ -1,3 +1,4 @@
+#include <numeric>
 #include <vector>
 
 class Solution
@@ -8,7 +9,7 @@ public:
     int L{-1}, R{static_cast<int>(nums.size())};
     while (R - L > 1)
     {
-      int M = L + ((R - L) >> 1);
+      int M = std::midpoint(L, R);
       if (target < nums[M])
         R = M;
       else
