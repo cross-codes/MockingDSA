@@ -341,112 +341,20 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _GridPaths
+namespace _400C
 {
-
-constexpr int N{7};
-
-uint32_t cnt{};
-std::array<std::array<bool, N + 1>, N + 1> visited{};
-
-enum class Direction
-{
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  NONE
-};
-
-inline void search(uint32_t, uint32_t, uint32_t, const std::string &,
-                   Direction);
-inline auto in_bounds(uint32_t, uint32_t) -> bool;
-inline auto can_go(Direction, uint32_t, uint32_t) -> bool;
 
 auto run() -> void
 {
-  std::string pattern;
-  console_in >> pattern;
+  int64_t N;
+  console_in >> N;
 
-  search(1, 1, 0, pattern, Direction::NONE);
+  int c1 = static_cast<int>(sqrtl(N / 2)), c2 = static_cast<int>(sqrtl(N / 4));
 
-  console_out << cnt << "\n";
+  console_out.append<"% \n">(c1 + c2);
 }
 
-inline auto in_bounds(uint32_t x, uint32_t y) -> bool
-{
-  return (x >= 1) && (y >= 1) && (x <= N) && (y <= N);
-}
-
-inline auto can_go(Direction dir, uint32_t x, uint32_t y) -> bool
-{
-  switch (dir)
-  {
-  case Direction::UP:
-    return in_bounds(x, y - 1) && !visited[y - 1][x];
-
-  case Direction::RIGHT:
-    return in_bounds(x + 1, y) && (!visited[y][x + 1]);
-
-  case Direction::DOWN:
-    return in_bounds(x, y + 1) && !visited[y + 1][x];
-
-  case Direction::LEFT:
-    return in_bounds(x - 1, y) && !visited[y][x - 1];
-
-  default:
-    return false;
-  }
-}
-
-inline void search(uint32_t x, uint32_t y, uint32_t idx,
-                   const std::string &pattern, Direction dir)
-{
-  if (idx == N * N - 1 || (x == 1 && y == N))
-  {
-    if (idx == N * N - 1 && x == 1 && y == N)
-      cnt++;
-
-    return;
-  }
-
-  if (!can_go(dir, x, y))
-  {
-    if (dir == Direction::UP || dir == Direction::DOWN)
-    {
-      if (can_go(Direction::RIGHT, x, y) && can_go(Direction::LEFT, x, y))
-        return;
-    }
-    else if (dir == Direction::RIGHT || dir == Direction::LEFT)
-    {
-      if (can_go(Direction::UP, x, y) && can_go(Direction::DOWN, x, y))
-        return;
-    }
-  }
-
-  visited[y][x] = true;
-  char c        = pattern[idx];
-
-  if (c == 'D' || c == '?')
-    if (can_go(Direction::DOWN, x, y))
-      search(x, y + 1, idx + 1, pattern, Direction::DOWN);
-
-  if (c == 'U' || c == '?')
-    if (can_go(Direction::UP, x, y))
-      search(x, y - 1, idx + 1, pattern, Direction::UP);
-
-  if (c == 'R' || c == '?')
-    if (can_go(Direction::RIGHT, x, y))
-      search(x + 1, y, idx + 1, pattern, Direction::RIGHT);
-
-  if (c == 'L' || c == '?')
-    if (can_go(Direction::LEFT, x, y))
-      search(x - 1, y, idx + 1, pattern, Direction::LEFT);
-
-  visited[y][x] = false;
-}
-
-} // namespace _GridPaths
+} // namespace _400C
 
 int main()
 {
@@ -462,7 +370,7 @@ int main()
   int t{1};
 
   while (t-- > 0)
-    _GridPaths::run();
+    _400C::run();
 
   console_out.flush();
 
