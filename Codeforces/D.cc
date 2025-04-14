@@ -304,7 +304,7 @@ public:
     while (*this >> c, c < ' ')
       continue;
     x = c;
-    while (*this >> c, c >= ' ')
+    while (*this >> c, c > ' ')
       x += c;
 
     return *this;
@@ -344,111 +344,66 @@ IO::OutputWriter console_err(STDERR_FILENO);
 namespace _D
 {
 
-auto position_query(int64_t d, int64_t n) -> std::pair<int, int>
-{
-  int64_t grid_x{1 << (n >> 1)}, grid_y{1 << (n >> 1)};
-  int64_t base{};
-  while (n != 1)
-  {
-    if (base + 1 <= d && d <= base + (1 << ((2 * n) - 2)))
-    {
-      n--;
-      grid_x -= (1 << (n >> 1));
-      grid_y -= (1 << (n >> 1));
-    }
-    else if (base + (3 * (1 << ((2 * n) - 2)) + 1) <= d &&
-             d <= base + (1 << (2 * n)))
-    {
-      base += 3 * (1 << ((2 * n) - 2));
-      n--;
-      grid_x += (1 << (n >> 1));
-      grid_y -= (1 << (n >> 1));
-    }
-    else if (base + (1 << ((2 * n) - 2)) + 1 <= d &&
-             d <= base + (1 << ((2 * n) - 1)))
-    {
-      base += (1 << ((2 * n) - 2));
-      n--;
-      grid_x += (1 << (n >> 1));
-      grid_y += (1 << (n >> 1));
-    }
-    else
-    {
-      base += (1 << ((2 * n) - 1));
-      n--;
-      grid_x -= (1 << (n >> 1));
-      grid_y += (1 << (n >> 1));
-    }
-  }
-
-  if (d == base + 1)
-    return std::make_pair(grid_x - 1, grid_y - 1);
-  else if (d == base + 2)
-    return std::make_pair(grid_x, grid_y);
-  else if (d == base + 3)
-    return std::make_pair(grid_x - 1, grid_y);
-  else if (d == base + 4)
-    return std::make_pair(grid_x, grid_y - 1);
-
-  __builtin_unreachable();
-}
-
-auto cell_query(int64_t x, int64_t y, int64_t n) -> int64_t
-{
-  int64_t start_d{1}, N{n};
-  while (n != 1)
-  {
-    if (1 <= x && x <= (1 << (n - 1)) && 1 <= y && y <= (1 << (n - 1)))
-      start_d = 1;
-    else if (1 + (1 << (n - 1)) <= x && x <= (1 << n) && 1 <= y &&
-             y <= (1 << (n - 1)))
-      start_d = 3 * (1 << ((2 * n) - 2)) + 1;
-    else if (1 + (1 << (n - 1)) <= x && x <= (1 << n) &&
-             1 + (1 << (n - 1)) <= y && y <= (1 << n))
-      start_d = 1 + (1 << (2 * n - 2));
-    else
-      start_d = 1 + (1 << (2 * n - 1));
-    n--;
-  }
-
-  auto pair = position_query(start_d, N);
-  if (pair.first + 1 == x && pair.second + 1 == y)
-    return start_d;
-
-  pair = position_query(start_d + 1, N);
-  if (pair.first + 1 == x && pair.second + 1 == y)
-    return start_d + 1;
-
-  pair = position_query(start_d + 2, N);
-  if (pair.first + 1 == x && pair.second + 1 == y)
-    return start_d + 2;
-  else
-    return start_d + 3;
-}
-
 auto run() -> void
 {
-  int n, q;
-  console_in >> n >> q;
+  std::string p, s;
+  console_in >> p >> s;
 
-  while (q-- > 0)
+  int N{static_cast<int>(p.size())}, M{static_cast<int>(s.size())};
+  int ptr1{}, ptr2{};
+
+  while (ptr1 != N && ptr2 != M)
   {
-    std::string query;
-    console_in >> query;
-    if (query.substr(0, 2) == "->")
+    int win_length{0};
+    char curr{p[ptr1]};
+    while (ptr1 != N)
     {
-      auto space = query.substr(3).find(" ") + 3;
-      int64_t y  = std::stoll(query.substr(3, space + 1)),
-              x  = std::stoll(query.substr(space + 1));
-      console_out << cell_query(x, y, n) << "\n";
+      if (p[ptr1] == curr)
+      {
+        ptr1++;
+        win_length++;
+      }
+      else
+        break;
     }
-    else
+
+    int test_length{};
+    while (ptr2 != M)
     {
-      int64_t d       = std::stoi(query.substr(3));
-      const auto pair = position_query(d, n);
-      console_out << pair.second + 1 << " " << pair.first + 1 << "\n";
+      if (s[ptr2] == curr)
+      {
+        test_length++;
+        ptr2++;
+      }
+      else
+      {
+        if (test_length > (win_length << 1) || test_length < win_length)
+        {
+          console_out << "NO\n";
+          return;
+        }
+        else
+          break;
+      }
+
+      if (test_length > (win_length << 1))
+      {
+        console_out << "NO\n";
+        return;
+      }
+    }
+
+    if (ptr2 == M)
+    {
+      if (test_length > (win_length << 1) || test_length < win_length)
+      {
+        console_out << "NO\n";
+        return;
+      }
     }
   }
+
+  console_out << ((ptr1 == N && ptr2 == M) ? "YES\n" : "NO\n");
 }
 
 } // namespace _D

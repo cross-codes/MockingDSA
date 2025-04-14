@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -342,78 +341,30 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _E
+namespace _B
 {
-
-auto determine_best(uint32_t a[], int n) -> uint32_t
-{
-  std::array<std::pair<int, int>, 31> scores{};
-  for (int i = 0; i < 31; i++)
-  {
-    uint32_t mask{1U << i};
-    int count_zero{}, count_one{};
-    for (int j = 0; j < n; j++)
-    {
-      if (a[j] & mask)
-        count_one++;
-      else
-        count_zero++;
-    }
-
-    scores[i] = std::make_pair(count_zero, count_one);
-  }
-
-  uint32_t candidate{};
-  int64_t max_score{INT64_MIN};
-  for (int i = 0; i < n; i++)
-  {
-    int64_t score{};
-    for (int j = 0; j < 31; j++)
-    {
-      uint32_t test_bit = (a[i] >> j) & 1;
-      if (test_bit)
-      {
-        score += scores[j].first * (1LL << j);
-        score -= scores[j].second * (1LL << j);
-      }
-      else
-      {
-        score += scores[j].second * (1LL << j);
-        score -= scores[j].first * (1LL << j);
-      }
-    }
-
-    if (max_score <= score)
-    {
-      candidate = a[i];
-      max_score = score;
-    }
-  }
-
-  return (candidate == 0) ? a[0] : candidate;
-}
 
 auto run() -> void
 {
-  int n;
-  console_in >> n;
+  int n, m, l, r;
+  console_in >> n >> m >> l >> r;
 
-  uint32_t a[n], candidate{};
-  for (int i = 0; i < n; i++)
-    console_in >> a[i];
-
-  std::sort(a, a + n);
-
-  candidate = determine_best(a, n);
-
-  uint64_t res{};
-  for (int i = 0; i < n; i++)
-    res += candidate ^ a[i];
-
-  console_out << res << "\n";
+  if (l == 0)
+    console_out << "0 " << m << "\n";
+  else
+  {
+    l = std::abs(l);
+    if (l >= m)
+      console_out << "-" << m << " 0" << "\n";
+    else
+    {
+      m -= l;
+      console_out << "-" << l << " " << m << "\n";
+    }
+  }
 }
 
-} // namespace _E
+} // namespace _B
 
 int main()
 {
@@ -430,7 +381,7 @@ int main()
   console_in >> t;
 
   while (t-- > 0)
-    _E::run();
+    _B::run();
 
   console_out.flush();
 

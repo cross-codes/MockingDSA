@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -349,28 +350,21 @@ auto run() -> void
   int n, m, k;
   console_in >> n >> m >> k;
 
-  auto f        = [m](int x) { return x * (m / (x + 1)) + (m % (x + 1)); };
+  auto f = [&k, &n, &m](int x) {
+    return x * (m / (x + 1)) + (m % (x + 1)) >= static_cast<double>(k) / n;
+  };
 
-  double target = static_cast<double>(k);
-
-  int low{1}, high{m}, mid{};
-  bool found{};
-  while (low <= high)
+  int L{0}, R{m + 1};
+  while (R - L > 1)
   {
-    mid = (low + high) >> 1;
-    if (f(mid) >= std::ceil(target / n))
-    {
-      found = true;
-      high  = mid - 1;
-    }
-    else if (f(mid) < std::ceil(target / n))
-      low = mid + 1;
+    int M = std::midpoint(L, R);
+    if (f(M))
+      R = M;
+    else
+      L = M;
   }
 
-  if (found)
-    console_out << low << "\n";
-  else
-    console_out << mid << "\n";
+  console_out << R << "\n";
 }
 
 } // namespace _2091D

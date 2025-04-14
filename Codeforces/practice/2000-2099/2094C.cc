@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -12,7 +11,6 @@
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
-
 namespace IO
 {
 
@@ -342,78 +340,43 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _E
+namespace _C
 {
-
-auto determine_best(uint32_t a[], int n) -> uint32_t
-{
-  std::array<std::pair<int, int>, 31> scores{};
-  for (int i = 0; i < 31; i++)
-  {
-    uint32_t mask{1U << i};
-    int count_zero{}, count_one{};
-    for (int j = 0; j < n; j++)
-    {
-      if (a[j] & mask)
-        count_one++;
-      else
-        count_zero++;
-    }
-
-    scores[i] = std::make_pair(count_zero, count_one);
-  }
-
-  uint32_t candidate{};
-  int64_t max_score{INT64_MIN};
-  for (int i = 0; i < n; i++)
-  {
-    int64_t score{};
-    for (int j = 0; j < 31; j++)
-    {
-      uint32_t test_bit = (a[i] >> j) & 1;
-      if (test_bit)
-      {
-        score += scores[j].first * (1LL << j);
-        score -= scores[j].second * (1LL << j);
-      }
-      else
-      {
-        score += scores[j].second * (1LL << j);
-        score -= scores[j].first * (1LL << j);
-      }
-    }
-
-    if (max_score <= score)
-    {
-      candidate = a[i];
-      max_score = score;
-    }
-  }
-
-  return (candidate == 0) ? a[0] : candidate;
-}
 
 auto run() -> void
 {
   int n;
   console_in >> n;
 
-  uint32_t a[n], candidate{};
-  for (int i = 0; i < n; i++)
-    console_in >> a[i];
+  std::vector<int> permutation(n << 1, -1);
 
-  std::sort(a, a + n);
+  int64_t missing{};
 
-  candidate = determine_best(a, n);
+  for (int i = 1; i <= n; i++)
+    for (int j = 1; j <= n; j++)
+    {
+      int num;
+      console_in >> num;
+      if (permutation[i + j - 1] == -1)
+        missing += num;
+      permutation[i + j - 1] = num;
+    }
 
-  uint64_t res{};
-  for (int i = 0; i < n; i++)
-    res += candidate ^ a[i];
+  missing -= (n << 1) * ((n << 1) + 1) / 2;
+  missing = -missing;
 
-  console_out << res << "\n";
+  for (const int &elem : permutation)
+  {
+    if (elem == -1)
+      console_out << missing << " ";
+    else
+      console_out << elem << " ";
+  }
+
+  console_out << "\n";
 }
 
-} // namespace _E
+} // namespace _C
 
 int main()
 {
@@ -430,7 +393,7 @@ int main()
   console_in >> t;
 
   while (t-- > 0)
-    _E::run();
+    _C::run();
 
   console_out.flush();
 

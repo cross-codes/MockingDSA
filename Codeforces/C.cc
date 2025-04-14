@@ -344,53 +344,37 @@ IO::OutputWriter console_err(STDERR_FILENO);
 namespace _C
 {
 
-auto is_prime(int64_t x) -> bool
-{
-  if (x < 2)
-    return false;
-  if (x == 2)
-    return true;
-  if ((x & 1) == 0)
-    return false;
-  for (int64_t i = 3LL; i * i <= x; i += 2)
-    if (x % i == 0)
-      return false;
-
-  return true;
-}
-
 auto run() -> void
 {
-  int64_t x, k;
-  console_in >> x >> k;
+  int n;
+  console_in >> n;
 
-  if (k == 1)
-  {
-    if (is_prime(x))
-      console_out << "YES\n";
-    else
-      console_out << "NO\n";
-  }
-  else
-  {
-    if (x != 1)
-    {
-      console_out << "NO\n";
-      return;
-    }
-    else
-    {
-      std::string res{};
-      for (int i = 0; i < k; i++)
-        res.push_back('1');
+  std::vector<int> permutation(n << 1, -1);
 
-      int test = std::stoi(res);
-      if (is_prime(test))
-        console_out << "YES\n";
-      else
-        console_out << "NO\n";
+  int64_t missing{};
+
+  for (int i = 1; i <= n; i++)
+    for (int j = 1; j <= n; j++)
+    {
+      int num;
+      console_in >> num;
+      if (permutation[i + j - 1] == -1)
+        missing += num;
+      permutation[i + j - 1] = num;
     }
+
+  missing -= (n << 1) * ((n << 1) + 1) / 2;
+  missing = -missing;
+
+  for (const int elem : permutation)
+  {
+    if (elem == -1)
+      console_out << missing << " ";
+    else
+      console_out << elem << " ";
   }
+
+  console_out << "\n";
 }
 
 } // namespace _C

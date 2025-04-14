@@ -10,6 +10,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_map>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,55 +343,19 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _E
+namespace _1742D
 {
 
-auto determine_best(uint32_t a[], int n) -> uint32_t
+auto brute_force(std::unordered_map<int, int> distinct) -> int
 {
-  std::array<std::pair<int, int>, 31> scores{};
-  for (int i = 0; i < 31; i++)
-  {
-    uint32_t mask{1U << i};
-    int count_zero{}, count_one{};
-    for (int j = 0; j < n; j++)
-    {
-      if (a[j] & mask)
-        count_one++;
-      else
-        count_zero++;
-    }
+  int max_sum{-1};
 
-    scores[i] = std::make_pair(count_zero, count_one);
-  }
+  for (const auto &[key, value] : distinct)
+    for (const auto &[other_key, other_value] : distinct)
+      if (std::__gcd(key, other_key) == 1)
+        max_sum = std::max(max_sum, distinct[key] + distinct[other_key]);
 
-  uint32_t candidate{};
-  int64_t max_score{INT64_MIN};
-  for (int i = 0; i < n; i++)
-  {
-    int64_t score{};
-    for (int j = 0; j < 31; j++)
-    {
-      uint32_t test_bit = (a[i] >> j) & 1;
-      if (test_bit)
-      {
-        score += scores[j].first * (1LL << j);
-        score -= scores[j].second * (1LL << j);
-      }
-      else
-      {
-        score += scores[j].second * (1LL << j);
-        score -= scores[j].first * (1LL << j);
-      }
-    }
-
-    if (max_score <= score)
-    {
-      candidate = a[i];
-      max_score = score;
-    }
-  }
-
-  return (candidate == 0) ? a[0] : candidate;
+  return max_sum;
 }
 
 auto run() -> void
@@ -398,22 +363,20 @@ auto run() -> void
   int n;
   console_in >> n;
 
-  uint32_t a[n], candidate{};
+  std::unordered_map<int, int> distinct{};
+  distinct.reserve(1000);
+
   for (int i = 0; i < n; i++)
-    console_in >> a[i];
+  {
+    int num;
+    console_in >> num;
+    distinct[num] = i + 1;
+  }
 
-  std::sort(a, a + n);
-
-  candidate = determine_best(a, n);
-
-  uint64_t res{};
-  for (int i = 0; i < n; i++)
-    res += candidate ^ a[i];
-
-  console_out << res << "\n";
+  console_out << brute_force(distinct) << "\n";
 }
 
-} // namespace _E
+} // namespace _1742D
 
 int main()
 {
@@ -430,7 +393,7 @@ int main()
   console_in >> t;
 
   while (t-- > 0)
-    _E::run();
+    _1742D::run();
 
   console_out.flush();
 

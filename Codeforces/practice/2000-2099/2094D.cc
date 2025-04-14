@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -342,78 +341,72 @@ IO::InputReader console_in(STDIN_FILENO);
 IO::OutputWriter console_out(STDOUT_FILENO);
 IO::OutputWriter console_err(STDERR_FILENO);
 
-namespace _E
+namespace _D
 {
-
-auto determine_best(uint32_t a[], int n) -> uint32_t
-{
-  std::array<std::pair<int, int>, 31> scores{};
-  for (int i = 0; i < 31; i++)
-  {
-    uint32_t mask{1U << i};
-    int count_zero{}, count_one{};
-    for (int j = 0; j < n; j++)
-    {
-      if (a[j] & mask)
-        count_one++;
-      else
-        count_zero++;
-    }
-
-    scores[i] = std::make_pair(count_zero, count_one);
-  }
-
-  uint32_t candidate{};
-  int64_t max_score{INT64_MIN};
-  for (int i = 0; i < n; i++)
-  {
-    int64_t score{};
-    for (int j = 0; j < 31; j++)
-    {
-      uint32_t test_bit = (a[i] >> j) & 1;
-      if (test_bit)
-      {
-        score += scores[j].first * (1LL << j);
-        score -= scores[j].second * (1LL << j);
-      }
-      else
-      {
-        score += scores[j].second * (1LL << j);
-        score -= scores[j].first * (1LL << j);
-      }
-    }
-
-    if (max_score <= score)
-    {
-      candidate = a[i];
-      max_score = score;
-    }
-  }
-
-  return (candidate == 0) ? a[0] : candidate;
-}
 
 auto run() -> void
 {
-  int n;
-  console_in >> n;
+  std::string p, s;
+  console_in >> p >> s;
 
-  uint32_t a[n], candidate{};
-  for (int i = 0; i < n; i++)
-    console_in >> a[i];
+  int N{static_cast<int>(p.size())}, M{static_cast<int>(s.size())};
+  int ptr1{}, ptr2{};
 
-  std::sort(a, a + n);
+  while (ptr1 != N && ptr2 != M)
+  {
+    int win_length{0};
+    char curr{p[ptr1]};
+    while (ptr1 != N)
+    {
+      if (p[ptr1] == curr)
+      {
+        ptr1++;
+        win_length++;
+      }
+      else
+        break;
+    }
 
-  candidate = determine_best(a, n);
+    int test_length{};
+    while (ptr2 != M)
+    {
+      if (s[ptr2] == curr)
+      {
+        test_length++;
+        ptr2++;
+      }
+      else
+      {
+        if (test_length > (win_length << 1) || test_length < win_length)
+        {
+          console_out << "NO\n";
+          return;
+        }
+        else
+          break;
+      }
 
-  uint64_t res{};
-  for (int i = 0; i < n; i++)
-    res += candidate ^ a[i];
+      if (test_length > (win_length << 1))
+      {
+        console_out << "NO\n";
+        return;
+      }
+    }
 
-  console_out << res << "\n";
+    if (ptr2 == M)
+    {
+      if (test_length > (win_length << 1) || test_length < win_length)
+      {
+        console_out << "NO\n";
+        return;
+      }
+    }
+  }
+
+  console_out << ((ptr1 == N && ptr2 == M) ? "YES\n" : "NO\n");
 }
 
-} // namespace _E
+} // namespace _D
 
 int main()
 {
@@ -430,7 +423,7 @@ int main()
   console_in >> t;
 
   while (t-- > 0)
-    _E::run();
+    _D::run();
 
   console_out.flush();
 
