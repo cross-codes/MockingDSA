@@ -1,4 +1,4 @@
-# Gitignore for the following technologies: C++, Java, Eclipse, Vim
+# Gitignore for the following technologies: C++, Java, Eclipse, Vim, Rust
 
 # Java
 _Java
@@ -145,3 +145,9 @@ Sessionx.vim
 tags
 # Persistent undo
 [._]*.un~
+
+# Rust
+debug/
+target/
+
+**/*.rs.bk
