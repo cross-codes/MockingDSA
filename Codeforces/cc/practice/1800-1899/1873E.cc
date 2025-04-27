@@ -576,15 +576,6 @@ auto run() -> void
 
 int main()
 {
-#ifdef ANTUMBRA
-  FILE *stream = std::freopen("input.txt", "r", stdin);
-  if (stream == nullptr)
-  {
-    console_err << "Input file not found\n";
-    __builtin_trap();
-  }
-#endif
-
   int t{1};
   console_in >> t;
 
@@ -592,10 +583,6 @@ int main()
     _1873E::run();
 
   console_out.flush();
-
-#ifdef ANTUMBRA
-  std::fclose(stdin);
-#endif
 
   return 0;
 }
