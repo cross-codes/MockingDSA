@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::io::{self, BufRead, BufWriter, Write};
 
 fn run(
@@ -19,20 +20,48 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let x: usize = scanner.next();
+  let _m: usize = scanner.next();
+  let q: usize = scanner.next();
 
-  let mut numbers: Vec<usize> = (0..n).collect();
-  if n != x
-  {
-    numbers[x] = numbers[n - 1];
-    numbers[n - 1] = x;
-  }
+  let mut sets: Vec<HashSet<usize>> = vec![HashSet::new(); n + 1];
+  let mut can_view_all: Vec<bool> = vec![false; n + 1];
 
-  for &num in numbers.iter()
+  for _ in 0..q
   {
-    print!(num, " ");
+    let query_type: i32 = scanner.next();
+    match query_type
+    {
+      1 =>
+      {
+        let x: usize = scanner.next();
+        let y: usize = scanner.next();
+        sets[x].insert(y);
+      }
+
+      2 =>
+      {
+        let x: usize = scanner.next();
+        can_view_all[x] = true;
+      }
+
+      3 =>
+      {
+        let x: usize = scanner.next();
+        let y: usize = scanner.next();
+
+        if can_view_all[x] || sets[x].contains(&y)
+        {
+          print!("Yes\n");
+        }
+        else
+        {
+          print!("No\n");
+        }
+      }
+
+      _ => unreachable!("Invalid query"),
+    }
   }
-  print!("\n");
 }
 
 struct Scanner<B>
@@ -83,8 +112,7 @@ fn main()
   let mut writer = BufWriter::new(stdout.lock());
 
   #[allow(unused_assignments)]
-  let mut t: i32 = 1;
-  t = scanner.next();
+  let t: i32 = 1;
 
   for _ in 0..t
   {

@@ -1,6 +1,8 @@
 use std::cmp;
 use std::io::{self, BufRead, BufWriter, Write};
 
+static mut ARRAY: [i64; 200001] = [0; 200001];
+
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
   writer: &mut BufWriter<io::StdoutLock>,
@@ -23,45 +25,46 @@ fn run(
   let n: usize = scanner.next();
   let x: i64 = scanner.next();
 
-  let mut a: Vec<i64> = vec![0; n];
   let mut min_height: i64 = i64::MAX;
   let mut max_height: i64 = i64::MIN;
 
-  for i in 0..n
-  {
-    let value = scanner.next();
-    min_height = cmp::min(min_height, value);
-    max_height = cmp::max(max_height, value);
-    a[i as usize] = value;
-  }
-
-  let predicate = |m: i64| -> bool {
-    let mut water: i64 = 0i64;
+  unsafe {
     for i in 0..n
     {
-      water += cmp::max(m - a[i], 0i64);
+      let value = scanner.next();
+      min_height = cmp::min(min_height, value);
+      max_height = cmp::max(max_height, value);
+      ARRAY[i as usize] = value;
     }
 
-    water > x
-  };
+    let predicate = |m: i64| -> bool {
+      let mut water: i64 = 0i64;
+      for i in 0..n
+      {
+        water += cmp::max(m - ARRAY[i], 0i64);
+      }
 
-  let mut l = min_height - 1;
-  let mut r = x + max_height + 1;
+      water > x
+    };
 
-  while r - l > 1
-  {
-    let m = l + ((r - l) >> 1);
-    if predicate(m)
+    let mut l = min_height - 1;
+    let mut r = x + max_height + 1;
+
+    while r - l > 1
     {
-      r = m;
+      let m = l + ((r - l) >> 1);
+      if predicate(m)
+      {
+        r = m;
+      }
+      else
+      {
+        l = m;
+      }
     }
-    else
-    {
-      l = m;
-    }
+
+    print!(l);
   }
-
-  print!(l);
 }
 
 struct Scanner<B>

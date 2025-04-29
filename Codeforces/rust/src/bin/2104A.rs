@@ -18,21 +18,29 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let x: usize = scanner.next();
+  let a: i32 = scanner.next();
+  let b: i32 = scanner.next();
+  let c: i32 = scanner.next();
 
-  let mut numbers: Vec<usize> = (0..n).collect();
-  if n != x
+  if ((c << 1) - (a + b)) % 3 == 0 && (c << 1) > (a + b)
   {
-    numbers[x] = numbers[n - 1];
-    numbers[n - 1] = x;
+    let x = ((c << 1) - (a + b)) / 3;
+    if x + a - b >= 0
+      && (x + a - b) & 1 == 0
+      && x - a + b >= 0
+      && (x - a + b) & 1 == 0
+    {
+      print!("YES\n");
+    }
+    else
+    {
+      print!("NO\n");
+    }
   }
-
-  for &num in numbers.iter()
+  else
   {
-    print!(num, " ");
+    print!("NO\n");
   }
-  print!("\n");
 }
 
 struct Scanner<B>

@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::io::{self, BufRead, BufWriter, Write};
 
 fn run(
@@ -19,20 +20,30 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let x: usize = scanner.next();
+  let mut a: Vec<i32> = vec![0; n];
+  let mut maximum: Vec<i32> = vec![i32::MIN; n];
 
-  let mut numbers: Vec<usize> = (0..n).collect();
-  if n != x
+  let mut current_max: i32 = i32::MIN;
+  for i in 0..n
   {
-    numbers[x] = numbers[n - 1];
-    numbers[n - 1] = x;
+    let num: i32 = scanner.next();
+    current_max = max(current_max, num);
+    maximum[i] = current_max;
+    a[i] = num;
   }
 
-  for &num in numbers.iter()
+  let mut suffix_sum: Vec<i64> = vec![0; n + 1];
+  for i in (0..n).rev()
   {
-    print!(num, " ");
+    suffix_sum[i] = suffix_sum[i + 1] + (a[i] as i64);
   }
-  print!("\n");
+
+  for i in 0..n - 1
+  {
+    print!(suffix_sum[n - i] + maximum[n - i - 1] as i64, " ");
+  }
+
+  print!(suffix_sum[0], "\n");
 }
 
 struct Scanner<B>

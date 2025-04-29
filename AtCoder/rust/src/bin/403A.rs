@@ -19,20 +19,22 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let x: usize = scanner.next();
+  let mut odd: bool = true;
+  let mut res: i64 = 0;
 
-  let mut numbers: Vec<usize> = (0..n).collect();
-  if n != x
+  for _ in 0..n
   {
-    numbers[x] = numbers[n - 1];
-    numbers[n - 1] = x;
+    let num: i64 = scanner.next();
+
+    if odd
+    {
+      res += num;
+    }
+
+    odd = !odd;
   }
 
-  for &num in numbers.iter()
-  {
-    print!(num, " ");
-  }
-  print!("\n");
+  print!(res, "\n");
 }
 
 struct Scanner<B>
@@ -83,8 +85,7 @@ fn main()
   let mut writer = BufWriter::new(stdout.lock());
 
   #[allow(unused_assignments)]
-  let mut t: i32 = 1;
-  t = scanner.next();
+  let t: i32 = 1;
 
   for _ in 0..t
   {

@@ -18,21 +18,42 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let x: usize = scanner.next();
+  let input1: String = scanner.next();
+  let input2: String = scanner.next();
 
-  let mut numbers: Vec<usize> = (0..n).collect();
-  if n != x
+  let t: Vec<char> = input1.chars().collect();
+  let u: Vec<char> = input2.chars().collect();
+
+  let ulim: usize = t.len() - u.len() + 1;
+  for i in 0..ulim
   {
-    numbers[x] = numbers[n - 1];
-    numbers[n - 1] = x;
+    let substr = &t[i..i + u.len()];
+    let mut pos: usize = 0;
+    for &ch in substr.iter()
+    {
+      if ch == '?'
+      {
+        pos += 1;
+      }
+      else
+      {
+        if ch != u[pos]
+        {
+          break;
+        }
+        pos += 1;
+      }
+    }
+
+    if pos == u.len()
+    {
+      print!("Yes\n");
+      return;
+    }
   }
 
-  for &num in numbers.iter()
-  {
-    print!(num, " ");
-  }
-  print!("\n");
+  print!("No\n");
+  return;
 }
 
 struct Scanner<B>
@@ -83,8 +104,7 @@ fn main()
   let mut writer = BufWriter::new(stdout.lock());
 
   #[allow(unused_assignments)]
-  let mut t: i32 = 1;
-  t = scanner.next();
+  let t: i32 = 1;
 
   for _ in 0..t
   {
