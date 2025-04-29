@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 
 const N: usize = 7;
@@ -180,7 +181,7 @@ impl<B: BufRead> Scanner<B>
   }
 }
 
-fn main()
+fn main() -> Result<(), Box<dyn Error>>
 {
   let stdin = io::stdin();
   let stdout = io::stdout();
@@ -196,4 +197,6 @@ fn main()
   }
 
   writer.flush().unwrap();
+
+  Ok(())
 }
