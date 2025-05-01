@@ -6,7 +6,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -15,7 +15,7 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
@@ -35,7 +35,7 @@ fn run(
     current_sum += x[i] as i64;
   }
 
-  print!(current_sum, "\n");
+  display!(current_sum, "\n");
 }
 
 struct Scanner<B>

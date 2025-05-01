@@ -19,80 +19,25 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let m: usize = scanner.next();
-  let mut x: [usize; 200001] = [0; 200001];
-  let mut nums: [usize; 200001] = [0; 200001];
+  let mut n: i64 = scanner.next();
 
-  for i in 1..n + 1
+  display!(n, " ");
+  while n != 1
   {
-    let val: usize = scanner.next();
-    x[i] = val;
-    nums[val] = i;
+    if n & 1 == 0
+    {
+      n >>= 1;
+    }
+    else
+    {
+      n *= 3;
+      n += 1;
+    }
+
+    display!(n, " ");
   }
 
-  let mut result: usize = 1;
-  for i in 1..n
-  {
-    if nums[i] > nums[i + 1]
-    {
-      result += 1;
-    }
-  }
-
-  for _ in 0..m
-  {
-    let idx1: usize = scanner.next();
-    let idx2: usize = scanner.next();
-
-    let a: usize = x[idx1];
-    let b: usize = x[idx2];
-
-    if a > 1 && nums[a] < nums[a - 1]
-    {
-      result -= 1;
-    }
-
-    if a < n && nums[a + 1] < nums[a]
-    {
-      result -= 1;
-    }
-
-    if b > 1 && b - 1 != a && nums[b] < nums[b - 1]
-    {
-      result -= 1;
-    }
-
-    if b < n && b + 1 != a && nums[b + 1] < nums[b]
-    {
-      result -= 1;
-    }
-
-    x.swap(idx2, idx1);
-    nums.swap(b, a);
-
-    if a > 1 && nums[a] < nums[a - 1]
-    {
-      result += 1;
-    }
-
-    if a < n && nums[a + 1] < nums[a]
-    {
-      result += 1;
-    }
-
-    if b > 1 && b - 1 != a && nums[b] < nums[b - 1]
-    {
-      result += 1;
-    }
-
-    if b < n && b + 1 != a && nums[b + 1] < nums[b]
-    {
-      result += 1;
-    }
-
-    display!(result, "\n");
-  }
+  display!("\n");
 }
 
 struct Scanner<B>

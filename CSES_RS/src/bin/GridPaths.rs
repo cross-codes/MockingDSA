@@ -118,7 +118,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -127,7 +127,7 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
@@ -138,7 +138,7 @@ fn run(
   let mut visited: [[bool; N + 1]; N + 1] = [[false; N + 1]; N + 1];
   search(1, 1, 0, &mut seq, Direction::NONE, &mut cnt, &mut visited);
 
-  print!(cnt, "\n");
+  display!(cnt, "\n");
 }
 
 struct Scanner<B>

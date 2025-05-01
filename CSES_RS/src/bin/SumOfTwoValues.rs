@@ -7,7 +7,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -16,7 +16,7 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
@@ -30,14 +30,14 @@ fn run(
     let val: i32 = scanner.next();
     if map.contains_key(&(x - val))
     {
-      print!(i, " ", map[&(x - val)], "\n");
+      display!(i, " ", map[&(x - val)], "\n");
       return;
     }
 
     map.insert(val, i);
   }
 
-  print!("IMPOSSIBLE\n");
+  display!("IMPOSSIBLE\n");
 }
 
 struct Scanner<B>

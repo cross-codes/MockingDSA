@@ -7,7 +7,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -16,13 +16,13 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
   let n: usize = scanner.next();
   let set: HashSet<i32> = (0..n).map(|_| scanner.next()).collect();
-  print!(set.len(), "\n");
+  display!(set.len(), "\n");
 }
 
 struct Scanner<B>

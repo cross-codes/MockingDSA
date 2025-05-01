@@ -6,7 +6,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -15,7 +15,7 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
@@ -51,7 +51,7 @@ fn run(
     }
   }
 
-  print!(cnt, "\n");
+  display!(cnt, "\n");
 }
 
 struct Scanner<B>

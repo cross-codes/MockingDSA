@@ -6,7 +6,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -15,7 +15,7 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
@@ -31,7 +31,7 @@ fn run(
     total_cost += (p[i] - median).abs() as i64;
   }
 
-  print!(total_cost, "\n");
+  display!(total_cost, "\n");
 }
 
 struct Scanner<B>

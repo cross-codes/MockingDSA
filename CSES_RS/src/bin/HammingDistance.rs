@@ -1,3 +1,4 @@
+use std::cmp;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 
@@ -20,79 +21,26 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
-  let mut x: [usize; 200001] = [0; 200001];
-  let mut nums: [usize; 200001] = [0; 200001];
+  let _k: usize = scanner.next();
+  let mut x: Vec<u32> = Vec::new();
 
-  for i in 1..n + 1
+  for _ in 0..n
   {
-    let val: usize = scanner.next();
-    x[i] = val;
-    nums[val] = i;
+    let bin_str: String = scanner.next();
+    let uint_val: u32 = u32::from_str_radix(&bin_str, 2).unwrap();
+    x.push(uint_val);
   }
 
-  let mut result: usize = 1;
-  for i in 1..n
+  let mut min_hamming_dist: u32 = u32::MAX;
+  for i in 0..n
   {
-    if nums[i] > nums[i + 1]
+    for j in i + 1..n
     {
-      result += 1;
+      min_hamming_dist = cmp::min((x[i] ^ x[j]).count_ones(), min_hamming_dist);
     }
   }
 
-  for _ in 0..m
-  {
-    let idx1: usize = scanner.next();
-    let idx2: usize = scanner.next();
-
-    let a: usize = x[idx1];
-    let b: usize = x[idx2];
-
-    if a > 1 && nums[a] < nums[a - 1]
-    {
-      result -= 1;
-    }
-
-    if a < n && nums[a + 1] < nums[a]
-    {
-      result -= 1;
-    }
-
-    if b > 1 && b - 1 != a && nums[b] < nums[b - 1]
-    {
-      result -= 1;
-    }
-
-    if b < n && b + 1 != a && nums[b + 1] < nums[b]
-    {
-      result -= 1;
-    }
-
-    x.swap(idx2, idx1);
-    nums.swap(b, a);
-
-    if a > 1 && nums[a] < nums[a - 1]
-    {
-      result += 1;
-    }
-
-    if a < n && nums[a + 1] < nums[a]
-    {
-      result += 1;
-    }
-
-    if b > 1 && b - 1 != a && nums[b] < nums[b - 1]
-    {
-      result += 1;
-    }
-
-    if b < n && b + 1 != a && nums[b + 1] < nums[b]
-    {
-      result += 1;
-    }
-
-    display!(result, "\n");
-  }
+  display!(min_hamming_dist, "\n");
 }
 
 struct Scanner<B>

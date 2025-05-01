@@ -8,7 +8,7 @@ fn run(
   writer: &mut BufWriter<io::StdoutLock>,
 )
 {
-  macro_rules! print {
+  macro_rules! display {
         () => {
             writeln!(writer).unwrap();
         };
@@ -17,7 +17,7 @@ fn run(
         };
         ($arg:expr, $($rest:expr),*) => {
             write!(writer, "{}", $arg).unwrap();
-            print!($($rest),*);
+            display!($($rest),*);
         };
     }
 
@@ -43,7 +43,7 @@ fn run(
     {
       Some((&key, &value)) =>
       {
-        print!(key, "\n");
+        display!(key, "\n");
 
         if value > 1
         {
@@ -60,7 +60,7 @@ fn run(
 
       None =>
       {
-        print!(-1, "\n");
+        display!(-1, "\n");
       }
     }
   }

@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 
@@ -19,80 +20,24 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let m: usize = scanner.next();
-  let mut x: [usize; 200001] = [0; 200001];
-  let mut nums: [usize; 200001] = [0; 200001];
+  let str: String = scanner.next();
+  let chars: Vec<char> = str.chars().collect();
+  let n: usize = chars.len();
 
-  for i in 1..n + 1
+  let mut max_len: usize = 1;
+  let mut left_bound: usize = 0;
+  let mut win_char: char = chars[0];
+  for i in 0..n
   {
-    let val: usize = scanner.next();
-    x[i] = val;
-    nums[val] = i;
-  }
-
-  let mut result: usize = 1;
-  for i in 1..n
-  {
-    if nums[i] > nums[i + 1]
+    if chars[i] != win_char
     {
-      result += 1;
+      max_len = max(max_len, i - left_bound);
+      win_char = chars[i];
+      left_bound = i;
     }
   }
 
-  for _ in 0..m
-  {
-    let idx1: usize = scanner.next();
-    let idx2: usize = scanner.next();
-
-    let a: usize = x[idx1];
-    let b: usize = x[idx2];
-
-    if a > 1 && nums[a] < nums[a - 1]
-    {
-      result -= 1;
-    }
-
-    if a < n && nums[a + 1] < nums[a]
-    {
-      result -= 1;
-    }
-
-    if b > 1 && b - 1 != a && nums[b] < nums[b - 1]
-    {
-      result -= 1;
-    }
-
-    if b < n && b + 1 != a && nums[b + 1] < nums[b]
-    {
-      result -= 1;
-    }
-
-    x.swap(idx2, idx1);
-    nums.swap(b, a);
-
-    if a > 1 && nums[a] < nums[a - 1]
-    {
-      result += 1;
-    }
-
-    if a < n && nums[a + 1] < nums[a]
-    {
-      result += 1;
-    }
-
-    if b > 1 && b - 1 != a && nums[b] < nums[b - 1]
-    {
-      result += 1;
-    }
-
-    if b < n && b + 1 != a && nums[b + 1] < nums[b]
-    {
-      result += 1;
-    }
-
-    display!(result, "\n");
-  }
+  display!(max(n - left_bound, max_len), "\n");
 }
 
 struct Scanner<B>
