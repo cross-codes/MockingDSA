@@ -1,7 +1,6 @@
-use std::collections::BTreeMap;
+use std::collections::HashSet;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -21,45 +20,21 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let m: usize = scanner.next();
+  let s: String = scanner.next();
+  let chars: Vec<char> = s.chars().collect();
+  let mut letters: HashSet<char> = ('a'..='z').collect();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
-  for _ in 0..n
+  chars.into_iter().for_each(|ch| {
+    letters.remove(&ch);
+  });
+
+  if let Some(&first) = letters.iter().next()
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
+    display!(first, "\n");
   }
-
-  for _ in 0..m
+  else
   {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
-    {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
-
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
-      }
-
-      None =>
-      {
-        display!(-1, "\n");
-      }
-    }
+    unreachable!();
   }
 }
 

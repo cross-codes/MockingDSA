@@ -1,7 +1,5 @@
-use std::collections::BTreeMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +20,39 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
-  for _ in 0..n
+  if matches!(n, 2 | 3)
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
+    display!("NO SOLUTION\n");
+    return;
   }
 
-  for _ in 0..m
+  if n & 1 == 0
   {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
+    for i in (2..n + 1).step_by(2)
     {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
+      display!(i, " ");
+    }
 
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
-      }
-
-      None =>
-      {
-        display!(-1, "\n");
-      }
+    for i in (1..n).step_by(2)
+    {
+      display!(i, " ");
     }
   }
+  else
+  {
+    for i in (2..n).step_by(2)
+    {
+      display!(i, " ");
+    }
+
+    for i in (1..n + 1).step_by(2)
+    {
+      display!(i, " ");
+    }
+  }
+
+  display!("\n");
 }
 
 struct Scanner<B>

@@ -1,7 +1,38 @@
-use std::collections::BTreeMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
+
+fn simulate(
+  n: usize,
+  a: usize,
+  b: usize,
+  c: usize,
+  writer: &mut BufWriter<io::StdoutLock>,
+)
+{
+  macro_rules! display {
+        () => {
+            writeln!(writer).unwrap();
+        };
+        ($arg:expr) => {
+            write!(writer, "{}", $arg).unwrap();
+        };
+        ($arg:expr, $($rest:expr),*) => {
+            write!(writer, "{}", $arg).unwrap();
+            display!($($rest),*);
+        };
+    }
+
+  if n == 1
+  {
+    display!(a, " ", c, "\n");
+  }
+  else
+  {
+    simulate(n - 1, a, c, b, writer);
+    display!(a, " ", c, "\n");
+    simulate(n - 1, b, a, c, writer);
+  }
+}
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +53,9 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
-  for _ in 0..n
-  {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
-  }
-
-  for _ in 0..m
-  {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
-    {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
-
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
-      }
-
-      None =>
-      {
-        display!(-1, "\n");
-      }
-    }
-  }
+  display!((1 << n) - 1, "\n");
+  simulate(n, 1, 2, 3, writer);
 }
 
 struct Scanner<B>

@@ -1,7 +1,43 @@
-use std::collections::BTreeMap;
+use std::cmp::min;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
+
+fn transpose_and_reverse(v: &mut Vec<Vec<char>>) -> Vec<Vec<char>>
+{
+  let rows = v.len();
+  let cols = v[0].len();
+
+  let mut transposed: Vec<Vec<char>> = (0..cols)
+    .map(|col| (0..rows).map(|row| v[row][col]).collect())
+    .collect();
+
+  for row in transposed.iter_mut()
+  {
+    row.reverse();
+  }
+
+  transposed
+}
+
+fn difference(u: &Vec<Vec<char>>, v: &Vec<Vec<char>>) -> i32
+{
+  let rows = u.len();
+  let cols = u[0].len();
+
+  let mut diff: i32 = 0;
+  for y in 0..rows
+  {
+    for x in 0..cols
+    {
+      if u[y][x] != v[y][x]
+      {
+        diff += 1;
+      }
+    }
+  }
+
+  diff
+}
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +58,32 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
+  let mut u: Vec<Vec<char>> = Vec::new();
+  let mut v: Vec<Vec<char>> = Vec::new();
+
   for _ in 0..n
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
+    let row: String = scanner.next();
+    let chars: Vec<char> = row.chars().collect();
+    u.push(chars);
   }
 
-  for _ in 0..m
+  for _ in 0..n
   {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
-    {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
-
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
-      }
-
-      None =>
-      {
-        display!(-1, "\n");
-      }
-    }
+    let row: String = scanner.next();
+    let chars: Vec<char> = row.chars().collect();
+    v.push(chars);
   }
+
+  let mut min_diff: i32 = difference(&u, &v);
+  for i in 1..4
+  {
+    u = transpose_and_reverse(&mut u);
+    min_diff = min(min_diff, i + difference(&u, &v));
+  }
+
+  display!(min_diff, "\n");
 }
 
 struct Scanner<B>

@@ -1,7 +1,6 @@
-use std::collections::BTreeMap;
+use std::cmp::max;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +21,49 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
+  let mut a: Vec<i32> = Vec::new();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
-  for _ in 0..n
+  let mut all_same: bool = true;
+  let mut max_element: i32 = scanner.next();
+  let mut prev: i32 = max_element;
+  a.push(max_element);
+
+  for _ in 0..n - 1
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
+    let num: i32 = scanner.next();
+    if all_same && prev != num
+    {
+      all_same = false;
+    }
+
+    a.push(num);
+    prev = num;
+    max_element = max(max_element, num);
   }
 
-  for _ in 0..m
+  if all_same
   {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
+    display!("No\n");
+    return;
+  }
 
-    match lower_bound
+  display!("Yes\n");
+
+  let mut marked: bool = false;
+  for i in 0..n
+  {
+    if !marked && a[i] == max_element
     {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
-
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
-      }
-
-      None =>
-      {
-        display!(-1, "\n");
-      }
+      marked = true;
+      display!("2 ");
+    }
+    else
+    {
+      display!("1 ");
     }
   }
+
+  display!("\n");
 }
 
 struct Scanner<B>
@@ -111,7 +114,8 @@ fn main() -> Result<(), Box<dyn Error>>
   let mut writer = BufWriter::new(stdout.lock());
 
   #[allow(unused_assignments)]
-  let t: i32 = 1;
+  let mut t: i32 = 1;
+  t = scanner.next();
 
   for _ in 0..t
   {

@@ -1,7 +1,5 @@
-use std::collections::BTreeMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +20,30 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
+  let mut a: Vec<i32> = Vec::new();
+  a.push(0);
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
   for _ in 0..n
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
+    a.push(scanner.next());
   }
 
-  for _ in 0..m
+  let mut res: i64 = 0;
+  let mut i = 1;
+  while i <= n
   {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
+    res += 1;
+    while i <= n && a[i] >= a[i - 1]
     {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
-
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
-      }
-
-      None =>
-      {
-        display!(-1, "\n");
-      }
+      i += 1;
+    }
+    while i <= n && a[i] <= a[i - 1]
+    {
+      i += 1;
     }
   }
+
+  display!(res, "\n");
 }
 
 struct Scanner<B>
@@ -111,7 +94,8 @@ fn main() -> Result<(), Box<dyn Error>>
   let mut writer = BufWriter::new(stdout.lock());
 
   #[allow(unused_assignments)]
-  let t: i32 = 1;
+  let mut t: i32 = 1;
+  t = scanner.next();
 
   for _ in 0..t
   {

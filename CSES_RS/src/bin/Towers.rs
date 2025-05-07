@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
+use std::ops::Bound::{Excluded, Unbounded};
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +22,36 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
+  let mut sizes: BTreeMap<i32, i64> = BTreeMap::new();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
   for _ in 0..n
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
-  }
-
-  for _ in 0..m
-  {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
+    let k: i32 = scanner.next();
+    let upper_bound = sizes.range((Excluded(&k), Unbounded)).next();
+    match upper_bound
     {
       Some((&key, &value)) =>
       {
-        display!(key, "\n");
-
         if value > 1
         {
-          tickets.insert(key, value - 1);
+          sizes.insert(key, value - 1);
         }
         else
         {
-          tickets.remove(&key);
+          sizes.remove(&key);
         }
+
+        *sizes.entry(k).or_insert(0) += 1;
       }
 
       None =>
       {
-        display!(-1, "\n");
+        *sizes.entry(k).or_insert(0) += 1;
       }
     }
   }
+
+  display!(sizes.values().sum::<i64>(), "\n");
 }
 
 struct Scanner<B>

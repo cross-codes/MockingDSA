@@ -1,7 +1,7 @@
-use std::collections::BTreeMap;
+use std::cmp::max;
+use std::collections::HashMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
-use std::ops::Bound::{Included, Unbounded};
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -22,45 +22,33 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let m: usize = scanner.next();
+  let k: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let mut recent_index: HashMap<i32, usize> = HashMap::new();
 
-  let mut tickets: BTreeMap<i32, i32> = BTreeMap::new();
-  for _ in 0..n
+  let mut l: usize = 0;
+  let mut longest: usize = 0;
+  for i in 0..n
   {
-    let h: i32 = scanner.next();
-    tickets
-      .entry(h)
-      .and_modify(|value| *value += 1)
-      .or_insert(1);
-  }
-
-  for _ in 0..m
-  {
-    let t: i32 = scanner.next();
-    let lower_bound = tickets.range((Unbounded, Included(t))).next_back();
-
-    match lower_bound
+    if recent_index.contains_key(&k[i])
     {
-      Some((&key, &value)) =>
-      {
-        display!(key, "\n");
+      longest = max(longest, i - l);
 
-        if value > 1
-        {
-          tickets.insert(key, value - 1);
-        }
-        else
-        {
-          tickets.remove(&key);
-        }
+      let new_pos = recent_index[&k[i]] + 1;
+      for j in l..new_pos
+      {
+        recent_index.remove(&k[j]);
       }
 
-      None =>
-      {
-        display!(-1, "\n");
-      }
+      l = new_pos;
+      recent_index.insert(k[i], i);
+    }
+    else
+    {
+      recent_index.insert(k[i], i);
     }
   }
+
+  display!(max(longest, n - l), "\n");
 }
 
 struct Scanner<B>
