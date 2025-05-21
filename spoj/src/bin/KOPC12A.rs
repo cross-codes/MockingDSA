@@ -2,12 +2,12 @@ use std::cmp::min;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 
-fn f(n: usize, h: &Vec<i32>, c: &Vec<i32>, height: f64) -> f64
+fn f(n: usize, h: &Vec<i32>, c: &Vec<i32>, height: i32) -> i64
 {
-  let mut cost: f64 = 0.0;
+  let mut cost: i64 = 0;
   for i in 0..n
   {
-    cost += (h[i] as f64 - height).abs() * (c[i] as f64);
+    cost += (h[i] as i64 - height as i64).abs() * (c[i] as i64);
   }
 
   cost
@@ -17,14 +17,14 @@ fn unimodal_min(
   n: usize,
   h: &Vec<i32>,
   c: &Vec<i32>,
-  mut l: f64,
-  mut r: f64,
+  mut l: i32,
+  mut r: i32,
 ) -> i64
 {
-  while r - l >= 3.0
+  while r - l >= 3
   {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
+    let m1: i32 = l + (r - l) / 3;
+    let m2: i32 = r - (r - l) / 3;
 
     if f(n, h, c, m1) > f(n, h, c, m2)
     {
@@ -36,14 +36,10 @@ fn unimodal_min(
     }
   }
 
-  let lower_lim: i64 = l.floor() as i64;
-  let upper_lim: i64 = r.ceil() as i64;
-
   let mut min_val = i64::MAX;
-
-  for i in lower_lim..=upper_lim
+  for i in l..=r
   {
-    min_val = min(min_val, f(n, h, c, i as f64) as i64);
+    min_val = min(min_val, f(n, h, c, i) as i64);
   }
 
   min_val
@@ -71,11 +67,10 @@ fn run(
   let h: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
   let c: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
 
-  let h_min = *h.iter().min().unwrap() as f64;
-  let h_max = *h.iter().max().unwrap() as f64;
+  let h_min = h.iter().min().cloned().unwrap();
+  let h_max = h.iter().max().cloned().unwrap();
 
   let res: i64 = unimodal_min(n, &h, &c, h_min, h_max);
-
   display!(res, "\n");
 }
 
