@@ -40,6 +40,7 @@ fn run(
     }
   }
 
+
   display!(connected_components, "\n");
 }
 
