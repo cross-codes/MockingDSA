@@ -342,42 +342,36 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _1821B
+namespace _407B
 {
+
+std::string precise_str(long double value, int precision = 10)
+{
+  std::ostringstream oss;
+  oss.precision(precision);
+  oss << std::fixed << value;
+  return oss.str();
+}
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int X, Y;
+  io::cin >> X >> Y;
 
-  int a[n], a_c[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> a[i];
-
-  for (int i = 0; i < n; i++)
-    io::cin >> a_c[i];
-
-  int left_differ{-1}, right_differ{-1};
-  for (int i = 0; i < n; i++)
+  int cnt{};
+  for (int i = 1; i <= 6; i++)
   {
-    if (a[i] != a_c[i])
+    for (int j = 1; j <= 6; j++)
     {
-      right_differ = i;
-      if (left_differ == -1)
-        left_differ = i;
+      if (i + j >= X || std::abs(i - j) >= Y)
+        cnt++;
     }
   }
 
-  while (left_differ > 0 && a_c[left_differ - 1] <= a_c[left_differ])
-    left_differ -= 1;
-
-  while (right_differ < n - 1 && a_c[right_differ + 1] >= a_c[right_differ])
-    right_differ += 1;
-
-  io::cout << left_differ + 1 << " " << right_differ + 1 << "\n";
+  io::cout << precise_str(cnt / 36.0L) << "\n";
 }
 
-} // namespace _1821B
+} // namespace _407B
 
 int main()
 {
@@ -391,10 +385,9 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
 
   while (t-- > 0)
-    _1821B::run();
+    _407B::run();
 
   io::cout.flush();
 

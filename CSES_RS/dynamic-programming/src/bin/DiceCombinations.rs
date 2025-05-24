@@ -2,51 +2,14 @@ use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
+type Precalc = [i64; 1000001];
+const MOD: i64 = 1000000007;
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
   writer: &mut BufWriter<io::StdoutLock>,
   _case: i32,
+  ways_to_sum: &Precalc,
 )
 {
   macro_rules! display {
@@ -63,12 +26,7 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
-
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
-
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  display!(ways_to_sum[n], "\n");
 }
 
 struct Scanner<B>
@@ -114,7 +72,6 @@ impl<B: BufRead> Scanner<B>
 fn main() -> Result<(), Box<dyn Error>>
 {
   let stack_size: usize = 268435456;
-
   let handle: JoinHandle<()> = thread::Builder::new()
     .stack_size(stack_size)
     .spawn(|| {
@@ -126,11 +83,31 @@ fn main() -> Result<(), Box<dyn Error>>
       #[allow(unused_assignments)]
       let t: i32 = 1;
 
-      (1..=t).for_each(|i| run(&mut scanner, &mut writer, i));
+      let mut ways_to_sum: Precalc = [0; 1000001];
+      ways_to_sum[0] = 0;
+
+      for i in 1..=1000000
+      {
+        for j in 1..=6
+        {
+          if i - j > 0
+          {
+            ways_to_sum[i] += ways_to_sum[i - j];
+          }
+          else if i - j == 0
+          {
+            ways_to_sum[i] += 1;
+            break;
+          }
+        }
+        ways_to_sum[i] %= MOD;
+      }
+
+      (1..=t).for_each(|i| run(&mut scanner, &mut writer, i, &ways_to_sum));
       writer.flush().unwrap();
     })
     .expect(&format!(
-      "Failed to spawn thread. [STACK SIZE {} bytes]",
+      "Failed to spawn thread [STACK SIZE {} B]",
       stack_size
     ));
 

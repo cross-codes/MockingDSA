@@ -342,42 +342,38 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _1821B
+namespace _1869B
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int64_t n, k, a, b;
+  io::cin >> n >> k >> a >> b;
 
-  int a[n], a_c[n];
+  int64_t x[n], y[n];
   for (int i = 0; i < n; i++)
-    io::cin >> a[i];
+    io::cin >> x[i] >> y[i];
 
-  for (int i = 0; i < n; i++)
-    io::cin >> a_c[i];
+  __int128_t direct_route =
+      std::abs(x[a - 1] - x[b - 1]) + std::abs(y[a - 1] - y[b - 1]);
+  __int128_t major_to_a{INT64_MAX}, major_to_b{INT64_MAX};
 
-  int left_differ{-1}, right_differ{-1};
-  for (int i = 0; i < n; i++)
+  for (int i = 0; i < k; i++)
   {
-    if (a[i] != a_c[i])
-    {
-      right_differ = i;
-      if (left_differ == -1)
-        left_differ = i;
-    }
+    major_to_a = std::min(major_to_a,
+                          static_cast<__int128_t>(std::abs(x[i] - x[a - 1])) +
+                              std::abs(y[i] - y[a - 1]));
+    major_to_b = std::min(major_to_b,
+                          static_cast<__int128_t>(std::abs(x[i] - x[b - 1]) +
+                                                  std::abs(y[i] - y[b - 1])));
   }
 
-  while (left_differ > 0 && a_c[left_differ - 1] <= a_c[left_differ])
-    left_differ -= 1;
-
-  while (right_differ < n - 1 && a_c[right_differ + 1] >= a_c[right_differ])
-    right_differ += 1;
-
-  io::cout << left_differ + 1 << " " << right_differ + 1 << "\n";
+  io::cout << static_cast<int64_t>(
+                  std::min(direct_route, major_to_a + major_to_b))
+           << "\n";
 }
 
-} // namespace _1821B
+} // namespace _1869B
 
 int main()
 {
@@ -394,7 +390,7 @@ int main()
   io::cin >> t;
 
   while (t-- > 0)
-    _1821B::run();
+    _1869B::run();
 
   io::cout.flush();
 

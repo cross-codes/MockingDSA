@@ -1,47 +1,7 @@
+use std::cmp::min;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
-
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -63,12 +23,78 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let k: usize = scanner.next();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  let (x0, a, b, c): (i64, i64, i64, i64) = (
+    scanner.next(),
+    scanner.next(),
+    scanner.next(),
+    scanner.next(),
+  );
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  let mut x: Vec<i64> = vec![0; n];
+  x[0] = x0;
+  for i in 1..n
+  {
+    x[i] = (a * x[i - 1] + b) % c;
+  }
+
+  let min_select: Box<dyn Fn(&i64, &i64) -> i64> = Box::new(|a, b| min(*a, *b));
+  let sparse_table: IdempotentSparseTable<i64> =
+    IdempotentSparseTable::new(min_select, &x, n);
+
+  let mut res: i64 = 0;
+  for i in 0..=n - k
+  {
+    res ^= sparse_table.query_range(i, i + k);
+  }
+
+  display!(res, "\n");
+}
+
+pub struct IdempotentSparseTable<T>
+where
+  T: Copy,
+{
+  f: Box<dyn Fn(&T, &T) -> T>,
+  table: Vec<Vec<T>>,
+}
+
+impl<T> IdempotentSparseTable<T>
+where
+  T: Copy,
+{
+  pub fn new(
+    f: impl Fn(&T, &T) -> T + 'static,
+    array: &Vec<T>,
+    n: usize,
+  ) -> Self
+  {
+    let k: usize = n.ilog2() as usize;
+    let mut table: Vec<Vec<T>> = vec![vec![array[0].clone(); n]; k + 1];
+    table[0].copy_from_slice(&array);
+
+    for y in 1..=k
+    {
+      let mut i: usize = 1 << (y - 1);
+      for x in 0..=(n - (1 << y))
+      {
+        table[y][x] = f(&table[y - 1][x], &table[y - 1][i]);
+        i += 1;
+      }
+    }
+
+    Self {
+      f: Box::new(f),
+      table,
+    }
+  }
+
+  pub fn query_range(&self, l: usize, r: usize) -> T
+  {
+    let i: usize = (r - l).ilog2() as usize;
+    (self.f)(&self.table[i][l], &self.table[i][r - (1 << i)])
+  }
 }
 
 struct Scanner<B>

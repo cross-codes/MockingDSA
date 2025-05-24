@@ -1,46 +1,24 @@
+use std::collections::HashMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
+fn two_sum(a: &[i64], x: i64, offset: usize) -> Option<(usize, usize)>
 {
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
+  let mut map: HashMap<i64, usize> = HashMap::new();
+  let n: usize = a.len();
 
-  for e in a
+  for i in 0..n
   {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
+    let val: i64 = a[i];
+    if map.contains_key(&(x - val))
+    {
+      return Some((offset + map[&(x - val)], offset + i + 1));
+    }
+    map.insert(val, i + 1);
   }
 
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
+  None
 }
 
 fn run(
@@ -63,12 +41,23 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let x: i64 = scanner.next();
+  let a: Vec<i64> = (0..n).map(|_| scanner.next()).collect();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  for i in 0..n
+  {
+    match two_sum(&a[i + 1..n], x - a[i], i + 1)
+    {
+      Some((b, c)) =>
+      {
+        display!(i + 1, " ", b, " ", c, "\n");
+        return;
+      }
+      None => continue,
+    }
+  }
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  display!("IMPOSSIBLE\n");
 }
 
 struct Scanner<B>

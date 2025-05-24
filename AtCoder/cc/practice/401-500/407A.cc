@@ -342,42 +342,19 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _1821B
+namespace _407A
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int a, b;
+  io::cin >> a >> b;
 
-  int a[n], a_c[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> a[i];
-
-  for (int i = 0; i < n; i++)
-    io::cin >> a_c[i];
-
-  int left_differ{-1}, right_differ{-1};
-  for (int i = 0; i < n; i++)
-  {
-    if (a[i] != a_c[i])
-    {
-      right_differ = i;
-      if (left_differ == -1)
-        left_differ = i;
-    }
-  }
-
-  while (left_differ > 0 && a_c[left_differ - 1] <= a_c[left_differ])
-    left_differ -= 1;
-
-  while (right_differ < n - 1 && a_c[right_differ + 1] >= a_c[right_differ])
-    right_differ += 1;
-
-  io::cout << left_differ + 1 << " " << right_differ + 1 << "\n";
+  io::cout << static_cast<int>(std::round(a / static_cast<long double>(b)))
+           << "\n";
 }
 
-} // namespace _1821B
+} // namespace _407A
 
 int main()
 {
@@ -391,10 +368,9 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
 
   while (t-- > 0)
-    _1821B::run();
+    _407A::run();
 
   io::cout.flush();
 

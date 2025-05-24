@@ -2,47 +2,6 @@ use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
-
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
   writer: &mut BufWriter<io::StdoutLock>,
@@ -63,12 +22,75 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let q: i32 = scanner.next();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  let x: Vec<i64> = (0..n).map(|_| scanner.next()).collect();
+  let mut bit: BinaryIndexedTree = BinaryIndexedTree::new(&x, n);
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  for _ in 0..q
+  {
+    let option: i8 = scanner.next();
+    if option == 1
+    {
+      let k: isize = scanner.next();
+      let u: i64 = scanner.next();
+      bit.advance_value(k, u - bit.under_array[k as usize]);
+      bit.under_array[k as usize] = u;
+    }
+    else
+    {
+      let (a, b): (isize, isize) = (scanner.next(), scanner.next());
+      display!(bit.prefix_sum_at(b) - bit.prefix_sum_at(a - 1), "\n");
+    }
+  }
+}
+
+pub struct BinaryIndexedTree
+{
+  tree: Vec<i64>,
+  pub under_array: Vec<i64>,
+}
+
+impl BinaryIndexedTree
+{
+  pub fn new(array: &Vec<i64>, n: usize) -> Self
+  {
+    let mut tree: Vec<i64> = vec![0; n + 1];
+    let mut under_array: Vec<i64> = vec![0; n + 1];
+    for i in 1..=n
+    {
+      let mut k: isize = i as isize;
+      while k <= n as isize
+      {
+        tree[k as usize] += array[i - 1];
+        k += k & -k;
+      }
+      under_array[i] = array[i - 1];
+    }
+
+    Self { tree, under_array }
+  }
+
+  pub fn prefix_sum_at(&self, mut k: isize) -> i64
+  {
+    let mut s: i64 = 0;
+    while k >= 1
+    {
+      s += self.tree[k as usize];
+      k -= k & -k;
+    }
+
+    s
+  }
+
+  pub fn advance_value(&mut self, mut k: isize, amt: i64)
+  {
+    while k <= self.tree.len() as isize
+    {
+      self.tree[k as usize] += amt;
+      k += k & -k;
+    }
+  }
 }
 
 struct Scanner<B>

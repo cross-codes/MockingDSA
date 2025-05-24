@@ -2,47 +2,6 @@ use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
-
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
   writer: &mut BufWriter<io::StdoutLock>,
@@ -63,12 +22,21 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let q: i32 = scanner.next();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  let x: Vec<i64> = (0..n).map(|_| scanner.next()).collect();
+  let mut prefix_sum: Vec<i64> = vec![0; n + 1];
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  for i in 1..=n
+  {
+    prefix_sum[i] = prefix_sum[i - 1] + x[i - 1];
+  }
+
+  for _ in 0..q
+  {
+    let (a, b): (usize, usize) = (scanner.next(), scanner.next());
+    display!(prefix_sum[b] - prefix_sum[a - 1], "\n");
+  }
 }
 
 struct Scanner<B>

@@ -342,7 +342,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _1821B
+namespace _1807G2
 {
 
 auto run() -> void
@@ -350,34 +350,34 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  int a[n], a_c[n];
+  int c[n];
   for (int i = 0; i < n; i++)
-    io::cin >> a[i];
+    io::cin >> c[i];
 
-  for (int i = 0; i < n; i++)
-    io::cin >> a_c[i];
+  std::sort(c, c + n);
+  int64_t running_sum{1};
 
-  int left_differ{-1}, right_differ{-1};
-  for (int i = 0; i < n; i++)
+  if (c[0] != 1)
   {
-    if (a[i] != a_c[i])
+    io::cout << "NO\n";
+    return;
+  }
+
+  for (int i = 1; i < n; i++)
+  {
+    if (c[i] <= running_sum)
+      running_sum += c[i];
+    else
     {
-      right_differ = i;
-      if (left_differ == -1)
-        left_differ = i;
+      io::cout << "NO\n";
+      return;
     }
   }
 
-  while (left_differ > 0 && a_c[left_differ - 1] <= a_c[left_differ])
-    left_differ -= 1;
-
-  while (right_differ < n - 1 && a_c[right_differ + 1] >= a_c[right_differ])
-    right_differ += 1;
-
-  io::cout << left_differ + 1 << " " << right_differ + 1 << "\n";
+  io::cout << "YES\n";
 }
 
-} // namespace _1821B
+} // namespace _1807G2
 
 int main()
 {
@@ -394,7 +394,7 @@ int main()
   io::cin >> t;
 
   while (t-- > 0)
-    _1821B::run();
+    _1807G2::run();
 
   io::cout.flush();
 

@@ -2,47 +2,6 @@ use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
-
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
   writer: &mut BufWriter<io::StdoutLock>,
@@ -63,12 +22,35 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let w: Vec<i64> = (0..n).map(|_| scanner.next()).collect();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  let mut l: usize = 0;
+  let mut r: usize = n - 1;
+  let mut left_sum: i64 = 0;
+  let mut right_sum: i64 = 0;
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  let mut best_total: usize = 0;
+
+  while l <= r
+  {
+    if left_sum > right_sum
+    {
+      right_sum += w[r];
+      r -= 1;
+    }
+    else
+    {
+      left_sum += w[l];
+      l += 1;
+    }
+
+    if left_sum == right_sum
+    {
+      best_total = l + (n - 1 - r);
+    }
+  }
+
+  display!(best_total, "\n");
 }
 
 struct Scanner<B>
@@ -124,7 +106,8 @@ fn main() -> Result<(), Box<dyn Error>>
       let mut writer = BufWriter::new(stdout.lock());
 
       #[allow(unused_assignments)]
-      let t: i32 = 1;
+      let mut t: i32 = 1;
+      t = scanner.next();
 
       (1..=t).for_each(|i| run(&mut scanner, &mut writer, i));
       writer.flush().unwrap();

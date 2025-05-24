@@ -2,47 +2,6 @@ use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
-
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
   writer: &mut BufWriter<io::StdoutLock>,
@@ -63,12 +22,30 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let mut c: i64 = scanner.next();
+  let mut a: Vec<i64> = (0..n).map(|_| scanner.next()).collect();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  for i in 0..n
+  {
+    a[i] += (i + 1) as i64;
+  }
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  a.sort_unstable();
+
+  let mut num_visited: usize = 0;
+  let mut i: usize = 0;
+  while c > 0 && i < n
+  {
+    if c >= a[i]
+    {
+      num_visited += 1;
+    }
+
+    c -= a[i];
+    i += 1;
+  }
+
+  display!(num_visited, "\n");
 }
 
 struct Scanner<B>
@@ -124,7 +101,8 @@ fn main() -> Result<(), Box<dyn Error>>
       let mut writer = BufWriter::new(stdout.lock());
 
       #[allow(unused_assignments)]
-      let t: i32 = 1;
+      let mut t: i32 = 1;
+      t = scanner.next();
 
       (1..=t).for_each(|i| run(&mut scanner, &mut writer, i));
       writer.flush().unwrap();

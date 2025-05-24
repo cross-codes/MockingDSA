@@ -1,47 +1,7 @@
+use std::cmp::min;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
-
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -62,13 +22,35 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let n: i64 = scanner.next();
+  let x: i64 = scanner.next();
+  let c: Vec<i64> = (0..n).map(|_| scanner.next()).collect();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  let mut min_coins: Vec<i64> = vec![i64::MAX; (x + 1) as usize];
+  min_coins[0] = 0;
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  for i in 1..=x
+  {
+    let mut assign: i64 = i64::MAX;
+    for coin in &c
+    {
+      if i - coin >= 0 && min_coins[(i - coin) as usize] != -1
+      {
+        assign = min(assign, 1 + min_coins[(i - coin) as usize]);
+      }
+    }
+
+    if assign == i64::MAX
+    {
+      min_coins[i as usize] = -1;
+    }
+    else
+    {
+      min_coins[i as usize] = assign;
+    }
+  }
+
+  display!(min_coins[x as usize], "\n");
 }
 
 struct Scanner<B>

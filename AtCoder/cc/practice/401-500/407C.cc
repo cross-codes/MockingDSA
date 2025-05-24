@@ -342,42 +342,35 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _1821B
+namespace _407C
 {
+
+auto start_val(int64_t target, int64_t to_add) -> int
+{
+  if (target >= to_add)
+    return static_cast<int>(target - to_add);
+
+  int64_t new_target =
+      target + 10 * static_cast<int64_t>((std::ceil(to_add / 10.0L)));
+
+  return static_cast<int>(new_target - to_add);
+}
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  std::string S;
+  io::cin >> S;
 
-  int a[n], a_c[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> a[i];
+  int n{static_cast<int>(S.length())};
 
-  for (int i = 0; i < n; i++)
-    io::cin >> a_c[i];
+  int64_t to_add{S[n - 1] - '0'};
+  for (int i = n - 2; i >= 0; i--)
+    to_add += start_val(S[i] - '0', S[i + 1] - '0');
 
-  int left_differ{-1}, right_differ{-1};
-  for (int i = 0; i < n; i++)
-  {
-    if (a[i] != a_c[i])
-    {
-      right_differ = i;
-      if (left_differ == -1)
-        left_differ = i;
-    }
-  }
-
-  while (left_differ > 0 && a_c[left_differ - 1] <= a_c[left_differ])
-    left_differ -= 1;
-
-  while (right_differ < n - 1 && a_c[right_differ + 1] >= a_c[right_differ])
-    right_differ += 1;
-
-  io::cout << left_differ + 1 << " " << right_differ + 1 << "\n";
+  io::cout << to_add + n << "\n";
 }
 
-} // namespace _1821B
+} // namespace _407C
 
 int main()
 {
@@ -391,10 +384,9 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
 
   while (t-- > 0)
-    _1821B::run();
+    _407C::run();
 
   io::cout.flush();
 

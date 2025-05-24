@@ -2,45 +2,63 @@ use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
 
-fn f(x: f64, a: &Vec<i32>) -> f64
+const COLORS: [char; 4] = ['A', 'B', 'C', 'D'];
+
+fn next(color_left: char, color_up: char, color_curr: char) -> char
 {
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
+  for i in 0..4
   {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
+    let test_color: char = COLORS[i];
+    if test_color != color_left
+      && test_color != color_up
+      && test_color != color_curr
+    {
+      return test_color;
+    }
   }
 
-  f64::max(best_pos_sum, best_neg_sum.abs())
+  'W'
 }
 
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
+fn greedy_coloring(grid: &mut Vec<Vec<char>>, n: usize, m: usize) -> bool
 {
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
+  for y in 0..n
   {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
+    for x in 0..m
+    {
+      let color_left: char;
+      let color_up: char;
+      if y == 0
+      {
+        color_up = 'X';
+      }
+      else
+      {
+        color_up = grid[y - 1][x];
+      }
 
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
+      if x == 0
+      {
+        color_left = 'X';
+      }
+      else
+      {
+        color_left = grid[y][x - 1];
+      }
+
+      let next_color = next(color_left, color_up, grid[y][x]);
+      if next_color == 'W'
+      {
+        return false;
+      }
+      else
+      {
+        grid[y][x] = next_color;
+      }
     }
   }
 
-  f((l + r) / 2.0, a)
+  true
 }
 
 fn run(
@@ -61,14 +79,28 @@ fn run(
             display!($($rest),*);
         };
     }
+  let (n, m): (usize, usize) = (scanner.next(), scanner.next());
+  let mut grid: Vec<Vec<char>> = (0..n)
+    .map(|_| scanner.next::<String>().chars().collect())
+    .collect();
 
-  let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let res: bool = greedy_coloring(&mut grid, n, m);
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  if !res
+  {
+    display!("IMPOSSIBLE\n");
+    return;
+  }
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  for y in 0..n
+  {
+    for x in 0..m
+    {
+      display!(grid[y][x]);
+    }
+
+    display!("\n");
+  }
 }
 
 struct Scanner<B>

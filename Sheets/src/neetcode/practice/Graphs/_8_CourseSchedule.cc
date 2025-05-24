@@ -12,18 +12,21 @@ class Solution
   };
 
   bool cycle_{false};
-  std::array<Color, 2000> colors_;
-
-  std::vector<int> vertices_;
-  std::vector<std::vector<int>> adj_;
+  std::array<Color, 1000> colors_{};
+  std::vector<int> vertices_{};
+  std::vector<std::vector<int>> adj_{};
 
   void dfs_()
   {
     colors_.fill(Color::WHITE);
 
     for (const int &vertex : vertices_)
+    {
       if (colors_[vertex] == Color::WHITE)
+      {
         dfs_visit_(vertex);
+      }
+    }
   }
 
   void dfs_visit_(int vertex)
@@ -31,11 +34,16 @@ class Solution
     colors_[vertex] = Color::GRAY;
 
     for (const int &v : adj_[vertex])
+    {
       if (colors_[v] == Color::WHITE)
+      {
         dfs_visit_(v);
+      }
       else if (colors_[v] == Color::GRAY)
+      {
         cycle_ = true;
-
+      }
+    }
     colors_[vertex] = Color::BLACK;
   }
 
@@ -44,7 +52,6 @@ public:
   {
     adj_.resize(numCourses, std::vector<int>());
     vertices_.resize(numCourses);
-
     for (const auto &edge : prerequisites)
     {
       int from{edge[0]}, to{edge[1]};

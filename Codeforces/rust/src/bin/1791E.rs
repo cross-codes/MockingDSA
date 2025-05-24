@@ -1,47 +1,7 @@
+use std::cmp::{max, min};
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
-
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -63,12 +23,67 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let mut a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  a.sort_unstable();
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  let mut num_negative: usize = 0;
+  let mut tr_idx: usize = n;
+  for i in 0..n
+  {
+    if a[i] >= 0
+    {
+      tr_idx = i;
+      break;
+    }
+
+    num_negative += 1;
+  }
+
+  let mut res: i64 = 0;
+  if num_negative & 1 == 0
+  {
+    for i in 0..n
+    {
+      res += (a[i] as i64).abs();
+    }
+  }
+  else
+  {
+    if tr_idx == 0
+    {
+      for i in 0..n
+      {
+        res += (a[i] as i64).abs();
+      }
+    }
+    else if tr_idx == n
+    {
+      for i in 0..n - 1
+      {
+        res += (a[i] as i64).abs();
+      }
+
+      res += a[n - 1] as i64;
+    }
+    else
+    {
+      for i in 0..tr_idx - 1
+      {
+        res += (a[i] as i64).abs();
+      }
+
+      res += max(a[tr_idx - 1].abs(), a[tr_idx]) as i64;
+      res -= min(a[tr_idx - 1].abs(), a[tr_idx]) as i64;
+
+      for i in tr_idx + 1..n
+      {
+        res += a[i] as i64;
+      }
+    }
+  }
+
+  display!(res, "\n");
 }
 
 struct Scanner<B>
@@ -124,7 +139,8 @@ fn main() -> Result<(), Box<dyn Error>>
       let mut writer = BufWriter::new(stdout.lock());
 
       #[allow(unused_assignments)]
-      let t: i32 = 1;
+      let mut t: i32 = 1;
+      t = scanner.next();
 
       (1..=t).for_each(|i| run(&mut scanner, &mut writer, i));
       writer.flush().unwrap();

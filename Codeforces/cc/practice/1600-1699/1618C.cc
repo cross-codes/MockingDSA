@@ -342,42 +342,63 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _1821B
+namespace _1618C
 {
+
+auto try_coloring(int64_t d, int64_t a[], int n) -> bool
+{
+  bool prev_state{a[0] % d == 0};
+  bool curr_state;
+  for (int i = 1; i < n; i++)
+  {
+    curr_state = a[i] % d == 0;
+    if (curr_state == prev_state)
+      return false;
+
+    prev_state = curr_state;
+  }
+
+  return true;
+}
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  int a[n], a_c[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> a[i];
-
-  for (int i = 0; i < n; i++)
-    io::cin >> a_c[i];
-
-  int left_differ{-1}, right_differ{-1};
+  int64_t a[n];
+  int64_t gcd_odd{}, gcd_even{};
+  bool odd{true};
   for (int i = 0; i < n; i++)
   {
-    if (a[i] != a_c[i])
-    {
-      right_differ = i;
-      if (left_differ == -1)
-        left_differ = i;
-    }
+    io::cin >> a[i];
+
+    if (odd)
+      gcd_odd = std::__gcd(gcd_odd, a[i]);
+    else
+      gcd_even = std::__gcd(gcd_even, a[i]);
+
+    odd = !odd;
   }
 
-  while (left_differ > 0 && a_c[left_differ - 1] <= a_c[left_differ])
-    left_differ -= 1;
+  bool possible{};
+  possible = try_coloring(gcd_odd, a, n);
+  if (possible)
+  {
+    io::cout << gcd_odd << "\n";
+    return;
+  }
 
-  while (right_differ < n - 1 && a_c[right_differ + 1] >= a_c[right_differ])
-    right_differ += 1;
+  possible = try_coloring(gcd_even, a, n);
+  if (possible)
+  {
+    io::cout << gcd_even << "\n";
+    return;
+  }
 
-  io::cout << left_differ + 1 << " " << right_differ + 1 << "\n";
+  io::cout << "0\n";
 }
-
-} // namespace _1821B
+} // namespace _1618C
 
 int main()
 {
@@ -394,7 +415,7 @@ int main()
   io::cin >> t;
 
   while (t-- > 0)
-    _1821B::run();
+    _1618C::run();
 
   io::cout.flush();
 

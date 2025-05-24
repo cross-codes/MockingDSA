@@ -1,47 +1,8 @@
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
-
-fn f(x: f64, a: &Vec<i32>) -> f64
-{
-  let mut current_pos_sum: f64 = 0.0;
-  let mut current_neg_sum: f64 = 0.0;
-  let mut best_pos_sum: f64 = f64::MIN;
-  let mut best_neg_sum: f64 = f64::MAX;
-
-  for e in a
-  {
-    let ef: f64 = *e as f64;
-    current_pos_sum = f64::max(current_pos_sum - x + ef, ef - x);
-    best_pos_sum = f64::max(best_pos_sum, current_pos_sum);
-
-    current_neg_sum = f64::min(current_neg_sum - x + ef, ef - x);
-    best_neg_sum = f64::min(best_neg_sum, current_neg_sum);
-  }
-
-  f64::max(best_pos_sum, best_neg_sum.abs())
-}
-
-fn unimodal_min(a: &Vec<i32>, mut l: f64, mut r: f64) -> f64
-{
-  let epsilon: f64 = 5e-12;
-  while r - l > epsilon
-  {
-    let m1: f64 = l + (r - l) / 3.0;
-    let m2: f64 = r - (r - l) / 3.0;
-
-    if f(m1, a) > f(m2, a)
-    {
-      l = m1;
-    }
-    else
-    {
-      r = m2;
-    }
-  }
-
-  f((l + r) / 2.0, a)
-}
 
 fn run(
   scanner: &mut Scanner<io::StdinLock>,
@@ -63,12 +24,59 @@ fn run(
     }
 
   let n: usize = scanner.next();
-  let a: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let k: usize = scanner.next();
 
-  let min_a = a.iter().min().cloned().unwrap() as f64;
-  let max_a = a.iter().max().cloned().unwrap() as f64;
+  let x: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
 
-  display!(unimodal_min(&a, min_a, max_a), "\n");
+  let mut generator: MedianFinder = MedianFinder::new(x, k);
+
+  for _ in 0..=n - k
+  {
+    display!(generator.next_median(), " ");
+  }
+
+  display!("\n");
+}
+
+pub struct MedianFinder
+{
+  stream: Vec<i32>,
+  high: BinaryHeap<Reverse<i32>>,
+  low: BinaryHeap<i32>,
+  window_size: usize,
+  pos: usize,
+}
+
+impl MedianFinder
+{
+  pub fn new(x: Vec<i32>, k: usize) -> Self
+  {
+    Self {
+      stream: x,
+      high: BinaryHeap::new(),
+      low: BinaryHeap::new(),
+      window_size: k,
+      pos: 0,
+    }
+  }
+
+  fn balance(&mut self) {}
+
+  fn next_sequence(&mut self) {}
+
+  pub fn next_median(&mut self) -> i32
+  {
+    self.next_sequence();
+
+    if (self.high.len() + self.low.len()) & 1 != 0
+    {
+      return self.high.peek().cloned().unwrap().0;
+    }
+    else
+    {
+      return self.low.peek().cloned().unwrap();
+    }
+  }
 }
 
 struct Scanner<B>

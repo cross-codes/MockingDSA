@@ -1,50 +1,66 @@
+#include <climits>
+#include <queue>
 #include <vector>
 
 class Solution
 {
 private:
-  int num_rows_, num_cols_;
-  int curr_dist_{1};
+  int dx_[4] = {1, 0, -1, 0};
+  int dy_[4] = {0, -1, 0, 1};
 
-  void dfs_(int row, int col, std::vector<std::vector<int>> &grid)
+  void bfs(int x, int y, std::vector<std::vector<bool>> &visited,
+           std::vector<std::vector<int>> &distances,
+           std::vector<std::vector<int>> &grid)
   {
-    curr_dist_ += 1;
+    int m{static_cast<int>(grid.size())};
+    int n{static_cast<int>(grid[0].size())};
 
-    if (row >= num_rows_ || row < 0 || col >= num_cols_ || col < 0 ||
-        grid[row][col] <= 0)
+    std::queue<std::pair<int, int>> vertices{};
+    vertices.emplace(x, y);
+    distances[y][x] = 0;
+
+    while (!vertices.empty())
     {
-      curr_dist_ -= 1;
-      return;
-    }
+      auto pair = vertices.front();
+      vertices.pop();
+      int X{pair.first}, Y{pair.second};
 
-    grid[row][col] = std::min(grid[row][col], curr_dist_);
-    dfs_(row + 1, col, grid);
-    dfs_(row - 1, col, grid);
-    dfs_(row, col + 1, grid);
-    dfs_(row, col - 1, grid);
+      for (int i = 0; i < 4; i++)
+      {
+        int nx{X + dx_[i]}, ny{Y + dy_[i]};
+        if (nx >= n || nx < 0 || ny >= m || ny < 0)
+          continue;
+
+        if (!visited[ny][nx] && grid[ny][nx] != -1 && grid[ny][nx] != 0)
+        {
+          distances[ny][nx] = distances[Y][X] + 1;
+          grid[ny][nx]      = std::min(grid[ny][nx], distances[ny][nx]);
+          vertices.emplace(nx, ny);
+          visited[ny][nx] = true;
+        }
+      }
+    }
   }
 
 public:
   void islandsAndTreasure(std::vector<std::vector<int>> &grid)
   {
-    num_rows_ = static_cast<int>(grid.size());
-    num_cols_ = static_cast<int>(grid[0].size());
+    int m{static_cast<int>(grid.size())};
+    int n{static_cast<int>(grid[0].size())};
 
-    for (int y = 0; y < num_rows_; y++)
-      for (int x = 0; x < num_cols_; x++)
+    for (int y = 0; y < m; y++)
+    {
+      for (int x = 0; x < n; x++)
+      {
         if (grid[y][x] == 0)
         {
-          curr_dist_ = 1;
-          dfs_(y + 1, x, grid);
-          curr_dist_ = 1;
-
-          dfs_(y - 1, x, grid);
-          curr_dist_ = 1;
-
-          dfs_(y, x + 1, grid);
-          curr_dist_ = 1;
-
-          dfs_(y, x - 1, grid);
+          std::vector<std::vector<bool>> visited(m,
+                                                 std::vector<bool>(n, false));
+          std::vector<std::vector<int>> distances(m,
+                                                  std::vector<int>(n, INT_MAX));
+          bfs(x, y, visited, distances, grid);
         }
+      }
+    }
   }
 };
