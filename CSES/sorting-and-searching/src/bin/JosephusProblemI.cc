@@ -342,38 +342,80 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _JosephusProblemI
 {
+struct DualLinkedNode
+{
+public:
+  int data;
+  DualLinkedNode *next, *prev;
+
+  DualLinkedNode(int val) : data(val), next(nullptr), prev(nullptr) {};
+};
+
+struct CircularDLL
+{
+private:
+  int num_nodes_;
+
+public:
+  DualLinkedNode *false_head;
+
+  CircularDLL(int num_nodes) : num_nodes_(num_nodes)
+  {
+    false_head              = new DualLinkedNode(1);
+    DualLinkedNode *current = false_head, *fwd = nullptr;
+    for (int i = 2; i <= num_nodes; i++)
+    {
+      current->next = new DualLinkedNode(i);
+      fwd           = current->next;
+      fwd->prev     = current;
+      current       = fwd;
+    }
+
+    current->next    = false_head;
+    false_head->prev = current;
+  }
+
+  void remove_node(DualLinkedNode *node)
+  {
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+    delete node;
+    num_nodes_ -= 1;
+  }
+
+  auto num_remaining() -> int
+  {
+    return num_nodes_;
+  }
+};
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  std::pair<int, int> pos[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> pos[i].first >> pos[i].second;
+  CircularDLL dll(n);
 
-  if (n == 1)
+  DualLinkedNode *to_delete = dll.false_head->next, *after = nullptr,
+                 *end = to_delete->next;
+  while (dll.num_remaining() != 1)
   {
-    io::cout << "1\n";
-    return;
+    after = to_delete->next->next;
+    end   = to_delete->next;
+
+    io::cout << to_delete->data << "\n";
+
+    dll.remove_node(to_delete);
+    to_delete = after;
   }
 
-  auto x_order = [](const std::pair<int, int> &a,
-                    const std::pair<int, int> &b) -> bool {
-    return a.first < b.first;
-  };
-
-  auto y_order = [](const std::pair<int, int> &a,
-                    const std::pair<int, int> &b) -> bool {
-    return a.second < b.second;
-  };
-
-  std::sort(pos, pos + n, x_order);
+  io::cout << end->data << "\n";
+  dll.remove_node(end);
 }
 
-} // namespace _D
+} // namespace _JosephusProblemI
 
 int main()
 {
@@ -387,10 +429,9 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
 
   while (t-- > 0)
-    _D::run();
+    _JosephusProblemI::run();
 
   io::cout.flush();
 

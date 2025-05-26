@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <stack>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -12,7 +13,7 @@
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
-namespace IO
+namespace io
 {
 
 #ifndef BUFFER_SIZE
@@ -304,7 +305,7 @@ public:
     while (*this >> c, c < ' ')
       continue;
     x = c;
-    while (*this >> c, c >= ' ')
+    while (*this >> c, c > ' ')
       x += c;
 
     return *this;
@@ -335,11 +336,12 @@ public:
     return *this;
   }
 };
-} // namespace IO
 
-IO::InputReader console_in(STDIN_FILENO);
-IO::OutputWriter console_out(STDOUT_FILENO);
-IO::OutputWriter console_err(STDERR_FILENO);
+InputReader cin(STDIN_FILENO);
+OutputWriter cout(STDOUT_FILENO);
+OutputWriter cerr(STDERR_FILENO);
+
+} // namespace io
 
 namespace _C
 {
@@ -347,34 +349,22 @@ namespace _C
 auto run() -> void
 {
   int n;
-  console_in >> n;
+  io::cin >> n;
 
-  std::vector<int> permutation(n << 1, -1);
+  int a[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> a[i];
 
-  int64_t missing{};
-
-  for (int i = 1; i <= n; i++)
-    for (int j = 1; j <= n; j++)
-    {
-      int num;
-      console_in >> num;
-      if (permutation[i + j - 1] == -1)
-        missing += num;
-      permutation[i + j - 1] = num;
-    }
-
-  missing -= (n << 1) * ((n << 1) + 1) / 2;
-  missing = -missing;
-
-  for (const int elem : permutation)
+  std::stack<int> stk{};
+  stk.push(a[0]);
+  for (int i = 1; i < n; i++)
   {
-    if (elem == -1)
-      console_out << missing << " ";
-    else
-      console_out << elem << " ";
+    int h = stk.top();
+    if (a[i] - h > 1)
+      stk.push(a[i]);
   }
 
-  console_out << "\n";
+  io::cout << stk.size() << "\n";
 }
 
 } // namespace _C
@@ -385,18 +375,18 @@ int main()
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr)
   {
-    console_err << "Input file not found\n";
+    io::cerr << "Input file not found\n";
     __builtin_trap();
   }
 #endif
 
   int t{1};
-  console_in >> t;
+  io::cin >> t;
 
   while (t-- > 0)
     _C::run();
 
-  console_out.flush();
+  io::cout.flush();
 
 #ifdef ANTUMBRA
   std::fclose(stdin);

@@ -1,5 +1,3 @@
-#include <algorithm>
-#include <stack>
 #include <string>
 
 class Solution
@@ -7,35 +5,28 @@ class Solution
 public:
   bool checkValidString(std::string s)
   {
-    if (s.size() & 1)
-      return false;
+    int n{static_cast<int>(s.length())};
+    int k{}, depth{};
 
-    auto numLeft  = std::count(s.begin(), s.end(), ')');
-    auto numRight = std::count(s.begin(), s.end(), '(');
-
-    std::stack<char> store{};
-    for (const auto &c : s)
+    for (int i = 0; i < n; i++)
     {
-      switch (c)
+      if (s[i] == '(')
+        depth++;
+
+      if (s[i] == '*')
       {
-      case '(':
-        store.push('(');
-        break;
-
-      case ')':
-        if (!store.empty() && store.top() == '(')
-          store.pop();
-        else
-          return false;
-        break;
-
-      case '*':
-        if (store.empty())
-          store.push('(');
-        else if (store.top() == '(')
-          store.pop();
-        break;
+        depth++;
+        k++;
       }
+
+      if (s[i] == ')')
+        depth--;
+
+      if (depth < 0)
+        return false;
     }
+
+    int x = std::max(0, depth - k);
+    return depth - (x << 1) >= 0;
   }
 };
