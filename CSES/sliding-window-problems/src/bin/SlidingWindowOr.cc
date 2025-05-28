@@ -1,20 +1,19 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <queue>
-#include <set>
+#include <immintrin.h>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
-#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
+
+#pragma GCC target("avx,avx2")
 
 namespace io
 {
@@ -346,91 +345,114 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _2114F
+namespace _SlidingWindowOr
 {
 
-auto find_min_factors(int target, int upper_lim, int &num_factors) -> bool
+void add_bit_frequency(uint32_t num, uint32_t *freq)
 {
-  std::set<int> factors{};
-  for (int i = 1; i <= std::sqrt(target); i++)
+  uint32_t mask_array[32];
+  for (int i = 0; i < 32; i++)
+    mask_array[i] = (num >> i) & 1;
+
+  for (int i = 0; i < 32; i += 8)
   {
-    if (target % i == 0)
-    {
-      factors.insert(i);
-      factors.insert(target / i);
-    }
+    __m256i freq_vec =
+        _mm256_loadu_si256(reinterpret_cast<const __m256i *>(freq + i));
+    __m256i mask_vec =
+        _mm256_loadu_si256(reinterpret_cast<const __m256i *>(mask_array + i));
+    freq_vec = _mm256_add_epi32(freq_vec, mask_vec);
+    _mm256_storeu_si256(reinterpret_cast<__m256i *>(freq + i), freq_vec);
   }
+}
 
-  auto it = factors.upper_bound(upper_lim);
-  if (it == factors.begin())
+void remove_bit_frequency(uint32_t num, uint32_t *freq)
+{
+  uint32_t mask_array[32];
+  for (int i = 0; i < 32; i++)
+    mask_array[i] = (num >> i) & 1;
+
+  for (int i = 0; i < 32; i += 8)
   {
-    num_factors = INT_MAX;
-    return false;
+    __m256i freq_vec =
+        _mm256_loadu_si256(reinterpret_cast<const __m256i *>(freq + i));
+    __m256i mask_vec =
+        _mm256_loadu_si256(reinterpret_cast<const __m256i *>(mask_array + i));
+    freq_vec = _mm256_sub_epi32(freq_vec, mask_vec);
+    _mm256_storeu_si256(reinterpret_cast<__m256i *>(freq + i), freq_vec);
   }
+}
 
-  std::vector<int> usable_divisors(factors.begin(), it);
-  std::queue<std::pair<int, int>> queue{};
-  std::unordered_set<int> visited{};
-  visited.insert(target);
-  queue.emplace(target, 0);
+uint32_t or_value(const uint32_t *freq)
+{
+  const __m256i *freq_vec_ptr = reinterpret_cast<const __m256i *>(freq);
+  __m256i zero                = _mm256_setzero_si256();
+  uint32_t result             = 0;
 
-  while (!queue.empty())
+  for (int i = 0; i < 4; ++i)
   {
-    auto [vertex, distance] = queue.front();
-    queue.pop();
-
-    if (vertex == 1)
-    {
-      num_factors = distance;
-      return true;
-    }
-
-    for (const int &d : usable_divisors)
-    {
-      if (vertex % d == 0)
-      {
-        int maybe{vertex / d};
-        if (!visited.contains(maybe))
-        {
-          visited.insert(maybe);
-          queue.emplace(maybe, distance + 1);
-        }
-      }
-    }
+    __m256i freq_vec = _mm256_loadu_si256(freq_vec_ptr + i);
+    __m256i cmp      = _mm256_cmpgt_epi32(freq_vec, zero);
+    int mask         = _mm256_movemask_ps(_mm256_castsi256_ps(cmp));
+    result |= static_cast<uint32_t>(static_cast<uint8_t>(mask)) << (i * 8);
   }
-
-  num_factors = INT_MAX;
-  return false;
+  return result;
 }
 
 auto run() -> void
 {
-  int x, y, k;
-  io::cin >> x >> y >> k;
+  int n, k;
+  io::cin >> n >> k;
 
-  int gcd = std::__gcd(x, y);
-  y /= gcd, x /= gcd;
+  uint32_t *bit_frequencies =
+      static_cast<uint32_t *>(_mm_malloc(32 * sizeof(uint32_t), 32));
+  std::memset(bit_frequencies, 0, 32 * sizeof(uint32_t));
 
-  int n{}, m{};
+  uint32_t window_begin{}, res{};
+  uint32_t x0, a, b, c;
+  io::cin >> x0 >> a >> b >> c;
 
-  bool possible = find_min_factors(y, k, n);
-  if (!possible)
+  uint32_t x[n];
+  x[0] = x0;
+
+  if (k == 1)
   {
-    io::cout << "-1\n";
-    return;
+    res = x[0];
+    for (int i = 1; i < n; i++)
+    {
+      x[i] = (static_cast<uint64_t>(a) * x[i - 1] + b) % c;
+      res ^= x[i];
+    }
+  }
+  else
+  {
+    add_bit_frequency(x[0], bit_frequencies);
+    for (int i = 1; i < n; i++)
+    {
+      x[i] = (static_cast<uint64_t>(a) * x[i - 1] + b) % c;
+
+      if (i < k)
+        add_bit_frequency(x[i], bit_frequencies);
+
+      if (i == k - 1)
+      {
+        res = or_value(bit_frequencies);
+      }
+
+      if (i >= k)
+      {
+        remove_bit_frequency(x[window_begin], bit_frequencies);
+        window_begin += 1;
+        add_bit_frequency(x[i], bit_frequencies);
+        res ^= or_value(bit_frequencies);
+      }
+    }
   }
 
-  possible = find_min_factors(x, k, m);
-  if (!possible)
-  {
-    io::cout << "-1\n";
-    return;
-  }
-
-  io::cout << m + n << "\n";
+  io::cout << res << "\n";
+  _mm_free(bit_frequencies);
 }
 
-} // namespace _2114F
+} // namespace _SlidingWindowOr
 
 int main()
 {
@@ -441,6 +463,11 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
+#endif
+
+  int t{1};
+
+#ifdef ANTUMBRA
 
   size_t stack_size = 268435456;
   char *stack       = (char *)malloc(stack_size);
@@ -450,12 +477,11 @@ int main()
 
   asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
   asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
+
 #endif
 
-  int t{1};
-  io::cin >> t;
   while (t-- > 0)
-    _2114F::run();
+    _SlidingWindowOr::run();
 
   io::cout.flush();
 

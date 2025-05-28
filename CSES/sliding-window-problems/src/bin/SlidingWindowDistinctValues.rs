@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::HashMap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
@@ -25,54 +25,53 @@ fn run(
   let n: usize = scanner.next();
   let k: usize = scanner.next();
 
-  let (x0, a, b, c): (i32, i32, i32, i32) = (
-    scanner.next(),
-    scanner.next(),
-    scanner.next(),
-    scanner.next(),
-  );
-
-  let mut x: Vec<i32> = vec![0; n];
-  x[0] = x0;
-  let mut queue: VecDeque<i32> = VecDeque::new();
-
-  for i in 1..n
-  {
-    x[i] = ((a as i64 * (x[i - 1] as i64) + b as i64) % c as i64) as i32;
-  }
+  let mut map: HashMap<i32, i32> = HashMap::new();
+  let x: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
 
   for i in 0..k
   {
-    while !queue.is_empty() && *queue.back().unwrap() > x[i]
+    if map.contains_key(&x[i])
     {
-      queue.pop_back();
+      let freq: i32 = map[&x[i]];
+      map.insert(x[i], freq + 1);
     }
-
-    queue.push_back(x[i]);
+    else
+    {
+      map.insert(x[i], 1);
+    }
   }
 
-  let mut res: i32 = *queue.front().unwrap();
-  let mut window_begin: usize = 0;
+  display!(map.len(), " ");
+
+  let mut window_start: usize = 0;
   for i in k..n
   {
-    if *queue.front().unwrap() == x[window_begin]
+    let to_remove: i32 = x[window_start];
+    if map[&to_remove] == 1
     {
-      queue.pop_front();
+      map.remove(&to_remove);
+    }
+    else
+    {
+      let freq: i32 = map[&to_remove];
+      map.insert(to_remove, freq - 1);
     }
 
-    let next: i32 = x[i];
-    window_begin += 1;
-
-    while !queue.is_empty() && *queue.back().unwrap() > next
+    if map.contains_key(&x[i])
     {
-      queue.pop_back();
+      let freq: i32 = map[&x[i]];
+      map.insert(x[i], freq + 1);
+    }
+    else
+    {
+      map.insert(x[i], 1);
     }
 
-    queue.push_back(next);
-    res ^= *queue.front().unwrap();
+    display!(map.len(), " ");
+    window_start += 1;
   }
 
-  display!(res, "\n");
+  display!("\n");
 }
 
 struct Scanner<B>

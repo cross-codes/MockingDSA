@@ -1,18 +1,15 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <queue>
 #include <set>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
-#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -346,91 +343,55 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _2114F
+namespace _2114D
 {
-
-auto find_min_factors(int target, int upper_lim, int &num_factors) -> bool
-{
-  std::set<int> factors{};
-  for (int i = 1; i <= std::sqrt(target); i++)
-  {
-    if (target % i == 0)
-    {
-      factors.insert(i);
-      factors.insert(target / i);
-    }
-  }
-
-  auto it = factors.upper_bound(upper_lim);
-  if (it == factors.begin())
-  {
-    num_factors = INT_MAX;
-    return false;
-  }
-
-  std::vector<int> usable_divisors(factors.begin(), it);
-  std::queue<std::pair<int, int>> queue{};
-  std::unordered_set<int> visited{};
-  visited.insert(target);
-  queue.emplace(target, 0);
-
-  while (!queue.empty())
-  {
-    auto [vertex, distance] = queue.front();
-    queue.pop();
-
-    if (vertex == 1)
-    {
-      num_factors = distance;
-      return true;
-    }
-
-    for (const int &d : usable_divisors)
-    {
-      if (vertex % d == 0)
-      {
-        int maybe{vertex / d};
-        if (!visited.contains(maybe))
-        {
-          visited.insert(maybe);
-          queue.emplace(maybe, distance + 1);
-        }
-      }
-    }
-  }
-
-  num_factors = INT_MAX;
-  return false;
-}
 
 auto run() -> void
 {
-  int x, y, k;
-  io::cin >> x >> y >> k;
+  int n;
+  io::cin >> n;
 
-  int gcd = std::__gcd(x, y);
-  y /= gcd, x /= gcd;
-
-  int n{}, m{};
-
-  bool possible = find_min_factors(y, k, n);
-  if (!possible)
+  std::multiset<int> x{}, y{};
+  std::pair<int, int> points[n];
+  for (int i = 0; i < n; i++)
   {
-    io::cout << "-1\n";
+    io::cin >> points[i].second >> points[i].first;
+    x.insert(points[i].first);
+    y.insert(points[i].second);
+  }
+
+  if (n == 1)
+  {
+    io::cout << "1\n";
     return;
   }
 
-  possible = find_min_factors(x, k, m);
-  if (!possible)
+  int64_t best_area{INT64_MAX};
+  for (const auto &[X, Y] : points)
   {
-    io::cout << "-1\n";
-    return;
+    auto xit = x.find(X), yit = y.find(Y);
+    x.erase(xit), y.erase(yit);
+
+    int64_t max_x = *x.rbegin(), max_y = *y.rbegin();
+    int64_t min_x = *x.begin(), min_y = *y.begin();
+    int64_t area = (max_x - min_x + 1) * (max_y - min_y + 1);
+
+    if (area == n - 1)
+    {
+      int64_t area1 = (max_x - min_x + 2) * (max_y - min_y + 1);
+      int64_t area2 = (max_x - min_x + 1) * (max_y - min_y + 2);
+      best_area     = std::min(best_area, std::min(area1, area2));
+    }
+    else
+      best_area = std::min(best_area, area);
+
+    x.insert(X), y.insert(Y);
   }
 
-  io::cout << m + n << "\n";
+  io::cout << best_area << "\n";
 }
 
-} // namespace _2114F
+} // namespace _2114D
 
 int main()
 {
@@ -443,9 +404,9 @@ int main()
   }
 
   size_t stack_size = 268435456;
-  char *stack       = (char *)malloc(stack_size);
+  char *stack       = static_cast<char *>(std::malloc(stack_size));
   char *send        = stack + stack_size;
-  send              = (char *)((uintptr_t)send / 16 * 16);
+  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
   send -= 8;
 
   asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
@@ -455,13 +416,13 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _2114F::run();
+    _2114D::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
   asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  free(stack);
+  std::free(stack);
 
   std::fclose(stdin);
 #endif

@@ -1,14 +1,13 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
-#include <bitset>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <functional>
-#include <memory>
 #include <queue>
+#include <set>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -350,240 +349,51 @@ OutputWriter cerr(STDERR_FILENO);
 namespace _F
 {
 
-struct FixedDensePrime
-{
-private:
-  constexpr inline static int N = 2000002;
-  std::array<int, N> minima_, powers_;
-  std::bitset<N> parity_, square_free_;
-
-public:
-  std::vector<int> primes;
-
-  explicit FixedDensePrime() : minima_{}, powers_{}
-  {
-    for (int i = 2; i < (N + 1) >> 1; i++)
-    {
-      int minimum, power;
-      if (minima_[i] == 0)
-      {
-        minimum = i;
-        power   = 1;
-        parity_.set(i, true);
-        square_free_.set(i, true);
-        primes.push_back(i);
-      }
-      else
-      {
-        minimum = minima_[i];
-        power   = powers_[i];
-      }
-
-      for (int e : primes)
-      {
-        int index{e * i};
-        if (index < N)
-        {
-          minima_[index] = e;
-          parity_.set(index, !parity_[i]);
-          if (e == minimum)
-          {
-            powers_[index] = power + 1;
-            break;
-          }
-          else
-          {
-            powers_[index] = 1;
-            square_free_.set(index, square_free_[i]);
-          }
-        }
-        else
-          break;
-      }
-    }
-
-    for (int i = (N + 1) >> 1 | 1; i < N; i += 2)
-    {
-      if (minima_[i] == 0)
-      {
-        parity_.set(i, true);
-        square_free_.set(i, true);
-      }
-    }
-  }
-
-  auto is_square_free(int n) -> bool
-  {
-    return square_free_[n];
-  }
-
-  auto get_parity(int n) -> bool
-  {
-    return parity_[n];
-  }
-
-  auto totient(int n) -> int
-  {
-    int result{1};
-    while (minima_[n] != 0)
-    {
-      int factor{1};
-      for (int i = 1; i < powers_[n]; i++)
-        factor *= minima_[n];
-      result *= factor * (minima_[n] - 1);
-      n /= factor * minima_[n];
-    }
-
-    if (n != 1)
-      result *= n - 1;
-
-    return result;
-  }
-
-  void for_prime_factors(int n, std::function<void(const int &)> consume)
-  {
-    while (minima_[n] != 0)
-    {
-      consume(minima_[n]);
-      int factor{1};
-      for (int i = 0; i < powers_[n]; i++)
-        factor *= minima_[n];
-      n /= factor;
-    }
-
-    if (n != 1)
-      consume(n);
-  }
-
-  void for_powers(int n, std::function<void(const int &)> consume)
-  {
-    while (minima_[n] != 0)
-    {
-      consume(powers_[n]);
-      int factor{1};
-      for (int i = 0; i < powers_[n]; i++)
-        factor *= minima_[n];
-      n /= factor;
-    }
-
-    if (n != 1)
-      consume(1);
-  }
-
-  void for_prime_factors_and_powers(
-      int n, std::function<void(const int &, const int &)> bi_consume)
-  {
-    while (minima_[n] != 0)
-    {
-      bi_consume(minima_[n], powers_[n]);
-      int factor{1};
-      for (int i = 0; i < powers_[n]; i++)
-        factor *= minima_[n];
-      n /= factor;
-    }
-
-    if (n != 1)
-      bi_consume(n, 1);
-  }
-
-  void for_factors(int n, bool include1, bool includeN,
-                   std::function<void(const int &)> consume)
-  {
-    if (n == 1)
-    {
-      if (include1 && includeN)
-        consume(1);
-    }
-    else
-    {
-      if (include1)
-        consume(1);
-
-      std::vector<int> prime_factors{}, powers{};
-
-      for_prime_factors_and_powers(n, [&prime_factors, &powers](int a, int b) {
-        prime_factors.push_back(a), powers.push_back(b);
-      });
-
-      std::vector<int> factors = prime_factors;
-      std::unique_ptr<int[]> current_powers(new int[factors.size()]);
-      std::ranges::fill(current_powers.get(),
-                        current_powers.get() + factors.size(), 1);
-
-      int index{};
-      while (true)
-      {
-        if (current_powers[index] > powers[index])
-          index++;
-        else if (factors[index] == n)
-        {
-          if (includeN)
-            consume(n);
-          break;
-        }
-        else
-        {
-          consume(factors[index]);
-          for (int i = 0; i <= index; i++)
-            factors[i] = factors[index] * prime_factors[i];
-
-          std::ranges::fill(current_powers.get(), current_powers.get() + index,
-                            1);
-
-          current_powers[index]++;
-          index = 0;
-        }
-      }
-    }
-  }
-};
-
-FixedDensePrime dense_sieve{};
-
 auto find_min_factors(int target, int upper_lim, int &num_factors) -> bool
 {
-  std::vector<int> factors{};
-  dense_sieve.for_factors(target, true, true,
-                          [&factors](int x) { factors.push_back(x); });
+  std::set<int> factors{};
+  for (int i = 1; i <= std::sqrt(target); i++)
+  {
+    if (target % i == 0)
+    {
+      factors.insert(i);
+      factors.insert(target / i);
+    }
+  }
 
-  std::sort(factors.begin(), factors.end());
-  std::vector<int> divisors{};
-
-  auto it = std::upper_bound(factors.begin(), factors.end(), upper_lim);
+  auto it = factors.upper_bound(upper_lim);
   if (it == factors.begin())
   {
     num_factors = INT_MAX;
     return false;
   }
-  else
-    std::copy(factors.begin(), it, std::back_inserter(divisors));
 
-  std::queue<std::pair<int, int>> queue;
-  std::unordered_set<int> visited;
-  queue.emplace(target, 0);
+  std::vector<int> usable_divisors(factors.begin(), it);
+  std::queue<std::pair<int, int>> queue{};
+  std::unordered_set<int> visited{};
   visited.insert(target);
+  queue.emplace(target, 0);
 
   while (!queue.empty())
   {
-    int current_factor = queue.front().first;
-    int edges          = queue.front().second;
+    auto [vertex, distance] = queue.front();
     queue.pop();
 
-    if (current_factor == 1)
+    if (vertex == 1)
     {
-      num_factors = edges;
+      num_factors = distance;
       return true;
     }
 
-    for (int d : divisors)
+    for (const int &d : usable_divisors)
     {
-      if (current_factor % d == 0)
+      if (vertex % d == 0)
       {
-        int next_factor = current_factor / d;
-        if (!visited.contains(next_factor))
+        int maybe{vertex / d};
+        if (!visited.contains(maybe))
         {
-          visited.insert(next_factor);
-          queue.emplace(next_factor, edges + 1);
+          visited.insert(maybe);
+          queue.emplace(maybe, distance + 1);
         }
       }
     }
@@ -591,31 +401,6 @@ auto find_min_factors(int target, int upper_lim, int &num_factors) -> bool
 
   num_factors = INT_MAX;
   return false;
-
-  // int nf{};
-  // while (target != 1)
-  // {
-  //   std::vector<int> factors;
-  //   dense_sieve.for_factors(target, false, true,
-  //                           [&factors](int x) { factors.push_back(x); });
-  //
-  //   std::sort(factors.begin(), factors.end());
-  //
-  //   auto it = std::upper_bound(factors.begin(), factors.end(), upper_lim);
-  //   if (it == factors.begin())
-  //   {
-  //     num_factors = INT_MAX;
-  //     return false;
-  //   }
-  //
-  //   nf += 1;
-  //   int divide = *(--it);
-  //   io::cout << "Dividing by: " << divide << "\n";
-  //   target /= divide;
-  // }
-  //
-  // num_factors = nf;
-  // return true;
 }
 
 auto run() -> void
