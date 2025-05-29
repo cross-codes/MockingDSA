@@ -1,5 +1,3 @@
-use std::cmp::Reverse;
-use std::collections::BinaryHeap;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
@@ -23,59 +21,24 @@ fn run(
         };
     }
 
-  let n: usize = scanner.next();
-  let k: usize = scanner.next();
+  let a: i32 = scanner.next();
+  let b: i32 = scanner.next();
 
-  let x: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
-
-  let mut generator: MedianFinder = MedianFinder::new(x, k);
-
-  for _ in 0..=n - k
+  if ((a << 1) - b) % 3 == 0
   {
-    display!(generator.next_median(), " ");
-  }
-
-  display!("\n");
-}
-
-pub struct MedianFinder
-{
-  stream: Vec<i32>,
-  high: BinaryHeap<Reverse<i32>>,
-  low: BinaryHeap<i32>,
-  window_size: usize,
-  pos: usize,
-}
-
-impl MedianFinder
-{
-  pub fn new(x: Vec<i32>, k: usize) -> Self
-  {
-    Self {
-      stream: x,
-      high: BinaryHeap::new(),
-      low: BinaryHeap::new(),
-      window_size: k,
-      pos: 0,
-    }
-  }
-
-  fn balance(&mut self) {}
-
-  fn next_sequence(&mut self) {}
-
-  pub fn next_median(&mut self) -> i32
-  {
-    self.next_sequence();
-
-    if (self.high.len() + self.low.len()) & 1 != 0
+    let y: i32 = ((a << 1) - b) / 3;
+    if y >= 0 && a - (y << 1) >= 0
     {
-      return self.high.peek().cloned().unwrap().0;
+      display!("YES\n");
     }
     else
     {
-      return self.low.peek().cloned().unwrap();
+      display!("NO\n");
     }
+  }
+  else
+  {
+    display!("NO\n");
   }
 }
 
@@ -132,7 +95,8 @@ fn main() -> Result<(), Box<dyn Error>>
       let mut writer = BufWriter::new(stdout.lock());
 
       #[allow(unused_assignments)]
-      let t: i32 = 1;
+      let mut t: i32 = 1;
+      t = scanner.next();
 
       (1..=t).for_each(|i| run(&mut scanner, &mut writer, i));
       writer.flush().unwrap();
