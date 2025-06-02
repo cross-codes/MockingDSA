@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,246 +342,61 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _TrafficLights
+namespace _1914D
 {
 
-struct Interval
+auto best_three(int a[], int n) -> std::array<int, 3>
 {
-  int start, end;
-  Interval(int s, int e) : start(s), end(e)
-  {
-  }
-};
-
-struct AugNode
-{
-  Interval interval;
-  int max_end;
-  int max_size;
-  int height;
-  std::unique_ptr<AugNode> left;
-  std::unique_ptr<AugNode> right;
-
-  AugNode(const Interval &i)
-      : interval(i), max_end(i.end), max_size(i.end - i.start + 1), height(1)
-  {
-  }
-};
-
-struct AugAVLTree
-{
-  std::unique_ptr<AugNode> root;
-
-  int height(const std::unique_ptr<AugNode> &node) const
-  {
-    return node ? node->height : 0;
-  }
-
-  void update(AugNode *node)
-  {
-    node->height   = 1 + std::max(height(node->left), height(node->right));
-    node->max_end  = node->interval.end;
-    node->max_size = node->interval.end - node->interval.start + 1;
-
-    if (node->left)
-    {
-      node->max_end  = std::max(node->max_end, node->left->max_end);
-      node->max_size = std::max(node->max_size, node->left->max_size);
-    }
-    if (node->right)
-    {
-      node->max_end  = std::max(node->max_end, node->right->max_end);
-      node->max_size = std::max(node->max_size, node->right->max_size);
-    }
-  }
-
-  std::unique_ptr<AugNode> rotate_right(std::unique_ptr<AugNode> y)
-  {
-    auto x   = std::move(y->left);
-    y->left  = std::move(x->right);
-    x->right = std::move(y);
-    update(x->right.get());
-    update(x.get());
-    return x;
-  }
-
-  std::unique_ptr<AugNode> rotate_left(std::unique_ptr<AugNode> x)
-  {
-    auto y   = std::move(x->right);
-    x->right = std::move(y->left);
-    y->left  = std::move(x);
-    update(y->left.get());
-    update(y.get());
-    return y;
-  }
-
-  std::unique_ptr<AugNode> insert(std::unique_ptr<AugNode> node,
-                                  const Interval &interval)
-  {
-    if (!node)
-      return std::make_unique<AugNode>(interval);
-
-    if (interval.start < node->interval.start)
-      node->left = insert(std::move(node->left), interval);
-    else
-      node->right = insert(std::move(node->right), interval);
-
-    update(node.get());
-    int balance = height(node->left) - height(node->right);
-
-    if (balance > 1)
-    {
-      if (interval.start >= node->left->interval.start)
-        node->left = rotate_left(std::move(node->left));
-      return rotate_right(std::move(node));
-    }
-    if (balance < -1)
-    {
-      if (interval.start < node->right->interval.start)
-        node->right = rotate_right(std::move(node->right));
-      return rotate_left(std::move(node));
-    }
-    return node;
-  }
-
-  std::unique_ptr<AugNode> delete_node(std::unique_ptr<AugNode> node,
-                                       const Interval &target)
-  {
-    if (!node)
-      return nullptr;
-
-    if (target.start < node->interval.start)
-      node->left = delete_node(std::move(node->left), target);
-    else if (target.start > node->interval.start)
-      node->right = delete_node(std::move(node->right), target);
-    else
-    {
-      if (node->interval.end != target.end)
-        node->right = delete_node(std::move(node->right), target);
-      else
-      {
-        if (!node->left)
-          return std::move(node->right);
-        else if (!node->right)
-          return std::move(node->left);
-        else
-        {
-          AugNode *minNode = min_value_node(node->right.get());
-          node->interval   = minNode->interval;
-          node->right = delete_node(std::move(node->right), minNode->interval);
-        }
-      }
-    }
-
-    update(node.get());
-    int balance = height(node->left) - height(node->right);
-
-    if (balance > 1)
-    {
-      if (height(node->left->left) >= height(node->left->right))
-        return rotate_right(std::move(node));
-      else
-      {
-        node->left = rotate_left(std::move(node->left));
-        return rotate_right(std::move(node));
-      }
-    }
-    if (balance < -1)
-    {
-      if (height(node->right->right) >= height(node->right->left))
-        return rotate_left(std::move(node));
-      else
-      {
-        node->right = rotate_right(std::move(node->right));
-        return rotate_left(std::move(node));
-      }
-    }
-    return node;
-  }
-
-  AugNode *min_value_node(AugNode *node) const
-  {
-    while (node && node->left)
-      node = node->left.get();
-    return node;
-  }
-
-public:
-  AugAVLTree()                              = default;
-  AugAVLTree(const AugAVLTree &)            = delete;
-  AugAVLTree &operator=(const AugAVLTree &) = delete;
-
-  void insert(int start, int end)
-  {
-    root = insert(std::move(root), Interval(start, end));
-  }
-
-  void remove(int start, int end)
-  {
-    root = delete_node(std::move(root), Interval(start, end));
-  }
-
-  Interval *interval_containing(int p) const
-  {
-    AugNode *current = root.get();
-    while (current)
-    {
-      if (p >= current->interval.start && p <= current->interval.end)
-        return &current->interval;
-      if (current->left && p <= current->left->max_end)
-        current = current->left.get();
-      else
-        current = current->right.get();
-    }
-    return nullptr;
-  }
-
-  Interval *largest_interval() const
-  {
-    AugNode *current = root.get();
-    while (current)
-    {
-      if (current->left && current->left->max_size == current->max_size)
-        current = current->left.get();
-      else if (current->right && current->right->max_size == current->max_size)
-        current = current->right.get();
-      else
-        return &current->interval;
-    }
-    return nullptr;
-  }
-};
-
-auto run() -> void
-{
-  int x, n;
-  io::cin >> x >> n;
-
-  AugAVLTree interval_tree;
-  interval_tree.insert(1, x);
+  int mx1{-1}, mx2{-1}, mx3{-1};
 
   for (int i = 0; i < n; i++)
   {
-    int p;
-    io::cin >> p;
-
-    Interval *interval = interval_tree.interval_containing(p);
-    int start{interval->start}, end{interval->end};
-
-    interval_tree.remove(start, end);
-    if (start <= p)
-      interval_tree.insert(start, p);
-    if (end >= p + 1)
-      interval_tree.insert(p + 1, end);
-
-    Interval *max = interval_tree.largest_interval();
-    io::cout << max->end - max->start + 1 << " ";
+    if (mx1 == -1 || a[i] > a[mx1])
+    {
+      mx3 = mx2;
+      mx2 = mx1;
+      mx1 = i;
+    }
+    else if (mx2 == -1 || a[i] > a[mx2])
+    {
+      mx3 = mx2;
+      mx2 = i;
+    }
+    else if (mx3 == -1 || a[i] > a[mx3])
+    {
+      mx3 = i;
+    }
   }
 
-  io::cout << "\n";
+  return {mx1, mx2, mx3};
 }
 
-} // namespace _TrafficLights
+auto run() -> void
+{
+  int n;
+  io::cin >> n;
+
+  int a[n], b[n], c[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> a[i];
+
+  for (int i = 0; i < n; i++)
+    io::cin >> b[i];
+
+  for (int i = 0; i < n; i++)
+    io::cin >> c[i];
+
+  int res{};
+  for (int x : best_three(a, n))
+    for (int y : best_three(b, n))
+      for (int z : best_three(c, n))
+        if (x != y && y != z && z != x)
+          res = std::max(res, a[x] + b[y] + c[z]);
+
+  io::cout << res << "\n";
+}
+
+} // namespace _1914D
 
 int main()
 {
@@ -593,16 +407,28 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
+
+  size_t stack_size = 268435456;
+  char *stack       = static_cast<char *>(std::malloc(stack_size));
+  char *send        = stack + stack_size;
+  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
+  send -= 8;
+
+  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
+  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
-
+  io::cin >> t;
   while (t-- > 0)
-    _TrafficLights::run();
+    _1914D::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
+  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
+  std::free(stack);
+
   std::fclose(stdin);
 #endif
 

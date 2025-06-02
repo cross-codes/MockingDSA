@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -366,7 +367,7 @@ void find_min_replace(int a[], int x, int n)
       if (a[i] == a[j])
         continue;
 
-      int gcd = std::__gcd(a[i], a[j]);
+      int gcd = std::gcd(a[i], a[j]);
       if (gcd == x)
       {
         if (a[i] > a[j])
@@ -398,16 +399,17 @@ auto run() -> void
   for (int i = 0; i < n; i++)
   {
     io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
+    final = std::gcd(final, a[i]);
   }
 
   int cnt{};
-  while (non_gcd(a, final, n) != 0)
+  while (non_gcd(a, final, n) == n)
   {
     find_min_replace(a, final, n);
     cnt += 1;
   }
 
+  cnt += non_gcd(a, final, n);
   io::cout << cnt << "\n";
 }
 

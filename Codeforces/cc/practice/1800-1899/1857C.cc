@@ -343,75 +343,50 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1857C
 {
-
-auto non_gcd(int a[], int x, int n) -> int
-{
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
-}
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  int a[n], final{};
+  int s{n * (n - 1) >> 1};
+
+  int b[s];
+  for (int i = 0; i < s; i++)
+    io::cin >> b[i];
+
+  std::sort(b, b + s);
+
+  std::vector<int> involves[n];
+  int b_idx{};
   for (int i = 0; i < n; i++)
   {
-    io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
+    for (int j = i + 1; j < n; j++)
+    {
+      involves[i].push_back(b_idx);
+      involves[j].push_back(b_idx);
+      b_idx += 1;
+    }
   }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
+  int a[n];
+  for (int i = 0; i < n; i++)
   {
-    find_min_replace(a, final, n);
-    cnt += 1;
+    int mx{INT_MIN};
+    for (int idx : involves[i])
+      mx = std::max(mx, b[idx]);
+    a[i] = mx;
   }
 
-  io::cout << cnt << "\n";
+  for (int i = 0; i < n; i++)
+    io::cout << a[i] << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _C
+} // namespace _1857C
 
 int main()
 {
@@ -436,7 +411,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1857C::run();
 
   io::cout.flush();
 

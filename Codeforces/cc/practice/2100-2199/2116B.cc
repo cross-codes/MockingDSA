@@ -343,50 +343,23 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _B
 {
 
-auto non_gcd(int a[], int x, int n) -> int
+constexpr int MOD = 998244353;
+
+auto mod_pow(int x, int n) -> int
 {
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
+  if (n == 0)
+    return 1 % MOD;
 
-  return cnt;
-}
+  int64_t u = static_cast<int64_t>(mod_pow(x, n >> 1));
+  u         = (u * u) % MOD;
 
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
+  if (n & 1)
+    u = (u * x) % MOD;
 
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
+  return static_cast<int>(u);
 }
 
 auto run() -> void
@@ -394,24 +367,65 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  int a[n], final{};
+  int p[n], q[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> p[i];
+
+  for (int i = 0; i < n; i++)
+    io::cin >> q[i];
+
+  int max_p{INT_MIN}, max_q{INT_MIN};
+  int p_idx{0}, q_idx{0};
+
   for (int i = 0; i < n; i++)
   {
-    io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
+    int next_p = p[i], next_q = q[i];
+    if (next_p > max_p)
+    {
+      max_p = next_p;
+      p_idx = i;
+    }
+
+    if (next_q > max_q)
+    {
+      max_q = next_q;
+      q_idx = i;
+    }
+
+    if (max_q == max_p)
+    {
+      if (p[i - q_idx] > q[i - p_idx])
+      {
+        int64_t res =
+            static_cast<int64_t>(mod_pow(2, max_q)) + mod_pow(2, p[i - q_idx]);
+        io::cout << res % MOD << " ";
+      }
+      else
+      {
+        int64_t res =
+            static_cast<int64_t>(mod_pow(2, max_p)) + mod_pow(2, q[i - p_idx]);
+        io::cout << res % MOD << " ";
+      }
+    }
+    else if (max_q > max_p)
+    {
+      int64_t res =
+          static_cast<int64_t>(mod_pow(2, max_q)) + mod_pow(2, p[i - q_idx]);
+      io::cout << res % MOD << " ";
+    }
+    else
+    {
+
+      int64_t res =
+          static_cast<int64_t>(mod_pow(2, max_p)) + mod_pow(2, q[i - p_idx]);
+      io::cout << res % MOD << " ";
+    }
   }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
-  {
-    find_min_replace(a, final, n);
-    cnt += 1;
-  }
-
-  io::cout << cnt << "\n";
+  io::cout << "\n";
 }
 
-} // namespace _C
+} // namespace _B
 
 int main()
 {
@@ -436,7 +450,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _B::run();
 
   io::cout.flush();
 

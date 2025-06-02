@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -343,75 +342,29 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1731B
 {
 
-auto non_gcd(int a[], int x, int n) -> int
-{
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
-}
+constexpr int64_t MOD = static_cast<int>(1e9 + 7);
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int64_t N;
+  io::cin >> N;
 
-  int a[n], final{};
-  for (int i = 0; i < n; i++)
-  {
-    io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
-  }
+  __int128_t n = static_cast<__int128_t>(N);
+  __int128_t res{};
+  res += (n * (n + 1) * (2 * n + 1)) / 3;
+  res -= 3 * n * (n + 1) / 2;
+  res += n;
+  res += n * n;
+  res *= 2022;
+  res %= MOD;
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
-  {
-    find_min_replace(a, final, n);
-    cnt += 1;
-  }
-
-  io::cout << cnt << "\n";
+  io::cout << static_cast<int>(res) << "\n";
 }
 
-} // namespace _C
+} // namespace _1731B
 
 int main()
 {
@@ -436,7 +389,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1731B::run();
 
   io::cout.flush();
 

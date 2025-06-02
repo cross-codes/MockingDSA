@@ -6,7 +6,7 @@ pub struct BinaryIndexedTree
 
 impl BinaryIndexedTree
 {
-  pub fn new(array: &Vec<i64>, n: usize) -> Self
+  pub fn new(array: Vec<i64>, n: usize) -> Self
   {
     let mut tree: Vec<i64> = vec![0; n + 1];
     let mut under_array: Vec<i64> = vec![0; n + 1];

@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -10,6 +9,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -343,75 +343,37 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1909B
 {
-
-auto non_gcd(int a[], int x, int n) -> int
-{
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
-}
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  int a[n], final{};
+  int64_t a[n];
   for (int i = 0; i < n; i++)
-  {
     io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
-  }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
+  auto pred = [&a, &n](int64_t x) {
+    std::unordered_set<int64_t> distinct{};
+    for (int i = 0; i < n; i++)
+      distinct.insert(a[i] % x);
+
+    return distinct.size() == 2;
+  };
+
+  for (int64_t i = 1LL << 1; i <= (1LL << 57); i <<= 1)
   {
-    find_min_replace(a, final, n);
-    cnt += 1;
+    if (pred(i))
+    {
+      io::cout << i << "\n";
+      return;
+    }
   }
-
-  io::cout << cnt << "\n";
 }
 
-} // namespace _C
+} // namespace _1909B
 
 int main()
 {
@@ -436,7 +398,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1909B::run();
 
   io::cout.flush();
 

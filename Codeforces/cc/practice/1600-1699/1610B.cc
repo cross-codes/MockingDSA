@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -343,50 +342,31 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1610B
 {
 
-auto non_gcd(int a[], int x, int n) -> int
+auto test_with_deletion(int a[], int deleted, int n) -> bool
 {
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
+  int l{}, r{n - 1};
+  while (l <= r)
+  {
+    if (a[l] != a[r])
     {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
+      if (a[l] == deleted)
+        l += 1;
+      else if (a[r] == deleted)
+        r -= 1;
+      else
+        return false;
     }
+    else
+    {
+      l += 1;
+      r -= 1;
+    }
+  }
 
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
+  return true;
 }
 
 auto run() -> void
@@ -394,24 +374,40 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  int a[n], final{};
+  int a[n];
   for (int i = 0; i < n; i++)
-  {
     io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
-  }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
+  int l{}, r{n - 1};
+  int test1{}, test2{};
+  bool palindrome{true};
+  while (l <= r)
   {
-    find_min_replace(a, final, n);
-    cnt += 1;
+    if (a[l] != a[r])
+    {
+      test1      = a[l];
+      test2      = a[r];
+      palindrome = false;
+      break;
+    }
+
+    l += 1;
+    r -= 1;
   }
 
-  io::cout << cnt << "\n";
+  if (palindrome)
+  {
+    io::cout << "YES\n";
+    return;
+  }
+
+  bool res1 = test_with_deletion(a, test1, n);
+  bool res2 = test_with_deletion(a, test2, n);
+
+  io::cout << (res1 || res2 ? "YES\n" : "NO\n");
 }
 
-} // namespace _C
+} // namespace _1610B
 
 int main()
 {
@@ -436,7 +432,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1610B::run();
 
   io::cout.flush();
 

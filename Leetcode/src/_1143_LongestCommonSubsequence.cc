@@ -6,9 +6,6 @@ class Solution
 public:
   int longestCommonSubsequence(std::string text1, std::string text2)
   {
-    if (text1.size() < text2.size())
-      std::swap(text1, text2);
-
     auto m = text1.size(), n = text2.size();
     std::array<std::array<int, 1001>, 1001> d{};
 

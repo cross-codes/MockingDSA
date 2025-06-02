@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -343,75 +342,39 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1797B
 {
-
-auto non_gcd(int a[], int x, int n) -> int
-{
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
-}
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, k;
+  io::cin >> n >> k;
 
-  int a[n], final{};
-  for (int i = 0; i < n; i++)
+  int a[n + 1][n + 1];
+  for (int y = 1; y <= n; y++)
+    for (int x = 1; x <= n; x++)
+      io::cin >> a[y][x];
+
+  int num_changes{};
+  for (int y = 1; y <= n; y++)
+    for (int x = 1; x <= n; x++)
+      if (a[y][x] != a[n - y + 1][n - x + 1])
+        num_changes += 1;
+
+  num_changes >>= 1;
+
+  if (num_changes <= k)
   {
-    io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
+    if (n & 1 || ((k - num_changes) & 1) == 0)
+      io::cout << "YES\n";
+    else
+      io::cout << "NO\n";
   }
-
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
-  {
-    find_min_replace(a, final, n);
-    cnt += 1;
-  }
-
-  io::cout << cnt << "\n";
+  else
+    io::cout << "NO\n";
 }
 
-} // namespace _C
+} // namespace _1797B
 
 int main()
 {
@@ -436,7 +399,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1797B::run();
 
   io::cout.flush();
 

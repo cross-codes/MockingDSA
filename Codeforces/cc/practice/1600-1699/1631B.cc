@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -343,50 +342,16 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1631B
 {
 
-auto non_gcd(int a[], int x, int n) -> int
+auto test_subarr_for(int x, int a[], int l, int r) -> bool
 {
-  int cnt{};
-  for (int i = 0; i < n; i++)
+  for (int i = l; i <= r; i++)
     if (a[i] != x)
-      cnt += 1;
+      return false;
 
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
+  return true;
 }
 
 auto run() -> void
@@ -394,24 +359,40 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  int a[n], final{};
+  int a[n];
   for (int i = 0; i < n; i++)
-  {
     io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
-  }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
+  if (n == 1)
   {
-    find_min_replace(a, final, n);
-    cnt += 1;
+    io::cout << "0\n";
+    return;
   }
 
-  io::cout << cnt << "\n";
+  int target{a[n - 1]};
+  int l{n - 2}, r{n - 2}, current_len{1};
+  int num_ops{};
+  while (l != 0)
+  {
+    bool noc = test_subarr_for(target, a, l, r);
+    if (!noc)
+      num_ops += 1;
+
+    current_len <<= 1;
+    l -= current_len;
+    l = std::max(0, l);
+    r -= current_len >> 1;
+    r = std::max(0, r);
+  }
+
+  bool noc = test_subarr_for(target, a, l, r);
+  if (!noc)
+    num_ops += 1;
+
+  io::cout << num_ops << "\n";
 }
 
-} // namespace _C
+} // namespace _1631B
 
 int main()
 {
@@ -436,7 +417,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1631B::run();
 
   io::cout.flush();
 

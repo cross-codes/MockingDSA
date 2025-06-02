@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,75 +344,47 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1692E
 {
-
-auto non_gcd(int a[], int x, int n) -> int
-{
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
-}
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, s;
+  io::cin >> n >> s;
 
-  int a[n], final{};
+  int a[n];
   for (int i = 0; i < n; i++)
-  {
     io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
-  }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
+  int prefix[n + 1];
+  prefix[0] = 0;
+  for (int i = 1; i <= n; i++)
+    prefix[i] = prefix[i - 1] + a[i - 1];
+
+  // pred: sum > s
+  auto pred = [&prefix, &s](int l, int r) -> bool {
+    return prefix[r + 1] - prefix[l] > s;
+  };
+
+  int min_ops{INT_MAX};
+  for (int rs = 0; rs < n; rs++)
   {
-    find_min_replace(a, final, n);
-    cnt += 1;
+    int L{rs - 1}, R{n};
+    while (R - L > 1)
+    {
+      int M                 = std::midpoint(L, R);
+      (pred(rs, M) ? R : L) = M;
+    }
+
+    int re = L;
+    if (prefix[re + 1] - prefix[rs] == s)
+      min_ops = std::min(min_ops, rs + n - 1 - re);
   }
 
-  io::cout << cnt << "\n";
+  io::cout << (min_ops == INT_MAX ? -1 : min_ops) << "\n";
 }
 
-} // namespace _C
+} // namespace _1692E
 
 int main()
 {
@@ -436,7 +409,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1692E::run();
 
   io::cout.flush();
 

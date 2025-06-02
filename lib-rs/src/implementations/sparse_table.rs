@@ -14,7 +14,7 @@ where
     -> Self
   {
     let k: usize = n.ilog2() as usize;
-    let mut table: Vec<Vec<T>> = vec![vec![array[0].clone(); n]; k + 1];
+    let mut table: Vec<Vec<T>> = vec![vec![array[0]; n]; k + 1];
     table[0].copy_from_slice(&array);
 
     for y in 1..=k

@@ -343,75 +343,46 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1820B
 {
-
-auto non_gcd(int a[], int x, int n) -> int
-{
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
-
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
-    {
-      if (a[i] == a[j])
-        continue;
-
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
-    }
-
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
-}
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  std::string s;
+  io::cin >> s;
 
-  int a[n], final{};
-  for (int i = 0; i < n; i++)
+  int n{static_cast<int>(s.length())};
+  auto num_ones = std::count(s.begin(), s.end(), '1');
+  if (num_ones == n)
+    io::cout << static_cast<int64_t>(n) * n << "\n";
+  else if (num_ones == 0)
+    io::cout << "0\n";
+  else
   {
-    io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
-  }
+    s += s;
+    int l{}, r{};
+    int max_length{INT_MIN};
+    while (r < n * 2)
+    {
+      if (s[r] != '1')
+      {
+        max_length = std::max(max_length, r - l);
+        l          = r + 1;
+      }
+      r++;
+    }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
-  {
-    find_min_replace(a, final, n);
-    cnt += 1;
-  }
+    max_length = std::max(max_length, r - l);
 
-  io::cout << cnt << "\n";
+    int64_t best_product{INT64_MIN};
+    for (int64_t k = 1; k <= max_length; k++)
+      best_product = std::max(best_product, k * (max_length - k + 1));
+
+    io::cout << best_product << "\n";
+  }
 }
 
-} // namespace _C
+} // namespace _1820B
 
 int main()
 {
@@ -436,7 +407,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1820B::run();
 
   io::cout.flush();
 

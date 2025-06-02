@@ -1,11 +1,11 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -13,7 +13,7 @@
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
-namespace IO
+namespace io
 {
 
 #ifndef BUFFER_SIZE
@@ -305,7 +305,7 @@ public:
     while (*this >> c, c < ' ')
       continue;
     x = c;
-    while (*this >> c, c >= ' ')
+    while (*this >> c, c > ' ')
       x += c;
 
     return *this;
@@ -336,81 +336,95 @@ public:
     return *this;
   }
 };
-} // namespace IO
 
-IO::InputReader console_in(STDIN_FILENO);
-IO::OutputWriter console_out(STDOUT_FILENO);
-IO::OutputWriter console_err(STDERR_FILENO);
+InputReader cin(STDIN_FILENO);
+OutputWriter cout(STDOUT_FILENO);
+OutputWriter cerr(STDERR_FILENO);
+
+} // namespace io
 
 namespace _E
 {
 
-auto determine_best(uint32_t a[], int n) -> uint32_t
+auto reduce_all_by(int amt, int h[], int n) -> bool
 {
-  std::array<std::pair<int, int>, 31> scores{};
-  for (int i = 0; i < 31; i++)
-  {
-    uint32_t mask{1U << i};
-    int count_zero{}, count_one{};
-    for (int j = 0; j < n; j++)
-    {
-      if (a[j] & mask)
-        count_one++;
-      else
-        count_zero++;
-    }
-
-    scores[i] = std::make_pair(count_zero, count_one);
-  }
-
-  uint32_t candidate{};
-  int64_t max_score{INT64_MIN};
+  bool res{true};
   for (int i = 0; i < n; i++)
   {
-    int64_t score{};
-    for (int j = 0; j < 31; j++)
-    {
-      uint32_t test_bit = (a[i] >> j) & 1;
-      if (test_bit)
-      {
-        score += scores[j].first * (1LL << j);
-        score -= scores[j].second * (1LL << j);
-      }
-      else
-      {
-        score += scores[j].second * (1LL << j);
-        score -= scores[j].first * (1LL << j);
-      }
-    }
-
-    if (max_score <= score)
-    {
-      candidate = a[i];
-      max_score = score;
-    }
+    h[i] = std::max(0, h[i] - amt);
+    if (h[i] != 0)
+      res = false;
   }
 
-  return (candidate == 0) ? a[0] : candidate;
+  return res;
 }
 
-auto run() -> void
+auto reduce_step_by(int amt, int h[], int n) -> bool
 {
-  int n;
-  console_in >> n;
-
-  uint32_t a[n], candidate{};
   for (int i = 0; i < n; i++)
-    console_in >> a[i];
+  {
+    amt -= h[i];
+    if (amt < 0)
+      return false;
+    h[i] = 0;
+  }
 
-  std::sort(a, a + n);
+  return true;
+}
 
-  candidate = determine_best(a, n);
+std::string precise_str(long double value, int precision = 10)
+{
+  std::ostringstream oss;
+  oss.precision(precision);
+  oss << std::fixed << value;
+  return oss.str();
+}
 
-  uint64_t res{};
+auto precompute() -> std::array<int64_t, 21>
+{
+  std::array<int64_t, 21> factorials{1};
+  for (int i = 1; i <= 20; i++)
+    factorials[i] = i * factorials[i - 1];
+
+  return factorials;
+}
+
+auto run(const std::array<int64_t, 21> &factorials) -> void
+{
+  int n, m, p_prime;
+  io::cin >> n >> m >> p_prime;
+
+  int h[n], h_copy[n];
   for (int i = 0; i < n; i++)
-    res += candidate ^ a[i];
+  {
+    io::cin >> h[i];
+    h_copy[i] = h[i];
+  }
 
-  console_out << res << "\n";
+  long double p = p_prime / 100.0L;
+
+  long double res{};
+  for (int k = m; k >= 0; k--)
+  {
+    std::memcpy(h, h_copy, n);
+    bool cleared = reduce_all_by(k, h, n);
+    if (!cleared)
+    {
+      int single = m - k;
+      cleared    = reduce_step_by(single, h, n);
+      if (!cleared)
+        break;
+    }
+
+    long double prob = static_cast<long double>(factorials[m]) /
+                       (factorials[k] * factorials[m - k]);
+    prob *= std::powl(k, p);
+    prob *= std::powl(m - k, 1 - p);
+
+    res += prob;
+  }
+
+  io::cout << precise_str(res, 10) << "\n";
 }
 
 } // namespace _E
@@ -421,20 +435,33 @@ int main()
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr)
   {
-    console_err << "Input file not found\n";
+    io::cerr << "Input file not found\n";
     __builtin_trap();
   }
+
+  // size_t stack_size = 268435456;
+  // char *stack       = static_cast<char *>(std::malloc(stack_size));
+  // char *send        = stack + stack_size;
+  // send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 *
+  // 16); send -= 8;
+  //
+  // asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
+  // asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
-  console_in >> t;
+  io::cin >> t;
 
+  auto calc = _E::precompute();
   while (t-- > 0)
-    _E::run();
+    _E::run(calc);
 
-  console_out.flush();
+  io::cout.flush();
 
 #ifdef ANTUMBRA
+  // asm volatile("mov (%0), %%rsp\n" : : "r"(send));
+  // std::free(stack);
+
   std::fclose(stdin);
 #endif
 

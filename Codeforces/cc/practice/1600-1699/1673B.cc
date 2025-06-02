@@ -343,75 +343,74 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _1673B
 {
 
-auto non_gcd(int a[], int x, int n) -> int
+auto test_largest_window(char c, std::string s, int n) -> bool
 {
-  int cnt{};
-  for (int i = 0; i < n; i++)
-    if (a[i] != x)
-      cnt += 1;
+  std::string best_window{};
+  int best_length{INT_MIN};
+  int l{}, r{};
 
-  return cnt;
-}
-
-void find_min_replace(int a[], int x, int n)
-{
-  int min_gcd{INT_MAX};
-  int min_i{}, min_j{};
-  for (int i = 0; i < n; i++)
-    for (int j = i; j < n; j++)
+  while (r < n)
+  {
+    if (s[r] == c)
     {
-      if (a[i] == a[j])
-        continue;
+      int current_length = r - l;
+      if (current_length > best_length)
+      {
+        best_length = current_length;
+        best_window = s.substr(l, best_length);
+      }
 
-      int gcd = std::__gcd(a[i], a[j]);
-      if (gcd == x)
-      {
-        if (a[i] > a[j])
-          a[i] = x;
-        else
-          a[j] = x;
-        return;
-      }
-      else if (min_gcd > gcd)
-      {
-        min_gcd = gcd;
-        min_i   = i;
-        min_j   = j;
-      }
+      l = r + 1;
     }
 
-  if (a[min_i] > a[min_j])
-    a[min_i] = min_gcd;
-  else
-    a[min_j] = min_gcd;
+    r += 1;
+  }
+
+  if (r - l > best_length)
+    best_window = s.substr(l, r - l);
+
+  std::array<int, 26> freq{};
+  for (const char &character : best_window)
+  {
+    freq[character - 'a'] += 1;
+    if (freq[character - 'a'] > 1)
+      return true;
+  }
+
+  return false;
 }
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  std::string s;
+  io::cin >> s;
 
-  int a[n], final{};
+  int n{static_cast<int>(s.length())};
+
+  std::array<bool, 26> contains{};
   for (int i = 0; i < n; i++)
+    contains[s[i] - 'a'] = true;
+
+  for (int i = 0; i < 26; i++)
   {
-    io::cin >> a[i];
-    final = std::__gcd(final, a[i]);
+    if (contains[i])
+    {
+      bool result = test_largest_window(static_cast<char>('a' + i), s, n);
+      if (result)
+      {
+        io::cout << "NO\n";
+        return;
+      }
+    }
   }
 
-  int cnt{};
-  while (non_gcd(a, final, n) != 0)
-  {
-    find_min_replace(a, final, n);
-    cnt += 1;
-  }
-
-  io::cout << cnt << "\n";
+  io::cout << "YES\n";
 }
 
-} // namespace _C
+} // namespace _1673B
 
 int main()
 {
@@ -436,7 +435,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _1673B::run();
 
   io::cout.flush();
 
