@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
+#include <set>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +343,39 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _MaximumSubarrayII
 {
-
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
-
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
+  int n, a, b;
+  io::cin >> n >> a >> b;
 
   int x[n];
-  x[0] = x0;
+  for (int i = 0; i < n; i++)
+    io::cin >> x[i];
 
-  AggregateQueue queue{};
-  queue.push(x0);
+  int64_t prefix[n + 1];
+  prefix[0] = 0;
+  for (int i = 1; i <= n; i++)
+    prefix[i] = prefix[i - 1] + x[i - 1];
 
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::multiset<int64_t> window{};
+  int64_t best_sum{INT64_MIN};
+
+  for (int i = a; i <= n; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    if (i > b)
+      window.erase(window.find(prefix[i - 1 - b]));
+
+    window.insert(prefix[i - a]);
+    best_sum = std::max(best_sum, prefix[i] - *window.begin());
   }
 
-  res ^= queue.query();
-
-  for (int i = k; i < n; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
-
-  io::cout << res << "\n";
+  io::cout << best_sum << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _MaximumSubarrayII
 
 int main()
 {
@@ -471,7 +399,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _MaximumSubarrayII::run();
 
   io::cout.flush();
 

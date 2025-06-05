@@ -5,11 +5,11 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_map>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -343,111 +343,33 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _SubarrayDivisibility
 {
-
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n;
+  io::cin >> n;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::unordered_map<int64_t, int64_t> mod{};
+  int64_t prefix_sum{};
+  mod[0] += 1;
+  for (int i = 0; i < n; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    int num;
+    io::cin >> num;
+    prefix_sum += num;
+    mod[((prefix_sum % n) + n) % n] += 1;
   }
 
-  res ^= queue.query();
+  int64_t num_subarrays{};
+  for (const auto &[num, freq] : mod)
+    num_subarrays += (freq * (freq - 1)) >> 1;
 
-  for (int i = k; i < n; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
-
-  io::cout << res << "\n";
+  io::cout << num_subarrays << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _SubarrayDivisibility
 
 int main()
 {
@@ -471,7 +393,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _SubarrayDivisibility::run();
 
   io::cout.flush();
 

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +343,42 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _FactoryMachines
 {
-
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n, t;
+  io::cin >> n >> t;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
+  int k[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> k[i];
 
-  int x[n];
-  x[0] = x0;
+  // pred: sum >= t
+  auto pred = [&k, &n, &t](const int64_t &time) -> bool {
+    __int128_t res{};
+    for (int i = 0; i < n; i++)
+      res += time / k[i];
 
-  AggregateQueue queue{};
-  queue.push(x0);
+    return res >= t;
+  };
 
-  int res{};
-  for (int i = 1; i < k; i++)
+  int64_t L{}, R{*std::min_element(k, k + n) * static_cast<int64_t>(t) + 1};
+  while (R - L > 1)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    int64_t M         = std::midpoint(L, R);
+    (pred(M) ? R : L) = M;
   }
 
-  res ^= queue.query();
+  int64_t res{};
+  for (int i = 0; i < n; i++)
+    res += L / k[i];
 
-  for (int i = k; i < n; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
-
-  io::cout << res << "\n";
+  io::cout << (res == t ? L : R) << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _FactoryMachines
 
 int main()
 {
@@ -471,7 +402,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _FactoryMachines::run();
 
   io::cout.flush();
 

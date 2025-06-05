@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +343,61 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _ArrayDivision
 {
-
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
 
 auto run() -> void
 {
   int n, k;
   io::cin >> n >> k;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
   int x[n];
-  x[0] = x0;
+  for (int i = 0; i < n; i++)
+    io::cin >> x[i];
 
-  AggregateQueue queue{};
-  queue.push(x0);
+  // pred: num_arrays <= k
+  auto pred = [&x, &n, &k](const int64_t max_sum) -> bool {
+    int num_arrays{};
+    int64_t curr_sum{};
+    for (int i = 0; i < n; i++)
+    {
+      if (curr_sum + x[i] > max_sum)
+      {
+        num_arrays += 1;
+        curr_sum = x[i];
+      }
+      else
+        curr_sum += x[i];
+    }
 
-  int res{};
-  for (int i = 1; i < k; i++)
+    num_arrays += 1;
+    return num_arrays <= k;
+  };
+
+  int64_t L{}, R{static_cast<int64_t>(1e18)};
+  while (R - L > 1)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    int64_t M         = std::midpoint(L, R);
+    (pred(M) ? R : L) = M;
   }
 
-  res ^= queue.query();
-
-  for (int i = k; i < n; i++)
+  int64_t max_sum{};
+  int64_t curr_sum{};
+  for (int i = 0; i < n; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
+    if (curr_sum + x[i] > R)
+    {
+      max_sum  = std::max(max_sum, curr_sum);
+      curr_sum = x[i];
+    }
+    else
+      curr_sum += x[i];
   }
 
-  io::cout << res << "\n";
+  io::cout << std::max(max_sum, curr_sum) << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _ArrayDivision
 
 int main()
 {
@@ -471,7 +421,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _ArrayDivision::run();
 
   io::cout.flush();
 

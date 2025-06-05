@@ -5,7 +5,8 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
+#include <queue>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +344,167 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _Labyrinth
 {
 
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
+struct Maze
 {
 private:
-  AggregateStack in, out;
+  std::vector<std::vector<std::pair<int, int>>> parents_{};
+  std::vector<std::string> grid_;
+  std::vector<std::vector<bool>> visited_;
+
+  int sx_{}, sy_{}, dx_{}, dy_{};
+  int n, m;
+
+  auto is_valid_(int x, int y)
+  {
+    return (x < m) && (x >= 0) && (y < n) && (y >= 0) && (grid_[y][x] != '#');
+  }
+
+  auto direction_(int px, int py, int x, int y) -> char
+  {
+    if (px == x - 1 && py == y)
+      return 'L';
+    if (px == x + 1 && py == y)
+      return 'R';
+    if (px == x && py == y + 1)
+      return 'D';
+    if (px == x && py == y - 1)
+      return 'U';
+
+    __builtin_unreachable();
+  }
 
 public:
-  AggregateQueue()
+  int dx[4] = {-1, 0, 1, 0};
+  int dy[4] = {0, 1, 0, -1};
+
+  Maze(std::vector<std::string> &&grid, int sx, int sy, int dx, int dy)
+      : grid_(std::move(grid)), sx_{sx}, sy_{sy}, dx_{dx}, dy_{dy}
   {
+    if (grid_.empty() || grid_[0].empty())
+      throw std::runtime_error("Grid is empty or has empty rows.");
+
+    n        = static_cast<int>(grid_.size());
+    m        = static_cast<int>(grid_[0].size());
+    parents_ = std::vector<std::vector<std::pair<int, int>>>(
+        n, std::vector<std::pair<int, int>>(m, {-1, -1}));
+    visited_ = std::vector<std::vector<bool>>(n, std::vector<bool>(m, false));
   }
 
-  void push(int x)
+  void bfs()
   {
-    in.push(x);
-  }
+    std::queue<std::pair<int, int>> queue{};
+    queue.emplace(sx_, sy_);
+    visited_[sy_][sx_] = true;
 
-  void pop()
-  {
-    if (out.stack.empty())
+    while (!queue.empty())
     {
-      while (!in.stack.empty())
+      auto [x, y] = queue.front();
+      queue.pop();
+
+      for (int i = 0; i < 4; i++)
       {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
+        if (is_valid_(x + dx[i], y + dy[i]) && !visited_[y + dy[i]][x + dx[i]])
+        {
+          parents_[y + dy[i]][x + dx[i]] = std::make_pair(x, y);
+          queue.emplace(x + dx[i], y + dy[i]);
+          visited_[y + dy[i]][x + dx[i]] = true;
+        }
       }
     }
-    out.pop();
   }
 
-  auto query() -> int
+  auto trace_path(bool &possible) -> std::vector<char>
   {
-    if (in.stack.empty())
-      return out.aggregate();
+    std::vector<char> path{};
+    int x{dx_}, y{dy_};
+    while (x != sx_ || y != sy_)
+    {
+      auto &[p_x, p_y] = parents_[y][x];
+      if (p_x == -1 && p_y == -1)
+      {
+        possible = false;
+        break;
+      }
+      else
+      {
+        path.push_back(direction_(p_x, p_y, x, y));
+        x = p_x, y = p_y;
+      }
+    }
 
-    if (out.stack.empty())
-      return in.aggregate();
+    return path;
+  }
 
-    return in.aggregate() | out.aggregate();
+  auto invert(char c) -> char
+  {
+    switch (c)
+    {
+    case 'L':
+      return 'R';
+    case 'R':
+      return 'L';
+    case 'U':
+      return 'D';
+    case 'D':
+      return 'U';
+    default:
+      __builtin_unreachable();
+    }
   }
 };
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n, m;
+  io::cin >> n >> m;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::vector<std::string> grid{};
+  int x_a{}, y_a{}, x_b{}, y_b{};
+  for (int y = 0; y < n; y++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    std::string row;
+    io::cin >> row;
+    grid.push_back(row);
+
+    for (int x = 0; x < m; x++)
+    {
+      if (grid[y][x] == 'A')
+      {
+        x_a = x;
+        y_a = y;
+      }
+      else if (grid[y][x] == 'B')
+      {
+        x_b = x;
+        y_b = y;
+      }
+    }
   }
 
-  res ^= queue.query();
+  Maze maze(std::move(grid), x_a, y_a, x_b, y_b);
+  maze.bfs();
 
-  for (int i = k; i < n; i++)
+  bool possible{true};
+  auto vec = maze.trace_path(possible);
+  if (!possible)
+    io::cout << "NO\n";
+  else
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
+    io::cout << "YES\n";
+    io::cout << vec.size() << "\n";
 
-  io::cout << res << "\n";
+    std::reverse(vec.begin(), vec.end());
+    for (const char &dir : vec)
+      io::cout << maze.invert(dir);
+
+    io::cout << "\n";
+  }
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _Labyrinth
 
 int main()
 {
@@ -471,7 +528,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _Labyrinth::run();
 
   io::cout.flush();
 

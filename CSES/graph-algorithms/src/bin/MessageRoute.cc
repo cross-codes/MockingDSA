@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +343,138 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _MessageRoute
 {
 
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
+struct SimpleGraph
 {
 private:
-  AggregateStack in, out;
+  enum class Color
+  {
+    WHITE,
+    GRAY,
+    BLACK
+  };
 
 public:
-  AggregateQueue()
-  {
-  }
+  int V{}, E{};
+  constexpr static int INF{static_cast<int>(1e9)};
 
-  void push(int x)
+  struct Vertex
   {
-    in.push(x);
-  }
+    int p, u, d;
+    Color color;
 
-  void pop()
-  {
-    if (out.stack.empty())
+    Vertex(int u) : p{-1}, u{u}, d{INF}, color{Color::WHITE}
     {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
     }
-    out.pop();
+  };
+
+  std::vector<Vertex> vertices{};
+  std::vector<std::vector<int>> adj{};
+  int NIL = -1;
+
+  SimpleGraph(int n) : V(n)
+  {
+    for (int i = 0; i < V; i++)
+      vertices.push_back(Vertex(i));
+
+    reset();
   }
 
-  auto query() -> int
+  void construct(const std::vector<std::pair<int, int>> &edge_list)
   {
-    if (in.stack.empty())
-      return out.aggregate();
+    for (const auto &[from, to] : edge_list)
+    {
+      adj[from].push_back(to);
+      adj[to].push_back(from);
+      E += 1;
+    }
+  }
 
-    if (out.stack.empty())
-      return in.aggregate();
+  void reset()
+  {
+    adj = std::vector<std::vector<int>>(V, std::vector<int>());
+  }
 
-    return in.aggregate() | out.aggregate();
+  void bfs(int source)
+  {
+    Vertex s = vertices[source];
+    s.color  = Color::GRAY;
+    s.p      = NIL;
+
+    std::queue<Vertex> queue{};
+    queue.emplace(s);
+
+    while (!queue.empty())
+    {
+      Vertex u = queue.front();
+      queue.pop();
+
+      for (const auto &id : adj[u.u])
+      {
+        Vertex &v = vertices[id];
+        if (v.color == Color::WHITE)
+        {
+          v.color = Color::GRAY;
+          v.d     = u.d + 1;
+          v.p     = u.u;
+          queue.emplace(v);
+        }
+      }
+
+      u.color = Color::BLACK;
+    }
+  }
+
+  void shortest_path(int s, int v, bool &possible, std::vector<int> &path)
+  {
+    if (v == s)
+      path.push_back(s);
+    else if (vertices[v].p == NIL)
+      possible = false;
+    else
+    {
+      shortest_path(s, vertices[v].p, possible, path);
+      path.push_back(v);
+    }
   }
 };
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n, m;
+  io::cin >> n >> m;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::vector<std::pair<int, int>> edge_list{};
+  for (int i = 0; i < m; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    int x, y;
+    io::cin >> x >> y;
+    edge_list.emplace_back(x - 1, y - 1);
   }
 
-  res ^= queue.query();
+  SimpleGraph graph(n);
+  graph.construct(edge_list);
+  graph.bfs(0);
 
-  for (int i = k; i < n; i++)
+  bool possible{true};
+  std::vector<int> path{};
+  graph.shortest_path(0, n - 1, possible, path);
+
+  if (!possible)
+    io::cout << "IMPOSSIBLE\n";
+  else
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
+    io::cout << path.size() << "\n";
+    for (const auto &v : path)
+      io::cout << v + 1 << " ";
 
-  io::cout << res << "\n";
+    io::cout << "\n";
+  }
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _MessageRoute
 
 int main()
 {
@@ -471,7 +498,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _MessageRoute::run();
 
   io::cout.flush();
 

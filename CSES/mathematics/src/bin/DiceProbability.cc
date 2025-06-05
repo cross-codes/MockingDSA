@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +343,48 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _DiceProbability
 {
 
-struct AggregateStack
+std::string precise_str(long double value, int precision = 10)
 {
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
+  std::ostringstream oss;
+  oss.precision(precision);
+  oss << std::fixed << value;
+  return oss.str();
+}
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n, a, b;
+  io::cin >> n >> a >> b;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::array<std::array<long double, 601>, 101> prob{};
+  prob[0][0] = 1.00L;
+  for (int i = 1; i <= n; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    for (int j = i; j <= 6 * i; j++)
+    {
+      long double sum{};
+      for (int k = 1; k <= std::min(6, j); k++)
+        sum += prob[i - 1][j - k];
+
+      prob[i][j] = sum / 6.00L;
+    }
   }
 
-  res ^= queue.query();
+  long double res{};
+  for (int j = a; j <= b; j++)
+    res += prob[n][j];
 
-  for (int i = k; i < n; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
+  res *= 1e6;
+  res = std::round(res);
+  res /= 1e6;
 
-  io::cout << res << "\n";
+  io::cout << precise_str(res, 6) << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _DiceProbability
 
 int main()
 {
@@ -471,7 +408,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _DiceProbability::run();
 
   io::cout.flush();
 

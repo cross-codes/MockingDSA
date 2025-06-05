@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +342,107 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _1504B
 {
 
-struct AggregateStack
+enum class Comparison
 {
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
+  INVERTED,
+  IDENTICAL,
+  HAPHAZARD
 };
 
-struct AggregateQueue
+auto judge(std::string &a, std::string &b, bool flipped) -> Comparison
 {
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
+  int n{static_cast<int>(a.length())};
+  if (flipped)
   {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
+    for (int i = 0; i < n; i++)
     {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
+      if (a[i] == '1')
+        a[i] = '0';
+      else
+        a[i] = '1';
     }
-    out.pop();
   }
 
-  auto query() -> int
+  if (a == b)
+    return Comparison::IDENTICAL;
+  else
   {
-    if (in.stack.empty())
-      return out.aggregate();
+    for (int i = 0; i < n; i++)
+    {
+      if (a[i] == '0' && b[i] != '1')
+        return Comparison::HAPHAZARD;
+      else if (a[i] == '1' && b[i] != '0')
+        return Comparison::HAPHAZARD;
+    }
 
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
+    return Comparison::INVERTED;
   }
-};
+}
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n;
+  io::cin >> n;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
+  std::string a, b;
+  io::cin >> a >> b;
 
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::vector<int> prefixes{};
+  int cnt_0{}, cnt_1{};
+  for (int i = 0; i < n; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    if (a[i] == '0')
+      cnt_0 += 1;
+    else if (a[i] == '1')
+      cnt_1 += 1;
+
+    if (cnt_0 == cnt_1)
+      prefixes.push_back(i);
   }
 
-  res ^= queue.query();
-
-  for (int i = k; i < n; i++)
+  if (prefixes.empty())
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
+    io::cout << ((a == b) ? "YES\n" : "NO\n");
+    return;
   }
 
-  io::cout << res << "\n";
+  std::reverse(prefixes.begin(), prefixes.end());
+  prefixes.push_back(-1);
+
+  bool prefix_flipped{};
+  std::string back_a = a.substr(prefixes.front() + 1, a.npos);
+  std::string back_b = b.substr(prefixes.front() + 1, b.npos);
+  if (back_a != back_b)
+  {
+    io::cout << "NO\n";
+    return;
+  }
+
+  int N{static_cast<int>(prefixes.size())};
+
+  for (int i = 0; i < N - 1; i++)
+  {
+    int rs               = prefixes[i + 1] + 1;
+    int re               = prefixes[i];
+    std::string substr_a = a.substr(rs, re - rs + 1);
+    std::string substr_b = b.substr(rs, re - rs + 1);
+    Comparison res       = judge(substr_a, substr_b, prefix_flipped);
+    if (res == Comparison::HAPHAZARD)
+    {
+      io::cout << "NO\n";
+      return;
+    }
+    else if (res == Comparison::INVERTED)
+      prefix_flipped = !prefix_flipped;
+  }
+
+  io::cout << "YES\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _1504B
 
 int main()
 {
@@ -470,8 +465,9 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _1504B::run();
 
   io::cout.flush();
 

@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +342,34 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _1514B
 {
 
-struct AggregateStack
+constexpr int MOD = static_cast<int>(1e9 + 7);
+
+auto mod_pow(int x, int n, int m = MOD) -> int
 {
-public:
-  std::stack<std::pair<int, int>> stack;
+  if (n == 0)
+    return 1 % m;
 
-  AggregateStack()
-  {
-  }
+  int64_t u = mod_pow(x, n >> 1, m);
+  u         = (u * u) % m;
 
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
+  if (n & 1)
+    u = (u * x) % m;
 
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
+  return static_cast<int>(u);
+}
 
 auto run() -> void
 {
   int n, k;
   io::cin >> n >> k;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-  }
-
-  res ^= queue.query();
-
-  for (int i = k; i < n; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
-
-  io::cout << res << "\n";
+  io::cout << mod_pow(n, k) << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _1514B
 
 int main()
 {
@@ -470,8 +392,10 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
+
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _1514B::run();
 
   io::cout.flush();
 

@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
+#include <set>
 #include <stack>
 #include <string>
 #include <string_view>
@@ -343,111 +345,129 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+template <> struct std::hash<std::tuple<int, int, int>>
 {
-
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
+  std::size_t operator()(const std::tuple<int, int, int> &t) const noexcept
   {
-  }
+    std::size_t h1 = std::hash<int>{}(std::get<0>(t));
+    std::size_t h2 = std::hash<int>{}(std::get<1>(t));
+    std::size_t h3 = std::hash<int>{}(std::get<2>(t));
 
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
+    return (h1 << 2) ^ (h2 << 1) ^ h3;
   }
 };
 
-struct AggregateQueue
+namespace _59E
 {
-private:
-  AggregateStack in, out;
 
-public:
-  AggregateQueue()
-  {
-  }
+struct State
+{
+  int p, id, d;
 
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
+  State(int p, int c, int d) : p(p), id(c), d(d) {};
 };
+
+constexpr int INF = static_cast<int>(1e9);
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n, m, k;
+  io::cin >> n >> m >> k;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
-
-  int x[n];
-  x[0] = x0;
-
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    int x, y;
+    io::cin >> x >> y;
+
+    adj[x - 1].push_back(y - 1);
+    adj[y - 1].push_back(x - 1);
   }
 
-  res ^= queue.query();
-
-  for (int i = k; i < n; i++)
+  std::set<std::tuple<int, int, int>> forbidden{};
+  for (int i = 0; i < k; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    int u, v, w;
+    io::cin >> u >> v >> w;
+    forbidden.insert(std::make_tuple(u - 1, v - 1, w - 1));
+  }
+
+  int dist[n][n];
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j < n; ++j)
+      dist[i][j] = INF;
+
+  auto cmp = [](const State &a, const State &b) -> bool { return a.d > b.d; };
+
+  std::priority_queue<State, std::vector<State>, decltype(cmp)> queue{};
+
+  for (const int &v : adj[0])
+  {
+    dist[0][v] = 1;
+    queue.emplace(0, v, 1);
+  }
+
+  while (!queue.empty())
+  {
+    State state = queue.top();
     queue.pop();
-    res ^= queue.query();
+    int p{state.p}, u{state.id}, d{state.d};
+    if (dist[p][u] < d)
+      continue;
+
+    for (const int &v : adj[u])
+    {
+      if (forbidden.contains(std::make_tuple(p, u, v)))
+        continue;
+
+      if (dist[u][v] > d + 1)
+      {
+        dist[u][v] = d + 1;
+        queue.emplace(u, v, d + 1);
+      }
+    }
   }
 
-  io::cout << res << "\n";
+  int min_dist{INF};
+  for (int i = 0; i < n; i++)
+    min_dist = std::min(min_dist, dist[i][n - 1]);
+
+  if (min_dist == INF)
+  {
+    io::cout << "-1\n";
+    return;
+  }
+
+  std::stack<int> stack{};
+  int curr{n - 1}, prev{-INF};
+  while (curr > 0)
+  {
+    stack.push(curr);
+    int best_parent{-1};
+    for (int i = 0; i < n; i++)
+    {
+      if (!forbidden.contains(std::make_tuple(i, curr, prev)))
+        if (best_parent == -1 || dist[i][curr] < dist[best_parent][curr])
+          best_parent = i;
+    }
+
+    prev = curr;
+    curr = best_parent;
+  }
+
+  stack.push(0);
+  io::cout << stack.size() - 1 << "\n";
+  while (!stack.empty())
+  {
+    int u = stack.top();
+    stack.pop();
+    io::cout << u + 1 << " ";
+  }
+
+  io::cout << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _59E
 
 int main()
 {
@@ -471,7 +491,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _59E::run();
 
   io::cout.flush();
 

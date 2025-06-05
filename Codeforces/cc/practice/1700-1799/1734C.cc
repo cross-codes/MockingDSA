@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <stack>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,111 +342,42 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _SlidingWindowOr
+namespace _1734C
 {
-
-struct AggregateStack
-{
-public:
-  std::stack<std::pair<int, int>> stack;
-
-  AggregateStack()
-  {
-  }
-
-  void push(int x)
-  {
-    int curr_agg = stack.empty() ? x : stack.top().second | x;
-    stack.push(std::make_pair(x, curr_agg));
-  }
-
-  void pop()
-  {
-    stack.pop();
-  }
-
-  auto aggregate() -> int
-  {
-    return stack.top().second;
-  }
-};
-
-struct AggregateQueue
-{
-private:
-  AggregateStack in, out;
-
-public:
-  AggregateQueue()
-  {
-  }
-
-  void push(int x)
-  {
-    in.push(x);
-  }
-
-  void pop()
-  {
-    if (out.stack.empty())
-    {
-      while (!in.stack.empty())
-      {
-        int val = in.stack.top().first;
-        in.pop();
-        out.push(val);
-      }
-    }
-    out.pop();
-  }
-
-  auto query() -> int
-  {
-    if (in.stack.empty())
-      return out.aggregate();
-
-    if (out.stack.empty())
-      return in.aggregate();
-
-    return in.aggregate() | out.aggregate();
-  }
-};
 
 auto run() -> void
 {
-  int n, k;
-  io::cin >> n >> k;
+  int n;
+  io::cin >> n;
 
-  int x0, a, b, c;
-  io::cin >> x0 >> a >> b >> c;
+  std::vector<std::vector<int>> service(n + 1);
+  service[0] = {};
+  for (int i = 1; i <= n; i++)
+    service[i] = {i};
 
-  int x[n];
-  x[0] = x0;
+  std::string s{};
+  io::cin >> s;
 
-  AggregateQueue queue{};
-  queue.push(x0);
-
-  int res{};
-  for (int i = 1; i < k; i++)
+  int64_t min_cost{};
+  for (int i = 0; i < n; i++)
   {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
+    if (s[i] == '0')
+    {
+      int best = service[i + 1].back();
+      min_cost += best;
+      for (const int &factor : service[i + 1])
+      {
+        int next = ((i + 1) / factor + 1) * factor;
+        if (next <= n)
+          service[next].push_back(factor);
+      }
+    }
   }
 
-  res ^= queue.query();
-
-  for (int i = k; i < n; i++)
-  {
-    x[i] = (static_cast<int64_t>(x[i - 1]) * a + b) % c;
-    queue.push(x[i]);
-    queue.pop();
-    res ^= queue.query();
-  }
-
-  io::cout << res << "\n";
+  io::cout << min_cost << "\n";
 }
 
-} // namespace _SlidingWindowOr
+} // namespace _1734C
 
 int main()
 {
@@ -470,8 +400,9 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
   while (t-- > 0)
-    _SlidingWindowOr::run();
+    _1734C::run();
 
   io::cout.flush();
 
