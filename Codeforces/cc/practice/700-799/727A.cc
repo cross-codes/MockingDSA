@@ -1,6 +1,8 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
+#include <charconv>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -9,6 +11,8 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,50 +346,67 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _727A
 {
-
-void display_cyclic_shift(std::string s, int from, int to)
-{
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
 
 auto run() -> void
 {
-  int n;
-  std::string s;
-  io::cin >> n >> s;
+  int64_t a, b;
+  io::cin >> a >> b;
 
-  int l{-1}, r{n};
-  for (int i = 0; i < n - 1; i++)
+  std::unordered_set<int64_t> visited{};
+  std::unordered_map<int64_t, int64_t> parents{};
+  parents[a] = 0;
+
+  auto f     = [](const int64_t &u) -> int64_t {
+    auto str = std::to_string(u);
+    str.push_back('1');
+    int64_t res{};
+
+    auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), res);
+    if (ec == std::errc::result_out_of_range)
+      return INT_MAX;
+    else
+      return res;
+  };
+
+  auto dfs = [&b, &parents, &visited, &f](auto &&dfs, int64_t u,
+                                          int64_t p) -> void {
+    if (visited.contains(u) || u > b)
+      return;
+
+    visited.insert(u);
+    parents[u] = p;
+
+    dfs(dfs, u << 1, u);
+    dfs(dfs, f(u), u);
+  };
+
+  dfs(dfs, a, 0);
+
+  std::vector<int64_t> trace{};
+  int64_t curr = b;
+  while (curr != 0)
   {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
+    trace.push_back(curr);
+    curr = parents[curr];
   }
 
-  if (l == -1)
+  std::reverse(trace.begin(), trace.end());
+  if (*trace.begin() != a || *std::prev(trace.end()) != b)
   {
-    io::cout << s << "\n";
+    io::cout << "NO\n";
     return;
   }
 
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
-    {
-      r = j;
-      break;
-    }
+  io::cout << "YES\n" << trace.size() << "\n";
+  for (int64_t e : trace)
+    io::cout << e << " ";
 
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+  io::cout << "\n";
 }
 
-} // namespace _D
+} // namespace _727A
 
 int main()
 {
@@ -408,9 +429,8 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _727A::run();
 
   io::cout.flush();
 

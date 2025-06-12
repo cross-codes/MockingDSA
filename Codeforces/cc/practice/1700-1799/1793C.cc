@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,50 +343,87 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _1793C
 {
 
-void display_cyclic_shift(std::string s, int from, int to)
+template <typename T> struct IdempotentSparseTable
 {
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
+private:
+  std::function<T(const T &, const T &)> function_;
+  std::vector<std::vector<T>> table;
+
+public:
+  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
+                        std::size_t n)
+      : function_(func)
+  {
+    std::size_t K = std::__lg(n);
+
+    table.resize(K + 1, std::vector<T>(n));
+    std::copy(array, array + n, table[0].begin());
+
+    for (std::size_t y = 1; y < table.size(); y++)
+      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
+        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
+  }
+
+  T query_range(std::size_t from_idx, std::size_t past_end_idx)
+  {
+    std::size_t row = std::__lg(past_end_idx - from_idx);
+    return function_(table[row][from_idx],
+                     table[row][past_end_idx - (1 << row)]);
+  }
+};
 
 auto run() -> void
 {
   int n;
-  std::string s;
-  io::cin >> n >> s;
+  io::cin >> n;
 
-  int l{-1}, r{n};
-  for (int i = 0; i < n - 1; i++)
+  int a[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> a[i];
+
+  auto MIN_SELECT = [](const int &a, const int &b) -> int {
+    return std::min(a, b);
+  };
+
+  auto MAX_SELECT = [](const int &a, const int &b) -> int {
+    return std::max(a, b);
+  };
+
+  auto min_table = IdempotentSparseTable<int>(MIN_SELECT, a, n);
+  auto max_table = IdempotentSparseTable<int>(MAX_SELECT, a, n);
+
+  int l{}, r{n - 1};
+  while (l < r)
   {
-    if (s[i] > s[i + 1])
+    int min = min_table.query_range(l, r + 1);
+    int max = max_table.query_range(l, r + 1);
+    bool changed{};
+
+    if (min == a[l] || max == a[l])
     {
-      l = i;
-      break;
+      l += 1;
+      changed = true;
+    }
+    if (min == a[r] || max == a[r])
+    {
+      r -= 1;
+      changed = true;
+    }
+
+    if (!changed)
+    {
+      io::cout.append<"% %\n">(l + 1, r + 1);
+      return;
     }
   }
 
-  if (l == -1)
-  {
-    io::cout << s << "\n";
-    return;
-  }
-
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
-    {
-      r = j;
-      break;
-    }
-
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+  io::cout << "-1\n";
 }
 
-} // namespace _D
+} // namespace _1793C
 
 int main()
 {
@@ -407,12 +445,12 @@ int main()
   asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
+  std::atexit([]() { io::cout.flush(); });
+
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _D::run();
-
-  io::cout.flush();
+    _1793C::run();
 
 #ifdef ANTUMBRA
   asm volatile("mov (%0), %%rsp\n" : : "r"(send));

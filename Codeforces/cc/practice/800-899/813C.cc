@@ -342,50 +342,67 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _813C
 {
-
-void display_cyclic_shift(std::string s, int from, int to)
-{
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
 
 auto run() -> void
 {
-  int n;
-  std::string s;
-  io::cin >> n >> s;
+  int n, x;
+  io::cin >> n >> x;
 
-  int l{-1}, r{n};
+  int depth_a[n], depth_b[n];
+  std::memset(depth_a, 0x00, sizeof(int) * n);
+  std::memset(depth_b, 0x00, sizeof(int) * n);
+
+  std::vector<int> adj[n];
+
   for (int i = 0; i < n - 1; i++)
   {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
+    int to, from;
+    io::cin >> to >> from;
+
+    adj[to - 1].push_back(from - 1);
+    adj[from - 1].push_back(to - 1);
   }
 
-  if (l == -1)
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  auto dfs = [&depth_a, &depth_b, &adj, &visited](auto &&dfs, int u, int depth,
+                                                  int uid) -> void {
+    if (uid == 1)
+      depth_a[u] = depth;
+    else
+      depth_b[u] = depth;
+
+    for (int v : adj[u])
+    {
+      if (!visited[v])
+      {
+        visited[v] = true;
+        dfs(dfs, v, depth + 1, uid);
+      }
+    }
+  };
+
+  visited[0] = true;
+  dfs(dfs, 0, 0, 1);
+
+  std::memset(visited, 0x00, sizeof(bool) * n);
+  visited[x - 1] = true;
+  dfs(dfs, x - 1, 0, 2);
+
+  int res{};
+  for (int i = 0; i < n; i++)
   {
-    io::cout << s << "\n";
-    return;
+    if (depth_a[i] > depth_b[i])
+      res = std::max(res, depth_a[i] << 1);
   }
 
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
-    {
-      r = j;
-      break;
-    }
-
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+  io::cout << res << "\n";
 }
 
-} // namespace _D
+} // namespace _813C
 
 int main()
 {
@@ -408,9 +425,8 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _813C::run();
 
   io::cout.flush();
 

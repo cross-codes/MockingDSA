@@ -9,6 +9,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,50 +343,57 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _2117C
 {
 
-void display_cyclic_shift(std::string s, int from, int to)
-{
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
+std::array<int, 200001> loc{};
 
 auto run() -> void
 {
   int n;
-  std::string s;
-  io::cin >> n >> s;
+  io::cin >> n;
 
-  int l{-1}, r{n};
-  for (int i = 0; i < n - 1; i++)
+  int a[n];
+  for (int i = 0; i < n; i++)
   {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
+    io::cin >> a[i];
+    loc[a[i]] = i;
   }
 
-  if (l == -1)
+  std::unordered_set<int> prev_seg{}, curr_seg{};
+  int num_partitions{};
+  bool first{true};
+  for (int i = 0; i < n; i++)
   {
-    io::cout << s << "\n";
-    return;
-  }
-
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
+    if (loc[a[i]] == i)
     {
-      r = j;
+      num_partitions += 1;
       break;
     }
 
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+    if (!first)
+    {
+      prev_seg.erase(a[i]);
+      curr_seg.insert(a[i]);
+      if (prev_seg.size() == 0)
+      {
+        num_partitions += 1;
+        prev_seg = curr_seg;
+        curr_seg = std::unordered_set<int>();
+      }
+    }
+    else
+    {
+      num_partitions += 1;
+      prev_seg.insert(a[i]);
+      first = false;
+    }
+  }
+
+  io::cout << num_partitions << "\n";
 }
 
-} // namespace _D
+} // namespace _2117C
 
 int main()
 {
@@ -410,7 +418,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _2117C::run();
 
   io::cout.flush();
 

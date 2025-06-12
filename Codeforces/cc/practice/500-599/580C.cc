@@ -9,6 +9,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,50 +343,76 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _580C
 {
-
-void display_cyclic_shift(std::string s, int from, int to)
-{
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
 
 auto run() -> void
 {
-  int n;
-  std::string s;
-  io::cin >> n >> s;
+  int n, m;
+  io::cin >> n >> m;
 
-  int l{-1}, r{n};
+  std::unordered_set<int> cat_v{};
+  for (int i = 0; i < n; i++)
+  {
+    int v;
+    io::cin >> v;
+    if (v == 1)
+      cat_v.insert(i);
+  }
+
+  std::vector<int> adj[n];
   for (int i = 0; i < n - 1; i++)
   {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
+    int to, from;
+    io::cin >> to >> from;
+
+    adj[to - 1].push_back(from - 1);
+    adj[from - 1].push_back(to - 1);
   }
 
-  if (l == -1)
-  {
-    io::cout << s << "\n";
-    return;
-  }
+  int num_visitable{};
+  int consecutive[n];
+  std::memset(consecutive, 0x00, sizeof(int) * n);
 
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  auto dfs = [&adj, &visited, &cat_v, &consecutive, &m,
+              &num_visitable](auto &&dfs, int p, int u) -> void {
+    bool is_leaf{true};
+    for (int v : adj[u])
     {
-      r = j;
-      break;
+      if (!visited[v])
+      {
+        is_leaf    = false;
+        visited[v] = true;
+        if (cat_v.contains(v))
+          consecutive[v] = consecutive[u] + 1;
+
+        if (consecutive[v] <= m)
+          dfs(dfs, u, v);
+      }
     }
 
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+    if (is_leaf)
+    {
+      if (cat_v.contains(u) && p != -1)
+        consecutive[u] = consecutive[p] + 1;
+
+      if (consecutive[u] <= m)
+        num_visitable += 1;
+    }
+  };
+
+  if (cat_v.contains(0))
+    consecutive[0] += 1;
+
+  visited[0] = true;
+  dfs(dfs, -1, 0);
+
+  io::cout << num_visitable << "\n";
 }
-
-} // namespace _D
+} // namespace _580C
 
 int main()
 {
@@ -408,9 +435,8 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _580C::run();
 
   io::cout.flush();
 

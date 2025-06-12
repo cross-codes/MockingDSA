@@ -342,50 +342,37 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _1635C
 {
-
-void display_cyclic_shift(std::string s, int from, int to)
-{
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
 
 auto run() -> void
 {
   int n;
-  std::string s;
-  io::cin >> n >> s;
+  io::cin >> n;
 
-  int l{-1}, r{n};
-  for (int i = 0; i < n - 1; i++)
-  {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
-  }
+  int a[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> a[i];
 
-  if (l == -1)
+  if (a[n - 2] > a[n - 1])
   {
-    io::cout << s << "\n";
+    io::cout << "-1\n";
     return;
   }
 
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
-    {
-      r = j;
-      break;
-    }
+  if (a[n - 1] >= 0)
+  {
+    io::cout << n - 2 << "\n";
+    for (int i = 0; i < n - 2; i++)
+      io::cout.append<"% % %\n">(i + 1, n - 1, n);
 
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+    return;
+  }
+
+  io::cout << (std::is_sorted(a, a + n) ? "0\n" : "-1\n") << "\n";
 }
 
-} // namespace _D
+} // namespace _1635C
 
 int main()
 {
@@ -410,7 +397,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _1635C::run();
 
   io::cout.flush();
 

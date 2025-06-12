@@ -342,50 +342,49 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _2117D
 {
 
-void display_cyclic_shift(std::string s, int from, int to)
+auto test(int a[], int n, int x, int y) -> bool
 {
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
+  for (int i = 0; i < n; i++)
+    if (a[i] - (x * (i + 1)) - ((n - i) * y) != 0)
+      return false;
+
+  return true;
 }
 
 auto run() -> void
 {
   int n;
-  std::string s;
-  io::cin >> n >> s;
+  io::cin >> n;
 
-  int l{-1}, r{n};
-  for (int i = 0; i < n - 1; i++)
-  {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
-  }
+  int a[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> a[i];
 
-  if (l == -1)
+  if (((a[0] << 1) - a[1]) % (n + 1) != 0)
   {
-    io::cout << s << "\n";
+    io::cout << "NO\n";
     return;
   }
 
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
-    {
-      r = j;
-      break;
-    }
+  int y{((a[0] << 1) - a[1]) / (n + 1)};
+  int x{y - a[0] + a[1]};
 
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+  if (x < 0 || y < 0)
+  {
+    io::cout << "NO\n";
+    return;
+  }
+
+  if (test(a, n, x, y))
+    io::cout << "YES\n";
+  else
+    io::cout << "NO\n";
 }
 
-} // namespace _D
+} // namespace _2117D
 
 int main()
 {
@@ -410,7 +409,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _2117D::run();
 
   io::cout.flush();
 

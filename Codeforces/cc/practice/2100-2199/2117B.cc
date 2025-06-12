@@ -342,50 +342,24 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _2117B
 {
 
-void display_cyclic_shift(std::string s, int from, int to)
-{
-  s.insert(s.begin() + to, s[from]);
-  s.erase(s.begin() + from);
-  io::cout << s << "\n";
-}
 
 auto run() -> void
 {
   int n;
-  std::string s;
-  io::cin >> n >> s;
+  io::cin >> n;
 
-  int l{-1}, r{n};
-  for (int i = 0; i < n - 1; i++)
-  {
-    if (s[i] > s[i + 1])
-    {
-      l = i;
-      break;
-    }
-  }
+  io::cout << "1 ";
 
-  if (l == -1)
-  {
-    io::cout << s << "\n";
-    return;
-  }
+  for (int i = n; i > 1; i--)
+    io::cout << i << " ";
 
-  for (int j = l + 1; j < n; j++)
-    if (s[l] < s[j])
-    {
-      r = j;
-      break;
-    }
-
-  io::cout << s.substr(0, l) << s.substr(l + 1, r - l - 1) << s[l]
-           << s.substr(r, s.npos) << "\n";
+  io::cout << "\n";
 }
 
-} // namespace _D
+} // namespace _2117B
 
 int main()
 {
@@ -410,7 +384,7 @@ int main()
   int t{1};
   io::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _2117B::run();
 
   io::cout.flush();
 
