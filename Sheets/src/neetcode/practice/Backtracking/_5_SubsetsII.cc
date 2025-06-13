@@ -1,52 +1,38 @@
 #include <algorithm>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
-struct VectorHash {
-  std::size_t operator()(const std::vector<int> &vec) const {
-    std::size_t hash = 0U;
-
-    auto copy = vec;
-    std::sort(copy.begin(), copy.end());
-
-    for (int num : copy)
-      hash ^= std::hash<int>()(num) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-
-    return hash;
-  }
-};
-
-struct IsEqualToVector {
-  bool operator()(const std::vector<int> &lhs,
-                  const std::vector<int> &rhs) const {
-    auto lhsCopy = lhs, rhsCopy = rhs;
-
-    std::sort(lhsCopy.begin(), lhsCopy.end());
-    std::sort(rhsCopy.begin(), rhsCopy.end());
-
-    return lhsCopy == rhsCopy;
-  }
-};
-
-class Solution {
+class Solution
+{
 public:
-  std::unordered_set<std::vector<int>, VectorHash, IsEqualToVector> res{};
+  std::vector<std::vector<int>> subsetsWithDup(std::vector<int> &nums)
+  {
+    auto subseq =
+        [](auto &&subseq,
+           const std::vector<int> &vec) -> std::set<std::vector<int>> {
+      if (vec.empty())
+        return {{}};
 
-  void search(std::size_t idx, const std::vector<int> &nums, std::vector<int> cur,
-              ...) {
-    if (idx == nums.size()) {
-      res.insert(cur);
-      return;
-    }
+      int first = vec[0];
+      std::vector<int> rest(vec.begin() + 1, vec.end());
+      std::set<std::vector<int>> result{};
 
-    cur.push_back(nums[idx]);
-    search(idx + 1, nums, cur);
-    cur.pop_back();
-    search(idx + 1, nums, cur);
-  }
+      for (auto seq : subseq(subseq, rest))
+      {
+        std::vector<int> with_first = {first};
+        with_first.insert(with_first.end(), seq.begin(), seq.end());
 
-  std::vector<std::vector<int>> subsetsWithDup(std::vector<int> &nums) {
-    search(0, nums, {});
+        std::sort(with_first.begin(), with_first.end());
+        std::sort(seq.begin(), seq.end());
+
+        result.insert(with_first);
+        result.insert(seq);
+      }
+
+      return result;
+    };
+
+    auto res = subseq(subseq, nums);
     return std::vector<std::vector<int>>(res.begin(), res.end());
   }
 };

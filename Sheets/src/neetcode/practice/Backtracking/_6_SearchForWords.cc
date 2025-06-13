@@ -1,54 +1,58 @@
 #include <string>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  int cnt = 0;
+  bool exist(std::vector<std::vector<char>> &board, std::string word)
+  {
+    int n{static_cast<int>(board.size())}, m{static_cast<int>(board[0].size())};
 
-  void search(std::vector<std::vector<char>> &board, std::string cur,
-              const std::string &word, unsigned int i, unsigned int j,
-              std::size_t nrows, std::size_t ncols,
-              std::vector<std::vector<bool>> visited) {
-    if (i < 0 || i >= nrows || j < 0 || j >= ncols || visited[i][j] ||
-        cur.size() > word.size()) {
-      return;
-    }
+    bool res{};
+    int dx[4] = {-1, 0, 1, 0};
+    int dy[4] = {0, -1, 0, 1};
 
-    cur += board[i][j];
-    visited[i][j] = true;
-    if (cur == word) {
-      cnt++;
-      return;
-    }
+    std::vector<std::vector<bool>> visited(n, std::vector<bool>(m, false));
 
-    search(board, cur, word, i + 1, j, nrows, ncols, visited);
-    if (cnt > 0)
-      return;
-    search(board, cur, word, i, j + 1, nrows, ncols, visited);
-    if (cnt > 0)
-      return;
-    search(board, cur, word, i - 1, j, nrows, ncols, visited);
-    if (cnt > 0)
-      return;
-    search(board, cur, word, i, j - 1, nrows, ncols, visited);
-  }
+    auto visitable = [&n, &m](int y, int x) -> bool {
+      return y >= 0 && y < n && x >= 0 && x < m;
+    };
 
-  bool exist(std::vector<std::vector<char>> &board, std::string word) {
-    char start = word[0];
-    std::size_t nrows = board.size(), ncols = board[0].size();
-
-    for (unsigned int i = 0; i < nrows; i++) {
-      for (unsigned int j = 0; j < ncols; j++) {
-        if (board[i][j] == start) {
-          search(board, "", word, i, j, nrows, ncols,
-                 std::vector<std::vector<bool>>(
-                     nrows, std::vector<bool>(ncols, false)));
-        }
-        if (cnt > 0)
-          return true;
+    auto dfs = [&board, &visited, &word, &res, &visitable, &dx,
+                &dy](auto &&dfs, const int &y, const int &x, std::string &curr,
+                     int index) -> void {
+      if (curr.size() == word.size())
+      {
+        res |= true;
+        return;
       }
-    }
 
-    return cnt > 0;
+      visited[y][x] = true;
+
+      for (int i = 0; i < 4; i++)
+      {
+        int X{x + dx[i]}, Y{y + dy[i]};
+        if (visitable(Y, X) && !visited[Y][X] && board[Y][X] == word[index])
+        {
+          curr.push_back(word[index]);
+          dfs(dfs, Y, X, curr, index + 1);
+          curr.pop_back();
+        }
+      }
+
+      visited[y][x] = false;
+    };
+
+    for (int y = 0; y < n; y++)
+      for (int x = 0; x < m; x++)
+        if (board[y][x] == word[0])
+        {
+          std::string curr{word[0]};
+          dfs(dfs, y, x, curr, 1);
+          if (res)
+            return true;
+        }
+
+    return res;
   }
 };

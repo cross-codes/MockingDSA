@@ -1,37 +1,43 @@
+#include <array>
 #include <string>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  std::vector<std::string> res{};
-  std::vector<std::string> lookup = {"",    "",    "abc",  "def", "ghi",
-                                     "jkl", "mno", "pqrs", "tuv", "wxyz"};
-
-  void search(std::string cur, char currentDigit, std::string digits,
-              std::size_t digitIndex) {
-    if (currentDigit == '0') {
-      res.push_back(cur);
-      return;
-    }
-
-    for (char c : lookup[currentDigit - '0']) {
-      cur.push_back(c);
-
-      if (digitIndex == digits.size() - 1)
-        currentDigit = '0';
-      else
-        currentDigit = digits[digitIndex + 1];
-
-      search(cur, currentDigit, digits, digitIndex + 1);
-      cur.pop_back();
-    }
-  }
-
-  std::vector<std::string> letterCombinations(std::string digits) {
-    if (digits.size() == 0) [[unlikely]]
+  std::vector<std::string> letterCombinations(std::string digits)
+  {
+    size_t n{digits.size()};
+    if (n == 0)
       return {};
 
-    search("", digits[0], digits, 0);
+    std::array<std::string, 10> lookup = {"",    "",    "abc",  "def", "ghi",
+                                          "jkl", "mno", "pqrs", "tuv", "wxyz"};
+
+    std::vector<std::string> res{};
+
+    auto dfs = [&n, &res, &lookup, &digits](auto &&dfs, std::string &curr,
+                                            int index) -> void {
+      if (curr.size() == n)
+      {
+        res.push_back(curr);
+        return;
+      }
+
+      for (const auto &ch : lookup[digits[index] - '0'])
+      {
+        curr.push_back(ch);
+        dfs(dfs, curr, index + 1);
+        curr.pop_back();
+      }
+    };
+
+    for (const auto &ch : lookup[digits[0] - '0'])
+    {
+      std::string curr{ch};
+      dfs(dfs, curr, 1);
+    }
+
     return res;
   }
 };
