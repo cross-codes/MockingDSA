@@ -342,42 +342,43 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _ChessboardAndQueens
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  std::array<std::string, 8> board{};
+  for (int y = 0; y < 8; y++)
+    io::cin >> board[y];
 
-  std::pair<int, int> op[n];
+  std::array<bool, 15> diag1{}, diag2{};
+  std::array<bool, 8> column{};
 
-  for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
-
-  int max_depth{};
-  auto dfs = [&op, &n, &max_depth](auto &&dfs, int depth, int h, int m,
-                                   int idx) -> void {
-    if (idx == n)
+  int cnt{};
+  auto dfs = [&cnt, &column, &diag1, &diag2, &board](auto &&dfs,
+                                                     int y) -> void {
+    if (y == 8)
     {
-      max_depth = std::max(max_depth, depth - 1);
+      cnt += 1;
       return;
     }
 
-    auto &[a, b] = op[idx];
-    if (h >= a)
-      dfs(dfs, depth + 1, h - a, m, idx + 1);
-    if (m >= b)
-      dfs(dfs, depth + 1, h, m - b, idx + 1);
-    if (m < b && h < a)
-      max_depth = std::max(max_depth, depth - 1);
+    for (int x = 0; x < 8; x++)
+    {
+      if (column[x] || diag1[x + y] || diag2[x - y + 7] || board[y][x] == '*')
+        continue;
+
+      column[x] = diag1[x + y] = diag2[x - y + 7] = true;
+      dfs(dfs, y + 1);
+      column[x] = diag1[x + y] = diag2[x - y + 7] = false;
+    }
   };
 
-  dfs(dfs, 1, h, m, 0);
-  io::cout << max_depth << "\n";
+  dfs(dfs, 0);
+  io::cout << cnt << "\n";
 }
 
-} // namespace _E
+} // namespace _ChessboardAndQueens
 
 int main()
 {
@@ -401,7 +402,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _ChessboardAndQueens::run();
 
   io::cout.flush();
 

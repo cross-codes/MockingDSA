@@ -342,42 +342,28 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _A
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n;
+  io::cin >> n;
 
-  std::pair<int, int> op[n];
+  std::string t, a;
+  io::cin >> t >> a;
 
   for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
-
-  int max_depth{};
-  auto dfs = [&op, &n, &max_depth](auto &&dfs, int depth, int h, int m,
-                                   int idx) -> void {
-    if (idx == n)
+    if (t[i] == 'o' && a[i] == 'o')
     {
-      max_depth = std::max(max_depth, depth - 1);
+      io::cout << "Yes\n";
       return;
     }
 
-    auto &[a, b] = op[idx];
-    if (h >= a)
-      dfs(dfs, depth + 1, h - a, m, idx + 1);
-    if (m >= b)
-      dfs(dfs, depth + 1, h, m - b, idx + 1);
-    if (m < b && h < a)
-      max_depth = std::max(max_depth, depth - 1);
-  };
-
-  dfs(dfs, 1, h, m, 0);
-  io::cout << max_depth << "\n";
+  io::cout << "No\n";
 }
 
-} // namespace _E
+} // namespace _A
 
 int main()
 {
@@ -401,7 +387,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _A::run();
 
   io::cout.flush();
 

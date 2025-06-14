@@ -1,14 +1,17 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <random>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,42 +345,109 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+template <> struct std::hash<std::pair<int64_t, int64_t>>
 {
+  std::size_t operator()(const std::pair<int64_t, int64_t> &a) const noexcept
+  {
+    return std::hash<int64_t>{}(a.first) ^ std::hash<int64_t>{}(a.second);
+  }
+};
+
+namespace _271D
+{
+
+struct StringHash
+{
+private:
+  int n;
+
+public:
+  std::vector<int64_t> powers{}, prefix_hashes{};
+  int64_t A;
+  int B;
+
+  StringHash(std::string s, int64_t _A, int _B)
+      : n(static_cast<int>(s.length())), powers(n + 1, 1),
+        prefix_hashes(n + 1, 0), A{_A}, B{_B}
+  {
+    for (int i = 1; i <= n; i++)
+    {
+      powers[i] = powers[i - 1] * A % B;
+      prefix_hashes[i] =
+          (prefix_hashes[i - 1] * A + static_cast<int>(s[i - 1])) % B;
+    }
+  }
+
+  int64_t hash(int l, int r)
+  {
+    int64_t h = prefix_hashes[r] - prefix_hashes[l] * powers[r - l];
+    return (h % B + B) % B;
+  }
+};
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  std::string s;
+  io::cin >> s;
 
-  std::pair<int, int> op[n];
+  int n{static_cast<int>(s.size())};
 
+  std::string bad_set{};
+  io::cin >> bad_set;
+
+  int k;
+  io::cin >> k;
+
+  std::array<bool, 26> is_bad{};
+  for (int i = 0; i < 26; i++)
+  {
+    if (bad_set[i] == '0')
+      is_bad[i] = true;
+  }
+
+  int prefix_bad[n + 1];
+  prefix_bad[0] = 0;
+
+  for (int i = 1; i <= n; i++)
+  {
+    char ch = s[i - 1];
+    if (is_bad[ch - 'a'])
+      prefix_bad[i] = prefix_bad[i - 1] + 1;
+    else
+      prefix_bad[i] = prefix_bad[i - 1];
+  }
+
+  std::mt19937_64 rng(
+      std::chrono::steady_clock::now().time_since_epoch().count());
+
+  int B1{static_cast<int>(1e9 - 7)};
+  int64_t A1{std::uniform_int_distribution<int64_t>(
+      static_cast<int>(0.1 * B1), static_cast<int>(0.9 * B1))(rng)};
+
+  int B2{static_cast<int>(1e9 - 21)};
+  int64_t A2{std::uniform_int_distribution<int64_t>(
+      static_cast<int>(0.1 * B2), static_cast<int>(0.9 * B2))(rng)};
+
+  StringHash h1(s, A1, B1);
+  StringHash h2(s, A2, B2);
+
+  std::unordered_set<std::pair<int64_t, int64_t>> seen{};
+
+  int64_t cnt{};
   for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
-
-  int max_depth{};
-  auto dfs = [&op, &n, &max_depth](auto &&dfs, int depth, int h, int m,
-                                   int idx) -> void {
-    if (idx == n)
+    for (int j = i + 1; j <= n; j++)
     {
-      max_depth = std::max(max_depth, depth - 1);
-      return;
+      auto substr_hash = std::make_pair(h1.hash(i, j), h2.hash(i, j));
+      if (!seen.contains(substr_hash) && prefix_bad[j] - prefix_bad[i] <= k)
+      {
+        seen.insert(substr_hash);
+        cnt += 1;
+      }
     }
 
-    auto &[a, b] = op[idx];
-    if (h >= a)
-      dfs(dfs, depth + 1, h - a, m, idx + 1);
-    if (m >= b)
-      dfs(dfs, depth + 1, h, m - b, idx + 1);
-    if (m < b && h < a)
-      max_depth = std::max(max_depth, depth - 1);
-  };
-
-  dfs(dfs, 1, h, m, 0);
-  io::cout << max_depth << "\n";
+  io::cout << cnt << "\n";
 }
-
-} // namespace _E
+} // namespace _271D
 
 int main()
 {
@@ -401,7 +471,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _271D::run();
 
   io::cout.flush();
 

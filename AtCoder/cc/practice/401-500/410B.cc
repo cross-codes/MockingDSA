@@ -1,6 +1,7 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -342,42 +343,45 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _B
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n, q;
+  io::cin >> n >> q;
 
-  std::pair<int, int> op[n];
+  int x[n + 1];
+  std::memset(x, 0x00, sizeof(int) * (n + 1));
+  x[0] = INT_MAX;
 
-  for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
+  for (int i = 0; i < q; i++)
+  {
+    int num;
+    io::cin >> num;
 
-  int max_depth{};
-  auto dfs = [&op, &n, &max_depth](auto &&dfs, int depth, int h, int m,
-                                   int idx) -> void {
-    if (idx == n)
+    if (num >= 1)
     {
-      max_depth = std::max(max_depth, depth - 1);
-      return;
+      x[num] += 1;
+      io::cout << num << " ";
     }
+    else
+    {
+      int min = *std::min_element(x, x + n + 1);
+      for (int j = 1; j <= n; j++)
+        if (x[j] == min)
+        {
+          x[j] += 1;
+          io::cout << j << " ";
+          break;
+        }
+    }
+  }
 
-    auto &[a, b] = op[idx];
-    if (h >= a)
-      dfs(dfs, depth + 1, h - a, m, idx + 1);
-    if (m >= b)
-      dfs(dfs, depth + 1, h, m - b, idx + 1);
-    if (m < b && h < a)
-      max_depth = std::max(max_depth, depth - 1);
-  };
-
-  dfs(dfs, 1, h, m, 0);
-  io::cout << max_depth << "\n";
+  io::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _B
 
 int main()
 {
@@ -401,7 +405,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _B::run();
 
   io::cout.flush();
 

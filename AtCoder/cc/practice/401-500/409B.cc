@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,42 +343,37 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _B
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n;
+  io::cin >> n;
 
-  std::pair<int, int> op[n];
+  int a[n];
 
   for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
+    io::cin >> a[i];
 
-  int max_depth{};
-  auto dfs = [&op, &n, &max_depth](auto &&dfs, int depth, int h, int m,
-                                   int idx) -> void {
-    if (idx == n)
-    {
-      max_depth = std::max(max_depth, depth - 1);
-      return;
-    }
+  std::sort(a, a + n);
 
-    auto &[a, b] = op[idx];
-    if (h >= a)
-      dfs(dfs, depth + 1, h - a, m, idx + 1);
-    if (m >= b)
-      dfs(dfs, depth + 1, h, m - b, idx + 1);
-    if (m < b && h < a)
-      max_depth = std::max(max_depth, depth - 1);
+  auto pred = [&a, &n](int x) -> bool {
+    auto it = std::lower_bound(a, a + n, x);
+    return std::distance(it, a + n) < x;
   };
 
-  dfs(dfs, 1, h, m, 0);
-  io::cout << max_depth << "\n";
+  int l{-1}, r{static_cast<int>(1e9) + 1};
+  while (r - l > 1)
+  {
+    int m             = std::midpoint(l, r);
+    (pred(m) ? r : l) = m;
+  }
+
+  io::cout << l << "\n";
 }
 
-} // namespace _E
+} // namespace _B
 
 int main()
 {
@@ -401,7 +397,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _B::run();
 
   io::cout.flush();
 

@@ -1,6 +1,7 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -355,7 +356,7 @@ auto run() -> void
   for (int i = 0; i < n; i++)
     io::cin >> op[i].first >> op[i].second;
 
-  int max_depth{};
+  int max_depth{INT_MIN};
   auto dfs = [&op, &n, &max_depth](auto &&dfs, int depth, int h, int m,
                                    int idx) -> void {
     if (idx == n)
