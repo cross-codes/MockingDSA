@@ -84,9 +84,9 @@ public:
       (!pred(M).has_value() ? R : L) = M;
     }
 
-    if (pred(L))
+    if (auto result = pred(L))
     {
-      auto [idx, length] = *pred(L);
+      auto [idx, length] = *result;
       return s.substr(idx, length);
     }
     else
