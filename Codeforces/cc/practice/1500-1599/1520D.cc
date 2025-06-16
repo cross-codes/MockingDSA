@@ -1,16 +1,15 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <random>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_map>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -344,67 +343,30 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _StringMatching
+namespace _1520D
 {
-
-struct StringHash
-{
-private:
-  int n;
-
-public:
-  std::vector<int> powers{}, prefix_hashes{};
-  int64_t A;
-  int B;
-
-  StringHash(const std::string &s, int64_t _A, int _B)
-      : n(static_cast<int>(s.length())), powers(n + 1, 1),
-        prefix_hashes(n + 1, 0), A{_A}, B{_B}
-  {
-    for (int i = 1; i <= n; i++)
-    {
-      powers[i] = powers[i - 1] * A % B;
-      prefix_hashes[i] =
-          (prefix_hashes[i - 1] * A + static_cast<int64_t>(s[i - 1])) % B;
-    }
-  }
-
-  int get_hash(int l, int r)
-  {
-    int64_t h = static_cast<int64_t>(prefix_hashes[r]) -
-                static_cast<int64_t>(prefix_hashes[l]) * powers[r - l];
-    return (h % B + B) % B;
-  }
-};
-
-std::mt19937_64 rng(
-    std::chrono::steady_clock::now().time_since_epoch().count());
 
 auto run() -> void
 {
-  std::string s, t;
-  io::cin >> s >> t;
+  int n;
+  io::cin >> n;
 
-  int n{static_cast<int>(s.length())}, m{static_cast<int>(t.length())};
-
-  int B{static_cast<int>(1e9 - 7)};
-  int64_t A{std::uniform_int_distribution<int64_t>(
-      static_cast<int>(0.1 * B), static_cast<int>(0.9 * B))(rng)};
-
-  StringHash h(s, A, B);
-  int64_t target_hash = StringHash(t, A, B).get_hash(0, m);
-
-  int64_t cnt{};
-  for (int i = 0; i < n - m + 1; i++)
+  std::unordered_map<int, int> map{};
+  int64_t num_pairs{};
+  for (int i = 1; i <= n; i++)
   {
-    if (h.get_hash(i, i + m) == target_hash)
-      cnt += 1;
+    int a;
+    io::cin >> a;
+    int diff = a - i;
+
+    num_pairs += map[diff];
+    map[a - i] += 1;
   }
 
-  io::cout << cnt << "\n";
+  io::cout << num_pairs << "\n";
 }
 
-} // namespace _StringMatching
+} // namespace _1520D
 
 int main()
 {
@@ -427,8 +389,9 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
   while (t-- > 0)
-    _StringMatching::run();
+    _1520D::run();
 
   io::cout.flush();
 

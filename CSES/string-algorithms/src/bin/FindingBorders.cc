@@ -344,7 +344,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _StringMatching
+namespace _FindingBorders
 {
 
 struct StringHash
@@ -377,34 +377,46 @@ public:
   }
 };
 
-std::mt19937_64 rng(
-    std::chrono::steady_clock::now().time_since_epoch().count());
-
 auto run() -> void
 {
-  std::string s, t;
-  io::cin >> s >> t;
+  std::string s;
+  io::cin >> s;
 
-  int n{static_cast<int>(s.length())}, m{static_cast<int>(t.length())};
+  int n{static_cast<int>(s.length())};
 
-  int B{static_cast<int>(1e9 - 7)};
-  int64_t A{std::uniform_int_distribution<int64_t>(
-      static_cast<int>(0.1 * B), static_cast<int>(0.9 * B))(rng)};
+  std::mt19937_64 rng(
+      std::chrono::steady_clock::now().time_since_epoch().count());
 
-  StringHash h(s, A, B);
-  int64_t target_hash = StringHash(t, A, B).get_hash(0, m);
+  int B1{static_cast<int>(1e9 - 7)};
+  int64_t A1{std::uniform_int_distribution<int64_t>(
+      static_cast<int>(0.1 * B1), static_cast<int>(0.9 * B1))(rng)};
 
-  int64_t cnt{};
-  for (int i = 0; i < n - m + 1; i++)
+  int B2{static_cast<int>(1e9 - 21)};
+  int64_t A2{std::uniform_int_distribution<int64_t>(
+      static_cast<int>(0.1 * B1), static_cast<int>(0.9 * B1))(rng)};
+
+  StringHash h1(s, A1, B1), h2(s, A2, B2);
+  int l{1}, r{n - 1};
+  std::vector<int> lengths{};
+  while (l != n)
   {
-    if (h.get_hash(i, i + m) == target_hash)
-      cnt += 1;
+    int hv_l1 = h1.get_hash(0, l), hv_l2 = h2.get_hash(0, l);
+    int hv_r1 = h1.get_hash(r, n), hv_r2 = h2.get_hash(r, n);
+
+    if (hv_l1 == hv_r1 && hv_l2 == hv_r2)
+      lengths.push_back(l);
+
+    l += 1;
+    r -= 1;
   }
 
-  io::cout << cnt << "\n";
+  for (const int &e : lengths)
+    io::cout << e << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _StringMatching
+} // namespace _FindingBorders
 
 int main()
 {
@@ -428,7 +440,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _StringMatching::run();
+    _FindingBorders::run();
 
   io::cout.flush();
 

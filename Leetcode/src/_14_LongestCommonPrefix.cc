@@ -1,35 +1,35 @@
-#include <climits>
 #include <string>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  std::string longestCommonPrefix(std::vector<std::string> &strs) {
-    std::size_t pos = 0, minLength = ULONG_LONG_MAX;
-    std::string commonPrefix("");
-    char c = strs[0][0];
+  std::string longestCommonPrefix(std::vector<std::string> &strs)
+  {
+    std::string lcp{};
+    size_t i{};
 
-    for (const auto &str : strs)
-      minLength = std::min(minLength, str.size());
-
-    while (pos != minLength) {
-      bool mismatch = false;
-      for (const auto &str : strs) {
-        if (str[pos] != c) {
-          mismatch = true;
+    while (true)
+    {
+      char front = strs[0][i];
+      bool all_equal{true};
+      for (const auto &s : strs)
+      {
+        if (i >= s.size() || s[i] != front)
+        {
+          all_equal = false;
           break;
         }
       }
 
-      if (mismatch) [[likely]]
+      if (!all_equal)
         break;
-      else {
-        commonPrefix += c;
-        if (++pos != minLength)
-          c = strs[0][pos];
-      }
+      else
+        lcp += front;
+
+      i += 1;
     }
 
-    return commonPrefix;
+    return lcp;
   }
 };

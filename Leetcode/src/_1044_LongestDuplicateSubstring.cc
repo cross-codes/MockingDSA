@@ -25,7 +25,7 @@ private:
     int64_t A;
     int B;
 
-    StringHash(std::string s, int64_t _A, int _B)
+    StringHash(const std::string &s, int64_t _A, int _B)
         : n(static_cast<int>(s.length())), powers(n + 1, 1),
           prefix_hashes(n + 1, 0), A{_A}, B{_B}
     {
@@ -37,7 +37,7 @@ private:
       }
     }
 
-    int hash(int l, int r)
+    int get_hash(int l, int r)
     {
       int64_t h = static_cast<int64_t>(prefix_hashes[r]) -
                   static_cast<int64_t>(prefix_hashes[l]) * powers[r - l];
@@ -67,7 +67,8 @@ public:
       std::unordered_map<std::pair<int, int>, std::pair<int, int>> seen{};
       for (int i = 0; i < n - k + 1; i++)
       {
-        auto pair = std::make_pair(h1.hash(i, i + k), h2.hash(i, i + k));
+        auto pair =
+            std::make_pair(h1.get_hash(i, i + k), h2.get_hash(i, i + k));
         if (seen.contains(pair))
           return seen[pair];
 
