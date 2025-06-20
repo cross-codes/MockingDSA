@@ -1,4 +1,3 @@
-use std::cmp::max;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
@@ -22,23 +21,70 @@ fn run(
         };
     }
 
+  const MOD: i64 = 1000000007;
   let n: usize = scanner.next();
-  let x: i32 = scanner.next();
+  let m: usize = scanner.next();
+  let x: Vec<usize> = (0..n).map(|_| scanner.next()).collect();
 
-  let h: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
-  let s: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
-
-  let mut f: Vec<i64> = vec![0; (x + 1) as usize];
-
-  for i in 0..n
+  let mut arrays: Vec<Vec<i64>> = vec![vec![0; m + 1]; n];
+  if x[0] == 0
   {
-    for j in (h[i]..=x).rev()
+    for i in 1..=m
     {
-      f[j as usize] = max(f[j as usize], f[(j - h[i]) as usize] + s[i] as i64);
+      arrays[0][i] = 1;
+    }
+  }
+  else
+  {
+    arrays[0][x[0]] = 1;
+  }
+
+  for i in 1..n
+  {
+    if x[i] != 0
+    {
+      arrays[i][x[i]] = arrays[i - 1][x[i]];
+
+      if x[i] > 1
+      {
+        arrays[i][x[i]] += arrays[i - 1][x[i] - 1];
+      }
+
+      if x[i] < m
+      {
+        arrays[i][x[i]] += arrays[i - 1][x[i] + 1];
+      }
+
+      arrays[i][x[i]] %= MOD;
+    }
+    else
+    {
+      for j in 1..=m
+      {
+        arrays[i][j] += arrays[i - 1][j];
+
+        if j != 1
+        {
+          arrays[i][j] += arrays[i - 1][j - 1];
+        }
+        if j != m
+        {
+          arrays[i][j] += arrays[i - 1][j + 1];
+        }
+
+        arrays[i][j] %= MOD;
+      }
     }
   }
 
-  display!(f[x as usize], "\n");
+  let mut res: i64 = 0;
+  for i in 1..=m
+  {
+    res += arrays[n - 1][i];
+    res %= MOD;
+  }
+
+  display!(res, "\n");
 }
 
 struct Scanner<B>

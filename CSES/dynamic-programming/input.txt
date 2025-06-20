@@ -1,5 +1,2 @@
-4
-AACA
-BABC
-ABDA
-AACA
+3 5
+2 0 2

@@ -1,4 +1,3 @@
-use std::cmp::max;
 use std::error::Error;
 use std::io::{self, BufRead, BufWriter, Write};
 use std::thread::{self, JoinHandle};
@@ -22,23 +21,28 @@ fn run(
         };
     }
 
+  const MOD: i64 = 1000000007;
   let n: usize = scanner.next();
-  let x: i32 = scanner.next();
+  let x: usize = scanner.next();
 
-  let h: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
-  let s: Vec<i32> = (0..n).map(|_| scanner.next()).collect();
+  let c: Vec<usize> = (0..n).map(|_| scanner.next()).collect();
 
-  let mut f: Vec<i64> = vec![0; (x + 1) as usize];
+  let mut ways: Vec<i64> = vec![0; x + 1];
+  ways[0] = 1;
 
-  for i in 0..n
+  for &coin in &c
   {
-    for j in (h[i]..=x).rev()
+    for i in 0..=x
     {
-      f[j as usize] = max(f[j as usize], f[(j - h[i]) as usize] + s[i] as i64);
+      if i >= coin
+      {
+        ways[i] += ways[i - coin];
+        ways[i] %= MOD;
+      }
     }
   }
 
-  display!(f[x as usize], "\n");
+  display!(ways[x], "\n");
 }
 
 struct Scanner<B>
