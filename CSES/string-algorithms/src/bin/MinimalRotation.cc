@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <random>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -345,8 +346,78 @@ OutputWriter cerr(STDERR_FILENO);
 namespace _MinimalRotation
 {
 
+struct StringHash
+{
+private:
+  int n;
+
+public:
+  std::vector<int> powers{}, prefix_hashes{};
+  int64_t A;
+  int B;
+
+  StringHash(const std::string &s, int64_t _A, int _B)
+      : n(static_cast<int>(s.length())), powers(n + 1, 1),
+        prefix_hashes(n + 1, 0), A{_A}, B{_B}
+  {
+    for (int i = 1; i <= n; i++)
+    {
+      powers[i] = powers[i - 1] * A % B;
+      prefix_hashes[i] =
+          (prefix_hashes[i - 1] * A + static_cast<int64_t>(s[i - 1])) % B;
+    }
+  }
+
+  int get_hash(int l, int r)
+  {
+    int64_t h = static_cast<int64_t>(prefix_hashes[r]) -
+                static_cast<int64_t>(prefix_hashes[l]) * powers[r - l];
+    return (h % B + B) % B;
+  }
+};
+
 auto run() -> void
 {
+  std::string s;
+  io::cin >> s;
+
+  s += s;
+
+  int n = static_cast<int>(s.length());
+  std::mt19937_64 rng;
+  std::random_device rd;
+  rng.seed(rd());
+
+  int B     = static_cast<int>(1e9 - 7);
+  int64_t A = std::uniform_int_distribution<int64_t>(
+      B / 10, 9 * static_cast<int64_t>(B) / 10)(rng);
+
+  StringHash h(s, A, B);
+
+  auto pred = [&h](int a, int b, int n) -> bool {
+    return h.get_hash(a, a + n) == h.get_hash(b, b + n);
+  };
+
+  auto is_greater = [&s, &pred](int a, int b, int n) -> bool {
+    int L{-1}, R{n + 1};
+    while (R - L > 1)
+    {
+      int M                    = std::midpoint(L, R);
+      (!pred(a, b, M) ? R : L) = M;
+    }
+
+    if (R == n + 1)
+      return false;
+    else
+      return s[a + R - 1] > s[b + R - 1];
+  };
+
+  int pos{};
+  for (int i = 0; i < n >> 1; i++)
+    if (is_greater(pos, i, n >> 1))
+      pos = i;
+
+  io::cout << s.substr(pos, n >> 1) << "\n";
 }
 
 } // namespace _MinimalRotation

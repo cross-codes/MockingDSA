@@ -5,13 +5,105 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <random>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
+
+namespace io
+{
+struct OutputWriter;
+struct InputReader;
+extern InputReader cin;
+extern OutputWriter cout;
+extern OutputWriter cerr;
+} // namespace io
+
+namespace _BuildingRoads
+{
+
+auto run() -> void
+{
+  int n, m;
+  io::cin >> n >> m;
+
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int to, from;
+    io::cin >> to >> from;
+    adj[to - 1].push_back(from - 1);
+    adj[from - 1].push_back(to - 1);
+  }
+
+  std::vector<int> ccs;
+
+  auto dfs = [&visited, &adj](auto &&dfs, int u) -> void {
+    visited[u] = true;
+
+    for (const int &v : adj[u])
+    {
+      if (!visited[v])
+        dfs(dfs, v);
+    }
+  };
+
+  for (int i = 0; i < n; i++)
+  {
+    if (!visited[i])
+    {
+      ccs.push_back(i);
+      dfs(dfs, i);
+    }
+  }
+
+  io::cout << ccs.size() - 1 << "\n";
+  for (int i = 1; i < static_cast<int>(ccs.size()); i++)
+    io::cout.append<"% %\n">(1, ccs[i] + 1);
+}
+
+} // namespace _BuildingRoads
+
+int main()
+{
+#ifdef ANTUMBRA
+  FILE *stream = std::freopen("input.txt", "r", stdin);
+  if (stream == nullptr)
+  {
+    io::cerr << "Input file not found\n";
+    __builtin_trap();
+  }
+
+  size_t stack_size = 268435456;
+  char *stack       = static_cast<char *>(std::malloc(stack_size));
+  char *send        = stack + stack_size;
+  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
+  send -= 8;
+
+  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
+  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
+#endif
+
+  int t{1};
+  while (t-- > 0)
+    _BuildingRoads::run();
+
+  io::cout.flush();
+
+#ifdef ANTUMBRA
+  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
+  std::free(stack);
+
+  std::fclose(stdin);
+#endif
+
+  return 0;
+}
 
 namespace io
 {
@@ -342,109 +434,3 @@ OutputWriter cout(STDOUT_FILENO);
 OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
-
-namespace _FindingBorders
-{
-
-struct StringHash
-{
-private:
-  int n;
-
-public:
-  std::vector<int> powers{}, prefix_hashes{};
-  int64_t A;
-  int B;
-
-  StringHash(const std::string &s, int64_t _A, int _B)
-      : n(static_cast<int>(s.length())), powers(n + 1, 1),
-        prefix_hashes(n + 1, 0), A{_A}, B{_B}
-  {
-    for (int i = 1; i <= n; i++)
-    {
-      powers[i] = powers[i - 1] * A % B;
-      prefix_hashes[i] =
-          (prefix_hashes[i - 1] * A + static_cast<int64_t>(s[i - 1])) % B;
-    }
-  }
-
-  int get_hash(int l, int r)
-  {
-    int64_t h = static_cast<int64_t>(prefix_hashes[r]) -
-                static_cast<int64_t>(prefix_hashes[l]) * powers[r - l];
-    return (h % B + B) % B;
-  }
-};
-
-auto run() -> void
-{
-  std::string s;
-  io::cin >> s;
-
-  int n{static_cast<int>(s.length())};
-
-  std::mt19937_64 rng;
-  std::random_device rd;
-  rng.seed(rd());
-
-  int B     = static_cast<int>(1e9 - 7);
-  int64_t A = std::uniform_int_distribution<int64_t>(
-      B / 10, 9 * static_cast<int64_t>(B) / 10)(rng);
-
-  StringHash h(s, A, B);
-
-  int l{1}, r{n - 1};
-  std::vector<int> lengths{};
-  while (l != n)
-  {
-
-    if (h.get_hash(0, l) == h.get_hash(r, n))
-      lengths.push_back(l);
-
-    l += 1;
-    r -= 1;
-  }
-
-  for (const int &e : lengths)
-    io::cout << e << " ";
-
-  io::cout << "\n";
-}
-
-} // namespace _FindingBorders
-
-int main()
-{
-#ifdef ANTUMBRA
-  FILE *stream = std::freopen("input.txt", "r", stdin);
-  if (stream == nullptr)
-  {
-    io::cerr << "Input file not found\n";
-    __builtin_trap();
-  }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
-#endif
-
-  int t{1};
-  while (t-- > 0)
-    _FindingBorders::run();
-
-  io::cout.flush();
-
-#ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
-  std::fclose(stdin);
-#endif
-
-  return 0;
-}

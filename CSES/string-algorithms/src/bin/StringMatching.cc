@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -377,9 +376,6 @@ public:
   }
 };
 
-std::mt19937_64 rng(
-    std::chrono::steady_clock::now().time_since_epoch().count());
-
 auto run() -> void
 {
   std::string s, t;
@@ -387,9 +383,13 @@ auto run() -> void
 
   int n{static_cast<int>(s.length())}, m{static_cast<int>(t.length())};
 
-  int B{static_cast<int>(1e9 - 7)};
-  int64_t A{std::uniform_int_distribution<int64_t>(
-      static_cast<int>(0.1 * B), static_cast<int>(0.9 * B))(rng)};
+  std::mt19937_64 rng;
+  std::random_device rd;
+  rng.seed(rd());
+
+  int B     = static_cast<int>(1e9 - 7);
+  int64_t A = std::uniform_int_distribution<int64_t>(
+      B / 10, 9 * static_cast<int64_t>(B) / 10)(rng);
 
   StringHash h(s, A, B);
   int64_t target_hash = StringHash(t, A, B).get_hash(0, m);

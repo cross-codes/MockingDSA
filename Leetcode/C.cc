@@ -1,37 +1,97 @@
-#include <algorithm>
 #include <climits>
-#include <cstdint>
+#include <cstring>
 #include <vector>
 
 class Solution
 {
-public:
-  int64_t maximumProduct(std::vector<int> &nums, int m)
+private:
+  struct Info
   {
-    int n{static_cast<int>(nums.size())};
-    std::vector<int> max_right(n, INT_MIN), min_right(n, INT_MAX);
+    int node_id;
+    int subtree_size;
+    int path_cost;
+  };
 
-    int min_so_far{INT_MAX}, max_so_far{INT_MIN};
-    for (int i = n - 1; i >= 0; i--)
+public:
+  int minIncrease(int n, std::vector<std::vector<int>> &edges,
+                  std::vector<int> &cost)
+  {
+    std::vector<int> adj[n];
+    for (const auto &edge : edges)
     {
-      min_so_far   = std::min(min_so_far, nums[i]);
-      max_so_far   = std::max(max_so_far, nums[i]);
-      min_right[i] = min_so_far;
-      max_right[i] = max_so_far;
+      adj[edge[0]].push_back(edge[1]);
+      adj[edge[1]].push_back(edge[0]);
     }
 
-    int window_start{};
-    int64_t max_product{INT64_MIN};
-    for (int i = m - 1; i < n; i++)
-    {
-      max_product = std::max(
-          max_product, static_cast<int64_t>(nums[window_start]) * max_right[i]);
-      max_product = std::max(
-          max_product, static_cast<int64_t>(nums[window_start]) * min_right[i]);
+    bool visited[n];
+    std::memset(visited, false, sizeof(bool) * n);
 
-      window_start += 1;
+    std::vector<Info> tt{};
+
+    auto dfs = [&visited, &adj, &tt, &cost](auto &&dfs, int u,
+                                            int path_cost) -> int {
+      visited[u]         = true;
+      int curr_path_cost = path_cost + cost[u];
+
+      int subtree_size{1};
+      tt.emplace_back(u, subtree_size, curr_path_cost);
+      int idx = static_cast<int>(tt.size() - 1);
+
+      for (int v : adj[u])
+      {
+        if (!visited[v])
+          subtree_size += dfs(dfs, v, curr_path_cost);
+      }
+
+      tt[idx].subtree_size = subtree_size;
+      return subtree_size;
+    };
+
+    dfs(dfs, 0, 0);
+
+    int max_sum{INT_MIN};
+    for (const auto &data : tt)
+    {
+      if (data.subtree_size == 1)
+        max_sum = std::max(max_sum, data.path_cost);
     }
 
-    return max_product;
+    int updates{};
+    for (int i = 1; i < n; i++)
+    {
+      const Info &e = tt[i];
+      int size      = e.subtree_size;
+
+      int max_cost{INT_MIN};
+      int num_max{}, num_leaves{};
+      for (int j = i; j < i + size; j++)
+      {
+        const Info &f = tt[j];
+        if (f.path_cost > max_cost)
+        {
+          num_max  = 1;
+          max_cost = f.path_cost;
+        }
+        else if (f.path_cost == max_cost)
+          num_max += 1;
+
+        if (f.subtree_size == 1)
+          num_leaves += 1;
+      }
+
+      if (max_cost == max_sum)
+        updates += num_leaves - num_max;
+      else
+      {
+        if (size == 1)
+          updates += 1;
+        else
+          updates += size - num_max;
+      }
+
+      i += size - 1;
+    }
+
+    return updates;
   }
 };

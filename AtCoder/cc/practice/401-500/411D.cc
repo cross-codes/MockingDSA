@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <random>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -343,75 +342,19 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _FindingBorders
+namespace _411D
 {
-
-struct StringHash
-{
-private:
-  int n;
-
-public:
-  std::vector<int> powers{}, prefix_hashes{};
-  int64_t A;
-  int B;
-
-  StringHash(const std::string &s, int64_t _A, int _B)
-      : n(static_cast<int>(s.length())), powers(n + 1, 1),
-        prefix_hashes(n + 1, 0), A{_A}, B{_B}
-  {
-    for (int i = 1; i <= n; i++)
-    {
-      powers[i] = powers[i - 1] * A % B;
-      prefix_hashes[i] =
-          (prefix_hashes[i - 1] * A + static_cast<int64_t>(s[i - 1])) % B;
-    }
-  }
-
-  int get_hash(int l, int r)
-  {
-    int64_t h = static_cast<int64_t>(prefix_hashes[r]) -
-                static_cast<int64_t>(prefix_hashes[l]) * powers[r - l];
-    return (h % B + B) % B;
-  }
-};
 
 auto run() -> void
 {
-  std::string s;
-  io::cin >> s;
+  int n, q;
+  io::cin >> n >> q;
 
-  int n{static_cast<int>(s.length())};
-
-  std::mt19937_64 rng;
-  std::random_device rd;
-  rng.seed(rd());
-
-  int B     = static_cast<int>(1e9 - 7);
-  int64_t A = std::uniform_int_distribution<int64_t>(
-      B / 10, 9 * static_cast<int64_t>(B) / 10)(rng);
-
-  StringHash h(s, A, B);
-
-  int l{1}, r{n - 1};
-  std::vector<int> lengths{};
-  while (l != n)
-  {
-
-    if (h.get_hash(0, l) == h.get_hash(r, n))
-      lengths.push_back(l);
-
-    l += 1;
-    r -= 1;
-  }
-
-  for (const int &e : lengths)
-    io::cout << e << " ";
-
-  io::cout << "\n";
+  std::array<std::string, 1001> strings{};
+  std::string *a[n + 1];
 }
 
-} // namespace _FindingBorders
+} // namespace _411D
 
 int main()
 {
@@ -435,7 +378,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _FindingBorders::run();
+    _411D::run();
 
   io::cout.flush();
 

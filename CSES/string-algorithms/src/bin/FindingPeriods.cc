@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -384,27 +383,28 @@ auto run() -> void
 
   int n{static_cast<int>(s.length())};
 
-  std::mt19937_64 rng(
-      std::chrono::steady_clock::now().time_since_epoch().count());
+  std::mt19937_64 rng;
+  std::random_device rd;
+  rng.seed(rd());
 
-  int B1{static_cast<int>(1e9 - 7)};
-  int64_t A1{std::uniform_int_distribution<int64_t>(
-      static_cast<int>(0.1 * B1), static_cast<int>(0.9 * B1))(rng)};
+  int B     = static_cast<int>(1e9 - 7);
+  int64_t A = std::uniform_int_distribution<int64_t>(
+      B / 10, 9 * static_cast<int64_t>(B) / 10)(rng);
 
-  StringHash h1(s, A1, B1);
+  StringHash h(s, A, B);
 
   for (int k = 1; k <= n; k++)
   {
     bool valid_period{true};
 
-    int hv_1 = h1.get_hash(0, k);
+    int hv_1 = h.get_hash(0, k);
     int i    = k;
     while (true)
     {
       if (i + k > n)
       {
-        int hvt_1 = h1.get_hash(i, n);
-        if (hvt_1 == h1.get_hash(0, n - i))
+        int hvt_1 = h.get_hash(i, n);
+        if (hvt_1 == h.get_hash(0, n - i))
           break;
         else
         {
@@ -413,7 +413,7 @@ auto run() -> void
         }
       }
 
-      int hvt_1 = h1.get_hash(i, i + k);
+      int hvt_1 = h.get_hash(i, i + k);
       if (hvt_1 != hv_1)
       {
         valid_period = false;
