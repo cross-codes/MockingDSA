@@ -1,11 +1,12 @@
 #include <vector>
-#include <bit>
 
 #pragma GCC target("popcnt")
 
-class Solution {
+class Solution
+{
 public:
-  std::vector<int> countBits(int n) {
+  std::vector<int> countBits(int n)
+  {
     std::vector<int> res{};
 
     for (unsigned int i = 0U; i <= unsigned(n); i++)
