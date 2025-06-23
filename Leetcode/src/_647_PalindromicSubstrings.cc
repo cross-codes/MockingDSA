@@ -4,7 +4,7 @@
 class Solution
 {
 public:
-  std::string longestPalindrome(std::string input)
+  int countSubstrings(std::string input)
   {
     int n  = static_cast<int>(input.size());
 
@@ -35,10 +35,12 @@ public:
         pos = i;
     }
 
-    std::string substr = s.substr(pos - len[pos] + 1, (len[pos] << 1) - 1);
-    std::string res;
-    for (size_t i = 1; i < substr.size(); i += 2)
-      res.push_back(substr[i]);
+    int res{};
+    for (int i = 0; i < n; i++)
+    {
+      int end = std::min(i, std::min(n - i - 1, len[i]));
+      res += ((end - 1 - ((i & 1) ^ 1)) >> 1) + 1;
+    }
 
     return res;
   }
