@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,43 +343,59 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _ShortestRoutesI
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::pair<int, int> op[n];
+  std::vector<std::pair<int, int>> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int to, from, weight;
+    io::cin >> to >> from >> weight;
 
-  for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
+    adj[to - 1].emplace_back(from - 1, weight);
+  }
 
-  int magic[n + 1][h + 1];
-  std::memset(magic, -1, sizeof(magic));
+  int64_t distance[n];
+  std::fill(distance, distance + n, INT64_MAX);
 
-  magic[0][h] = m;
-  for (int i = 1; i <= n; i++)
-    for (int j = h; j >= 0; j--)
+  bool processed[n];
+  std::memset(processed, false, sizeof(bool) * n);
+
+  distance[0] = 0;
+  std::priority_queue<std::pair<int64_t, int>> heap{};
+  heap.emplace(0, 0);
+
+  while (!heap.empty())
+  {
+    int a = heap.top().second;
+    heap.pop();
+
+    if (processed[a])
+      continue;
+
+    processed[a] = true;
+    for (const auto &[b, w] : adj[a])
     {
-      if (j + op[i - 1].first <= h)
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second,
-                               magic[i - 1][j + op[i - 1].first]);
-      else
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second, -1);
+      if (distance[a] + w < distance[b])
+      {
+        distance[b] = distance[a] + w;
+        heap.emplace(-distance[b], b);
+      }
     }
+  }
 
-  int mx{};
-  for (int i = 1; i <= n; i++)
-    for (int j = 0; j <= h; j++)
-      if (magic[i][j] >= 0)
-        mx = i;
+  for (int64_t e : distance)
+    io::cout << e << " ";
 
-  io::cout << mx << "\n";
+  io::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _ShortestRoutesI
 
 int main()
 {
@@ -402,7 +419,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _ShortestRoutesI::run();
 
   io::cout.flush();
 

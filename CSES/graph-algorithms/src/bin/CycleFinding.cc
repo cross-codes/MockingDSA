@@ -342,43 +342,57 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _CycleFinding
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::pair<int, int> op[n];
+  std::vector<std::tuple<int, int, int>> edges{};
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int a, b, c;
+    io::cin >> a >> b >> c;
+
+    edges.emplace_back(a - 1, b - 1, c);
+    adj[a - 1].push_back(b - 1);
+  }
+
+  int64_t distance[n];
+  std::fill(distance, distance + n, INT64_MAX >> 1);
+
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  std::vector<int> dcc{};
+
+  auto dfs = [&visited, &adj](auto &&dfs, int u) -> void {
+    visited[u] = true;
+
+    for (const auto &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
+  };
 
   for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
-
-  int magic[n + 1][h + 1];
-  std::memset(magic, -1, sizeof(magic));
-
-  magic[0][h] = m;
-  for (int i = 1; i <= n; i++)
-    for (int j = h; j >= 0; j--)
+    if (!visited[i])
     {
-      if (j + op[i - 1].first <= h)
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second,
-                               magic[i - 1][j + op[i - 1].first]);
-      else
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second, -1);
+      dcc.push_back(i);
+      dfs(dfs, i);
     }
 
-  int mx{};
-  for (int i = 1; i <= n; i++)
-    for (int j = 0; j <= h; j++)
-      if (magic[i][j] >= 0)
-        mx = i;
+  for (int e : dcc)
+    distance[e] = 0;
 
-  io::cout << mx << "\n";
+  for (int i = 0; i < n - 1; i++)
+    for (const auto &[a, b, w] : edges)
+      distance[b] = std::min(distance[b], distance[a] + w);
 }
 
-} // namespace _E
+} // namespace _CycleFinding
 
 int main()
 {
@@ -402,7 +416,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _CycleFinding::run();
 
   io::cout.flush();
 

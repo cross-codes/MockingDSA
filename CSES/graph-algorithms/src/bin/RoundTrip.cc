@@ -342,43 +342,90 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _RoundTrip
 {
+
+enum class Color
+{
+  WHITE,
+  GRAY,
+  BLACK
+};
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::pair<int, int> op[n];
+  int parents[n];
+  std::memset(parents, -1, sizeof(bool) * n);
 
-  for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
+  Color colors[n];
+  std::fill(colors, colors + n, Color::WHITE);
 
-  int magic[n + 1][h + 1];
-  std::memset(magic, -1, sizeof(magic));
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int to, from;
+    io::cin >> to >> from;
 
-  magic[0][h] = m;
-  for (int i = 1; i <= n; i++)
-    for (int j = h; j >= 0; j--)
+    adj[to - 1].push_back(from - 1);
+    adj[from - 1].push_back(to - 1);
+  }
+
+  int cycle_start{-1}, cycle_end{-1};
+  bool cycle_found{};
+
+  auto dfs_visit = [&adj, &parents, &colors, &cycle_start, &cycle_end,
+                    &cycle_found](auto &&dfs_visit, int p, int u) -> void {
+    colors[u] = Color::GRAY;
+    for (const int &v : adj[u])
     {
-      if (j + op[i - 1].first <= h)
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second,
-                               magic[i - 1][j + op[i - 1].first]);
-      else
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second, -1);
+      if (v == p)
+        continue;
+
+      if (colors[v] == Color::WHITE)
+      {
+        parents[v] = u;
+        dfs_visit(dfs_visit, u, v);
+      }
+      else if (colors[v] == Color::GRAY && !cycle_found)
+      {
+        cycle_start = v;
+        cycle_end   = u;
+        cycle_found = true;
+      }
     }
 
-  int mx{};
-  for (int i = 1; i <= n; i++)
-    for (int j = 0; j <= h; j++)
-      if (magic[i][j] >= 0)
-        mx = i;
+    colors[u] = Color::BLACK;
+  };
 
-  io::cout << mx << "\n";
+  for (int i = 0; i < n; i++)
+    if (colors[i] == Color::WHITE)
+      dfs_visit(dfs_visit, -1, i);
+
+  if (cycle_start == -1)
+  {
+    io::cout << "IMPOSSIBLE\n";
+    return;
+  }
+
+  std::vector<int> cycle{};
+  int temp = cycle_end;
+
+  while (temp != cycle_start)
+  {
+    cycle.push_back(temp);
+    temp = parents[temp];
+  }
+
+  io::cout << cycle.size() + 2 << "\n";
+  for (int v : cycle)
+    io::cout << v + 1 << " ";
+
+  io::cout.append<"% %\n">(cycle_start + 1, cycle_end + 1);
 }
-
-} // namespace _E
+} // namespace _RoundTrip
 
 int main()
 {
@@ -402,7 +449,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _RoundTrip::run();
 
   io::cout.flush();
 

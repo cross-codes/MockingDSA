@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,43 +343,144 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _Monsters
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::pair<int, int> op[n];
-
+  std::string grid[n];
   for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
+    io::cin >> grid[i];
 
-  int magic[n + 1][h + 1];
-  std::memset(magic, -1, sizeof(magic));
+  std::tuple<int, int, bool> start{};
+  std::queue<std::tuple<int, int, bool>> queue{};
+  std::vector<std::vector<bool>> visited(n, std::vector<bool>(m, false));
 
-  magic[0][h] = m;
-  for (int i = 1; i <= n; i++)
-    for (int j = h; j >= 0; j--)
+  std::array<int, 4> dx{-1, 0, 1, 0};
+  std::array<int, 4> dy{0, -1, 0, 1};
+
+  for (int y = 0; y < n; y++)
+    for (int x = 0; x < m; x++)
+      if (grid[y][x] == 'M')
+      {
+        queue.emplace(y, x, false);
+        visited[y][x] = true;
+      }
+      else if (grid[y][x] == 'A')
+        start = {y, x, true};
+
+  queue.emplace(start);
+
+  auto can_move_to = [&grid, &n, &m, &visited](int y, int x) -> bool {
+    return (y < n) && (y >= 0) && (x < m) && (x >= 0) && grid[y][x] != '#' &&
+           !visited[y][x];
+  };
+
+  auto is_free_boundary = [&grid, &n, &m](int y, int x) -> bool {
+    return (grid[y][x] == '.' || grid[y][x] == 'A') &&
+           (y == n - 1 || x == m - 1 || y == 0 || x == 0);
+  };
+
+  if (queue.size() == 1) [[unlikely]]
+  {
+    auto [y, x, _] = queue.front();
+    if (is_free_boundary(y, x))
     {
-      if (j + op[i - 1].first <= h)
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second,
-                               magic[i - 1][j + op[i - 1].first]);
-      else
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second, -1);
+      io::cout << "YES\n0\n";
+      return;
     }
+  }
 
-  int mx{};
-  for (int i = 1; i <= n; i++)
-    for (int j = 0; j <= h; j++)
-      if (magic[i][j] >= 0)
-        mx = i;
+  std::vector<std::vector<std::pair<int, int>>> parents(
+      n, std::vector<std::pair<int, int>>(m, {-1, -1}));
 
-  io::cout << mx << "\n";
+  std::pair<int, int> end{-1, -1};
+  while (!queue.empty())
+  {
+    const auto [y, x, player] = queue.front();
+    queue.pop();
+
+    for (int i = 0; i < 4; i++)
+    {
+      int X = x + dx[i], Y = y + dy[i];
+      if (can_move_to(Y, X))
+      {
+        if (player && is_free_boundary(Y, X))
+        {
+          end           = {Y, X};
+          parents[Y][X] = {y, x};
+          goto display_path;
+        }
+
+        queue.emplace(Y, X, player);
+        visited[Y][X] = true;
+
+        if (player)
+          parents[Y][X] = {y, x};
+      }
+    }
+  }
+
+  io::cout << "NO\n";
+  return;
+
+display_path:
+
+  auto relative_dir = [](int to_y, int to_x, int from_y, int from_x) -> char {
+    if (to_y - from_y == -1)
+      return 'U';
+    else if (to_x - from_x == 1)
+      return 'R';
+    else if (to_y - from_y == 1)
+      return 'D';
+    else
+      return 'L';
+  };
+
+  auto inverted = [](char dir) -> char {
+    switch (dir)
+    {
+    case ('U'):
+      return 'D';
+    case ('D'):
+      return 'U';
+    case ('L'):
+      return 'R';
+    case ('R'):
+      return 'L';
+
+    default:
+      __builtin_unreachable();
+    }
+  };
+
+  io::cout << "YES\n";
+  std::vector<char> path{};
+
+  auto start_pos = std::make_pair(std::get<0>(start), std::get<1>(start));
+  auto temp      = end;
+
+  while (temp != start_pos)
+  {
+    auto parent = parents[temp.first][temp.second];
+    path.push_back(
+        relative_dir(parent.first, parent.second, temp.first, temp.second));
+    temp = parent;
+  }
+
+  int sz = static_cast<int>(path.size());
+
+  io::cout << sz << "\n";
+  for (int i = sz - 1; i >= 0; i--)
+    io::cout << inverted(path[i]);
+
+  io::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _Monsters
 
 int main()
 {
@@ -402,7 +504,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _Monsters::run();
 
   io::cout.flush();
 

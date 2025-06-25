@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,43 +343,79 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _20C
 {
 
 auto run() -> void
 {
-  int n, h, m;
-  io::cin >> n >> h >> m;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::pair<int, int> op[n];
+  std::vector<std::pair<int, int>> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int a, b, w;
+    io::cin >> a >> b >> w;
+    adj[a - 1].emplace_back(b - 1, w);
+    adj[b - 1].emplace_back(a - 1, w);
+  }
 
-  for (int i = 0; i < n; i++)
-    io::cin >> op[i].first >> op[i].second;
+  bool processed[n];
+  std::memset(processed, false, sizeof(bool) * n);
 
-  int magic[n + 1][h + 1];
-  std::memset(magic, -1, sizeof(magic));
+  int64_t distance[n];
+  std::fill(distance, distance + n, INT64_MAX >> 1);
 
-  magic[0][h] = m;
-  for (int i = 1; i <= n; i++)
-    for (int j = h; j >= 0; j--)
+  int p[n];
+  std::memset(p, -1, sizeof(int) * n);
+
+  std::priority_queue<std::pair<int, int>> heap{};
+
+  distance[0] = 0;
+  heap.emplace(0, 0);
+  while (!heap.empty())
+  {
+    int a = heap.top().second;
+    heap.pop();
+
+    if (processed[a])
+      continue;
+
+    processed[a] = true;
+    for (const auto &[b, w] : adj[a])
     {
-      if (j + op[i - 1].first <= h)
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second,
-                               magic[i - 1][j + op[i - 1].first]);
-      else
-        magic[i][j] = std::max(magic[i - 1][j] - op[i - 1].second, -1);
+      if (distance[b] > distance[a] + w)
+      {
+        distance[b] = distance[a] + w;
+        p[b]        = a;
+        heap.emplace(-distance[b], b);
+      }
     }
+  }
 
-  int mx{};
-  for (int i = 1; i <= n; i++)
-    for (int j = 0; j <= h; j++)
-      if (magic[i][j] >= 0)
-        mx = i;
+  std::vector<int> path{};
+  int temp = n - 1;
+  while (temp != 0)
+  {
+    path.push_back(temp + 1);
+    temp = p[temp];
+    if (temp == -1)
+    {
+      io::cout << "-1\n";
+      return;
+    }
+  }
 
-  io::cout << mx << "\n";
+  path.push_back(temp + 1);
+  std::reverse(path.begin(), path.end());
+
+  for (int e : path)
+    io::cout << e << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _20C
 
 int main()
 {
@@ -402,7 +439,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _20C::run();
 
   io::cout.flush();
 
