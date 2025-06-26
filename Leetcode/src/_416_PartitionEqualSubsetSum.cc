@@ -14,23 +14,14 @@ public:
 
     int target = sum >> 1;
 
-    bool possible[n + 1][target + 1]; // possible[i][sum] create sum using [0..i];
-    for (int i = 0; i <= n; i++)
-      std::memset(possible[i], false, sizeof(bool) * (target + 1));
-
-    for (int i = 0; i <= n; i++)
-      possible[i][0] = true;
+    bool f[target + 1];
+    std::memset(f, false, sizeof(bool) * (target + 1));
+    f[0] = true;
 
     for (int i = 1; i <= n; i++)
-      for (int j = 0; j <= target; j++)
-      {
-        if (nums[i - 1] <= j)
-          possible[i][j] =
-              possible[i - 1][j] || possible[i - 1][j - nums[i - 1]];
-        else
-          possible[i][j] = possible[i - 1][j];
-      }
+      for (int j = target; j >= nums[i - 1]; j--)
+        f[j] = f[j] | f[j - nums[i - 1]];
 
-    return possible[n][target];
+    return f[target];
   }
 };

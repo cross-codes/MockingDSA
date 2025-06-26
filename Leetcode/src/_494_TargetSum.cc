@@ -1,32 +1,28 @@
-#include <unordered_map>
+#include <cstdlib>
+#include <cstring>
+#include <numeric>
 #include <vector>
-
-template<> struct std::hash<std::pair<int,int>> {
-  size_t operator()(const std::pair<int, int> &a) const noexcept {
-    return a.first ^ 0x98be789 + (a.second << 2);
-  }
-};
 
 class Solution
 {
 public:
   int findTargetSumWays(std::vector<int> &nums, int target)
   {
-    int n = static_cast<int>(nums.size());
+    int n   = static_cast<int>(nums.size());
+    int sum = std::accumulate(nums.begin(), nums.end(), 0);
 
-    std::unordered_map<std::pair<int, int>, int> ways{};
-    auto dfs = [&ways, &nums, &n, &target](auto &&dfs, int idx, int acc) -> int {
-      if (idx == n)
-        return acc == target;
+    if (sum < std::abs(target) || (sum + target) & 1)
+      return 0;
 
-      auto it = ways.find({idx, acc});
-      if (it != ways.end())
-        return it->second;
+    int wt = (sum + target) >> 1;
+    int f[wt + 1];
+    std::memset(f, 0x00, sizeof(int) * (wt + 1));
 
-      ways[{idx, acc}] = dfs(dfs, idx + 1, acc + nums[idx]) + dfs(dfs, idx + 1, acc - nums[idx]);
-      return ways[{idx, acc}];
-    };
+    f[0] = 1;
+    for (int i = 1; i <= n; i++)
+      for (int j = wt; j >= nums[i - 1]; j--)
+        f[j] = f[j - nums[i - 1]] + f[j];
 
-    return dfs(dfs, 0, 0);
+    return f[wt];
   }
 };
