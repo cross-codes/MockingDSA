@@ -1,6 +1,5 @@
-#include <algorithm>
+#include <cstring>
 #include <numeric>
-#include <array>
 #include <vector>
 
 class Solution
@@ -8,37 +7,27 @@ class Solution
 public:
   bool canPartitionKSubsets(std::vector<int> &nums, int k)
   {
-    int n = static_cast<int>(nums.size());
-    int sum = std::accumulate(nums.begin(), nums.end(), 0) / k;
+    int sum[1 << 16];
+    std::memset(sum, -1, sizeof(int) * (1 << 16));
 
-    std::array<int, 16> subset_sums{};
-    std::sort(nums.begin(), nums.end(), std::greater<int>());
-    if (nums[0] > sum)
+    int n = static_cast<int>(nums.size());
+    int tot = std::accumulate(nums.begin(), nums.end(), 0);
+    if (tot % k != 0)
       return false;
 
-    bool possible{};
-    auto dfs = [&subset_sums, &possible, &nums, &k, &sum, &n](auto &&dfs, int idx) {
-      if (idx == n || possible)
-      {
-        possible = true;
-        return;
-      }
+    int t = tot / k;
 
-      for (int i = 0; i < k; i++)
-      {
-        if (subset_sums[i] + nums[idx] <= sum)
-        {
-          subset_sums[i] += nums[idx];
-          dfs(dfs, idx + 1);
-          subset_sums[i] -= nums[idx];
+    sum[0] = 0;
+    for (int s = 0; s < (1 << n); s++)
+    {
+      if (sum[s] == -1)
+        continue;
 
-          if (subset_sums[i] == 0)
-            break;
-        }
-      }
-    };
+      for (int x = 0; x < n; x++)
+        if ((s & (1 << x)) == 0 && sum[s] + nums[x] <= t)
+          sum[s | (1 << x)] = (sum[s] + nums[x]) % t;
+    }
 
-    dfs(dfs, 0);
-    return possible;
+    return sum[(1 << n) - 1] != -1;
   }
 };

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
-#include <numeric>
+#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -348,47 +348,71 @@ namespace _C
 
 auto run() -> void
 {
-  int n, q;
-  io::cin >> n >> q;
+  int n;
+  io::cin >> n;
 
-  int a[n + 1];
-  a[0] = 0;
-  std::iota(a + 1, a + n + 1, 1);
+  int s[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> s[i];
 
-  int64_t k_sum{};
-  for (int i = 0; i < q; i++)
+  if (n == 2)
   {
-    int choice;
-    io::cin >> choice;
-    if (choice == 1)
-    {
-      int p, x;
-      io::cin >> p >> x;
+    io::cout << (s[1] > (s[0] << 1) ? -1 : 2) << "\n";
+    return;
+  }
 
-      int b = n - (k_sum % n);
-      if (p > b)
-        a[p - b] = x;
-      else
-        a[p - b + n] = x;
-    }
-    else if (choice == 2)
-    {
-      int p;
-      io::cin >> p;
+  std::sort(s + 1, s + n - 1);
 
-      int b = n - (k_sum % n);
-      if (p > b)
-        io::cout << a[p - b] << "\n";
-      else
-        io::cout << a[p - b + n] << "\n";
+  int extra{};
+  std::span<int> view(s + 1, s + n - 1);
+  int fs     = s[n - 1];
+
+  int curr   = s[0];
+  size_t pos = 0;
+  while (pos != view.size())
+  {
+    if (fs <= (curr << 1))
+      break;
+
+    auto it       = std::lower_bound(view.begin() + pos, view.end(), curr << 1);
+    size_t newpos = std::distance(view.begin(), it);
+
+    if (it == view.end())
+    {
+      it   = std::prev(view.end());
+      curr = *it;
+      extra += 1;
+      pos = newpos;
     }
+    else if (it == view.begin() + pos && *it != (curr << 1))
+      break;
     else
     {
-      int64_t k;
-      io::cin >> k;
-      k_sum += k;
+      if (*it == (curr << 1))
+      {
+        curr = *it;
+        extra += 1;
+        pos = newpos + 1;
+      }
+      else if (*it > (curr << 1))
+      {
+        if (newpos == pos)
+          break;
+        else
+        {
+          it   = std::prev(it);
+          curr = *it;
+          extra += 1;
+          pos = newpos;
+        }
+      }
     }
   }
+
+  if (fs <= (curr << 1))
+    io::cout << extra + 2 << "\n";
+  else
+    io::cout << "-1\n";
 }
 
 } // namespace _C
@@ -414,6 +438,7 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
   while (t-- > 0)
     _C::run();
 

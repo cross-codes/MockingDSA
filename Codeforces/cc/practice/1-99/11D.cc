@@ -342,16 +342,53 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _D
+namespace _11D
 {
 
 auto run() -> void
 {
-  int64_t L, R;
-  io::cin >> L >> R;
+  // ways[S][x] -> visit vertices specified by S, and end at x
+  int64_t ways[1 << 19][19];
+  std::memset(ways, 0x00, sizeof(ways));
+
+  int n, m;
+  io::cin >> n >> m;
+
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int a, b;
+    io::cin >> a >> b;
+    adj[a - 1].push_back(b - 1);
+    adj[b - 1].push_back(a - 1);
+  }
+
+  for (int x = 0; x < n; x++)
+    ways[1 << x][x] = 1;
+
+  int64_t cycles{};
+
+  for (int s = 1; s < (1 << n); s++)
+  {
+    int s_v = __builtin_ctz(s);
+
+    for (int v = 0; v < n; v++)
+    {
+      if (!(s & (1 << v)) || ways[s][v] == 0)
+        continue;
+
+      for (int u : adj[v])
+        if (u == s_v && __builtin_popcount(s) >= 3)
+          cycles += ways[s][v];
+        else if (u > s_v && !(s & (1 << u)))
+          ways[s | (1 << u)][u] += ways[s][v];
+    }
+  }
+
+  io::cout << (cycles >> 1) << "\n";
 }
 
-} // namespace _D
+} // namespace _11D
 
 int main()
 {
@@ -375,7 +412,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _D::run();
+    _11D::run();
 
   io::cout.flush();
 
