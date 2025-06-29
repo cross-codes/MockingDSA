@@ -1,3 +1,4 @@
+#include <climits>
 #include <vector>
 
 class Solution
@@ -7,20 +8,20 @@ public:
   {
     int n = static_cast<int>(prices.size());
 
-    int x[n], y[n], z[n], a[n], b[n];
-    x[0] = 0, y[0] = -prices[0], z[0] = 0, a[0] = -prices[0], b[0] = 0;
+    int free_2[n + 1], hold_1[n + 1], free_1[n + 1], hold_2[n + 1],
+        free_0[n + 1];
+    free_2[0] = free_1[0] = free_0[0] = 0;
+    hold_1[0] = hold_2[0] = INT_MIN;
 
-    for (int i = 1; i < n; i++)
+    for (int i = 1; i <= n; i++)
     {
-      x[i] = x[i - 1];
-      y[i] = std::max(x[i - 1] - prices[i], y[i - 1]);
-      z[i] = std::max(y[i - 1] + prices[i], z[i - 1]);
-      a[i] = std::max(z[i - 1] - prices[i], a[i - 1]);
-      b[i] = std::max(a[i - 1] + prices[i], b[i - 1]);
+      free_2[i] = free_2[i - 1];
+      hold_1[i] = std::max(hold_1[i - 1], free_2[i - 1] - prices[i - 1]);
+      free_1[i] = std::max(free_1[i - 1], hold_1[i - 1] + prices[i - 1]);
+      hold_2[i] = std::max(hold_2[i - 1], free_1[i - 1] - prices[i - 1]);
+      free_0[i] = std::max(free_0[i - 1], hold_2[i - 1] + prices[i - 1]);
     }
 
-    return std::max(
-        x[n - 1],
-        std::max(y[n - 1], std::max(z[n - 1], std::max(a[n - 1], b[n - 1]))));
+    return std::max({free_2[n], hold_1[n], free_1[n], hold_2[n], free_0[n]});
   }
 };
