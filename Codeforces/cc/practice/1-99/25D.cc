@@ -1,7 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -343,49 +342,90 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _25D
 {
+
+struct DisjointSetForest
+{
+private:
+  std::vector<int> sizes_, parents_;
+
+public:
+  DisjointSetForest(int n) : sizes_(n), parents_(n)
+  {
+    for (int u = 0; u < n; u++)
+      make_set(u);
+  }
+
+  void make_set(int u)
+  {
+    parents_[u] = u;
+    sizes_[u]   = 1;
+  }
+
+  int find_set(int u)
+  {
+    if (parents_[u] == u)
+      return u;
+    else
+    {
+      parents_[u] = find_set(parents_[u]);
+      return parents_[u];
+    }
+  }
+
+  bool unite(int x, int y)
+  {
+    int x_root{find_set(x)}, y_root{find_set(y)};
+
+    if (x_root == y_root)
+      return false;
+
+    if (sizes_[x_root] < sizes_[y_root])
+      std::swap(x_root, y_root);
+
+    sizes_[x_root] += sizes_[y_root];
+    parents_[y_root] = x_root;
+
+    return true;
+  }
+};
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  int a[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> a[i];
-
-  int mn[n], mx[n];
-  int curmx{INT_MIN};
-  for (int i = n - 1; i >= 0; i--)
+  DisjointSetForest dsu(n);
+  std::vector<std::pair<int, int>> disallowed{};
+  for (int i = 0; i < n - 1; i++)
   {
-    if (a[i] > curmx)
-      curmx = a[i];
-
-    mx[i] = curmx;
-  }
-
-  int curmn{INT_MAX};
-  for (int i = 0; i < n; i++)
-  {
-    if (a[i] < curmn)
-      curmn = a[i];
-
-    mn[i] = curmn;
-  }
-
-  std::string res{'1'};
-  for (int i = 1; i < n - 1; i++)
-    if (a[i] == mx[i] || a[i] == mn[i])
-      res.push_back('1');
+    int u, v;
+    io::cin >> u >> v;
+    if (dsu.find_set(u - 1) == dsu.find_set(v - 1))
+      disallowed.emplace_back(u - 1, v - 1);
     else
-      res.push_back('0');
+      dsu.unite(u - 1, v - 1);
+  }
 
-  res.push_back('1');
-  io::cout << res << "\n";
+  std::vector<std::tuple<int, int, int, int>> res{};
+  for (int u = 0, v = 1; u < n - 1 && v < n; u++, v++)
+  {
+    if (dsu.find_set(u) != dsu.find_set(v))
+    {
+      auto [x, y] = disallowed.back();
+      dsu.unite(u, v);
+      res.emplace_back(x, y, u, v);
+      disallowed.pop_back();
+    }
+  }
+
+  io::cout << res.size() << "\n";
+  for (const auto &[x, y, u, v] : res)
+    io::cout.append<"% % % %\n">(x + 1, y + 1, u + 1, v + 1);
 }
 
-} // namespace _C
+} // namespace _25D
 
 int main()
 {
@@ -399,9 +439,8 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _25D::run();
 
   io::cout.flush();
 

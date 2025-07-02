@@ -347,30 +347,6 @@ namespace _D
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
-
-  std::pair<int, int> pos[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> pos[i].first >> pos[i].second;
-
-  if (n == 1)
-  {
-    io::cout << "1\n";
-    return;
-  }
-
-  auto x_order = [](const std::pair<int, int> &a,
-                    const std::pair<int, int> &b) -> bool {
-    return a.first < b.first;
-  };
-
-  auto y_order = [](const std::pair<int, int> &a,
-                    const std::pair<int, int> &b) -> bool {
-    return a.second < b.second;
-  };
-
-  std::sort(pos, pos + n, x_order);
 }
 
 } // namespace _D
@@ -388,7 +364,6 @@ int main()
 
   int t{1};
   io::cin >> t;
-
   while (t-- > 0)
     _D::run();
 

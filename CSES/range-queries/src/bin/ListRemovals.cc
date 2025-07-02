@@ -1,10 +1,12 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <ext/rope>
 #include <fcntl.h>
 #include <string>
 #include <string_view>
@@ -343,7 +345,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _C
+namespace _ListRemovals
 {
 
 auto run() -> void
@@ -351,41 +353,29 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  int a[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> a[i];
+  __gnu_pbds::tree<std::pair<int, int>, __gnu_pbds::null_type, std::less<>,
+                   __gnu_pbds::rb_tree_tag,
+                   __gnu_pbds::tree_order_statistics_node_update>
+      ost{};
 
-  int mn[n], mx[n];
-  int curmx{INT_MIN};
-  for (int i = n - 1; i >= 0; i--)
-  {
-    if (a[i] > curmx)
-      curmx = a[i];
-
-    mx[i] = curmx;
-  }
-
-  int curmn{INT_MAX};
   for (int i = 0; i < n; i++)
   {
-    if (a[i] < curmn)
-      curmn = a[i];
-
-    mn[i] = curmn;
+    int x;
+    io::cin >> x;
+    ost.insert({i, x});
   }
 
-  std::string res{'1'};
-  for (int i = 1; i < n - 1; i++)
-    if (a[i] == mx[i] || a[i] == mn[i])
-      res.push_back('1');
-    else
-      res.push_back('0');
-
-  res.push_back('1');
-  io::cout << res << "\n";
+  while (n-- > 0)
+  {
+    int p;
+    io::cin >> p;
+    auto it = ost.find_by_order(p - 1);
+    io::cout << it->second << " ";
+    ost.erase(it);
+  }
 }
 
-} // namespace _C
+} // namespace _ListRemovals
 
 int main()
 {
@@ -399,9 +389,8 @@ int main()
 #endif
 
   int t{1};
-  io::cin >> t;
   while (t-- > 0)
-    _C::run();
+    _ListRemovals::run();
 
   io::cout.flush();
 
