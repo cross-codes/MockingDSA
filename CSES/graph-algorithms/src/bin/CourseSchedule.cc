@@ -342,22 +342,59 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _CourseSchedule
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::string grid[n];
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int a, b;
+    io::cin >> a >> b;
+
+    adj[a - 1].push_back(b - 1);
+  }
+
+  int colors[n];
+  std::memset(colors, 0x00, sizeof(int) * n);
+
+  std::vector<int> order{};
+  auto dfs = [&colors, &order, &adj](auto &&dfs, int u, bool &cycle) -> void {
+    colors[u] = 1;
+
+    for (const int &v : adj[u])
+      if (colors[v] == 0)
+        dfs(dfs, v, cycle);
+      else if (colors[v] == 1)
+        cycle = true;
+
+    order.push_back(u);
+    colors[u] = 2;
+  };
+
+  bool cycle{};
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+    if (colors[i] == 0)
+      dfs(dfs, i, cycle);
 
-  std::string res{};
+  if (cycle)
+  {
+    io::cout << "IMPOSSIBLE\n";
+    return;
+  }
+
+  std::reverse(order.begin(), order.end());
+  for (int u : order)
+    io::cout << u + 1 << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _CourseSchedule
 
 int main()
 {
@@ -368,27 +405,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _CourseSchedule::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

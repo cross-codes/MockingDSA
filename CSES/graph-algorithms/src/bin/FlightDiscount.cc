@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,22 +343,84 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _FlightDiscount
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  std::vector<std::pair<int, int>> adj[n], adj_t[n];
+  for (int i = 0; i < m; i++)
+  {
+    int a, b, c;
+    io::cin >> a >> b >> c;
 
-  std::string res{};
+    adj[a - 1].emplace_back(b - 1, c);
+    adj_t[b - 1].emplace_back(a - 1, c);
+  }
+
+  bool processed[n];
+  std::memset(processed, false, sizeof(bool) * n);
+
+  int64_t dist1[n];
+  std::fill(dist1, dist1 + n, INT64_MAX >> 2);
+
+  std::priority_queue<std::pair<int64_t, int>> queue{};
+  dist1[0] = 0;
+  queue.emplace(0, 0);
+
+  while (!queue.empty())
+  {
+    int a = queue.top().second;
+    queue.pop();
+
+    if (processed[a])
+      continue;
+
+    processed[a] = true;
+    for (const auto &[b, w] : adj[a])
+      if (dist1[a] + w < dist1[b])
+      {
+        dist1[b] = dist1[a] + w;
+        queue.emplace(-dist1[b], b);
+      }
+  }
+
+  int64_t dist2[n];
+  std::fill(dist2, dist2 + n, INT64_MAX >> 2);
+  std::memset(processed, false, sizeof(bool) * n);
+
+  dist2[n - 1] = 0;
+  queue.emplace(0, n - 1);
+
+  while (!queue.empty())
+  {
+    int a = queue.top().second;
+    queue.pop();
+
+    if (processed[a])
+      continue;
+
+    processed[a] = true;
+    for (const auto &[b, w] : adj_t[a])
+      if (dist2[a] + w < dist2[b])
+      {
+        dist2[b] = dist2[a] + w;
+        queue.emplace(-dist2[b], b);
+      }
+  }
+
+  int64_t mn{INT64_MAX};
+  for (int u = 0; u < n; u++)
+    for (const auto &[v, w] : adj[u])
+      mn = std::min(mn, dist1[u] + (w >> 1) + dist2[v]);
+
+  io::cout << mn << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _FlightDiscount
 
 int main()
 {
@@ -368,27 +431,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _FlightDiscount::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

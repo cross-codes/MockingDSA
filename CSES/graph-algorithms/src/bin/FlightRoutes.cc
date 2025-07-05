@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,22 +343,49 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _FlightRoutes
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m, k;
+  io::cin >> n >> m >> k;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  std::vector<std::pair<int, int>> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int a, b, c;
+    io::cin >> a >> b >> c;
 
-  std::string res{};
+    adj[a - 1].emplace_back(b - 1, c);
+  }
+
+  std::priority_queue<std::pair<int64_t, int64_t>> queue{};
+
+  int cnt[n];
+  std::memset(cnt, 0x00, sizeof(int) * n);
+  queue.emplace(0, 0);
+
+  while (cnt[n - 1] < k)
+  {
+    auto [dist, u] = queue.top();
+    queue.pop();
+
+    if (cnt[u] == k)
+      continue;
+
+    cnt[u] += 1;
+    if (u == n - 1)
+      io::cout << -dist << " ";
+
+    for (const auto &[v, w] : adj[u])
+      queue.emplace(dist - w, v);
+  }
+
+  io::cout << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _FlightRoutes
 
 int main()
 {
@@ -368,27 +396,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _FlightRoutes::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

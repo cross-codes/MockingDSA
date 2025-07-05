@@ -342,7 +342,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _MoneySums
 {
 
 auto run() -> void
@@ -350,14 +350,50 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  std::string grid[n];
+  int x[n];
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+    io::cin >> x[i];
 
-  std::string res{};
+  std::sort(x, x + n);
+
+  int max_s{};
+  for (int i = 0; i < n; i++)
+    max_s += x[i];
+
+  bool possible[max_s + 1][n + 1];
+  std::memset(possible, false, sizeof(possible));
+
+  for (int i = 0; i <= n; i++)
+    possible[0][i] = true;
+
+  std::vector<int> res{};
+  for (int i = 0; i <= max_s; i++)
+  {
+    bool can_make{};
+    for (int j = 1; j <= n; j++)
+    {
+      possible[i][j] = possible[i][j - 1];
+      if (x[j - 1] <= i)
+        possible[i][j] |= possible[i - x[j - 1]][j - 1];
+
+      if (possible[i][j])
+        can_make = true;
+    }
+
+    if (can_make)
+      res.push_back(i);
+  }
+
+  int N = static_cast<int>(res.size());
+
+  io::cout << N - 1 << "\n";
+  for (int i = 1; i < N; i++)
+    io::cout << res[i] << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _MoneySums
 
 int main()
 {
@@ -368,27 +404,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _MoneySums::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

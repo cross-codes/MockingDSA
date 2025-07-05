@@ -342,22 +342,112 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _RoadReparation
 {
+
+struct DisjointSetForest
+{
+public:
+  std::vector<int> sizes, parents;
+
+  DisjointSetForest(int n) : sizes(n), parents(n)
+  {
+    for (int u = 0; u < n; u++)
+      make_set(u);
+  }
+
+  void make_set(int u)
+  {
+    parents[u] = u;
+    sizes[u]   = 1;
+  }
+
+  int find_set(int u)
+  {
+    if (parents[u] == u)
+      return u;
+    else
+    {
+      parents[u] = find_set(parents[u]);
+      return parents[u];
+    }
+  }
+
+  bool unite(int x, int y)
+  {
+    int x_root{find_set(x)}, y_root{find_set(y)};
+
+    if (x_root == y_root)
+      return false;
+
+    if (sizes[x_root] < sizes[y_root])
+      std::swap(x_root, y_root);
+
+    sizes[x_root] += sizes[y_root];
+    parents[y_root] = x_root;
+
+    return true;
+  }
+};
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  DisjointSetForest dsu(n);
 
-  std::string res{};
+  std::vector<std::tuple<int, int, int>> edges{};
+  for (int i = 0; i < m; i++)
+  {
+    int u, v, w;
+    io::cin >> u >> v >> w;
+
+    edges.emplace_back(u - 1, v - 1, w);
+  }
+
+  auto EDGE_ORDER = [](const std::tuple<int, int, int> &a,
+                       const std::tuple<int, int, int> &b) -> int {
+    return std::get<2>(a) < std::get<2>(b);
+  };
+
+  std::sort(edges.begin(), edges.end(), EDGE_ORDER);
+
+  std::vector<int> adj[n];
+
+  int64_t mn{};
+  for (const auto &[u, v, w] : edges)
+  {
+    if (dsu.find_set(u) != dsu.find_set(v))
+    {
+      dsu.unite(u, v);
+      mn += w;
+
+      adj[u].emplace_back(v);
+      adj[v].emplace_back(u);
+    }
+  }
+
+  bool visited[n];
+  std::memset(visited, 0x00, sizeof(bool) * n);
+
+  auto dfs = [&visited, &adj](auto &&dfs, int u) -> void {
+    visited[u] = true;
+
+    for (const auto &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
+  };
+
+  dfs(dfs, 0);
+
+  if (std::all_of(visited, visited + n, [](const bool &b) { return b; }))
+    io::cout << mn << "\n";
+  else
+    io::cout << "IMPOSSIBLE\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _RoadReparation
 
 int main()
 {
@@ -368,27 +458,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _RoadReparation::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

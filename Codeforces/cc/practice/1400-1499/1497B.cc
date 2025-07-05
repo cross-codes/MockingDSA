@@ -342,22 +342,29 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _1497B
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::string grid[n];
+  int cnt[m];
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  {
+    int a;
+    io::cin >> a;
+    cnt[a % m] += 1;
+  }
 
-  std::string res{};
+  int mn{cnt[0] != 0};
+  for (int i = 1; i < m; i++)
+  {
+  }
 }
 
-} // namespace _MinimalGridPath
+} // namespace _1497B
 
 int main()
 {
@@ -368,27 +375,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _1497B::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

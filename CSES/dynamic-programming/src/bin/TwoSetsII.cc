@@ -342,22 +342,62 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _TwoSetsII
 {
+
+constexpr int MOD = static_cast<int>(1e9 + 7);
+
+constexpr auto mod_pow(int x, int n, int m = MOD) -> int
+{
+  if (n == 0)
+    return 1 % m;
+
+  int64_t u = static_cast<int64_t>(mod_pow(x, n >> 1, m));
+  u         = (u * u) % m;
+
+  if (n & 1)
+    u = (u * x) % m;
+
+  return static_cast<int>(u);
+}
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  constexpr int MOD2INV = mod_pow(2, MOD - 2, MOD);
 
-  std::string res{};
+  if ((n * (n + 1)) % 4 != 0)
+  {
+    io::cout << "0\n";
+    return;
+  }
+
+  int target = (n * (n + 1)) >> 2;
+
+  int64_t ways[target + 1][n + 1];
+  std::memset(ways, 0x00, sizeof(ways));
+
+  for (int i = 0; i <= n; i++)
+    ways[0][i] = 1;
+
+  for (int s = 1; s <= target; s++)
+    for (int j = 1; j <= n; j++)
+    {
+      ways[s][j] = ways[s][j - 1];
+      if (j <= s)
+        ways[s][j] += ways[s - j][j - 1];
+
+      ways[s][j] %= MOD;
+    }
+
+  int64_t res = ways[target][n];
+
+  io::cout << (res * MOD2INV) % MOD << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _TwoSetsII
 
 int main()
 {
@@ -368,27 +408,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _TwoSetsII::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

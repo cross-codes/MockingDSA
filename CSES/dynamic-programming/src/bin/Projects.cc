@@ -342,7 +342,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _Projects
 {
 
 auto run() -> void
@@ -350,14 +350,52 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  std::string grid[n];
+  std::tuple<int, int, int> intervals[n];
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  {
+    int a, b, p;
+    io::cin >> a >> b >> p;
+    intervals[i] = std::make_tuple(a, b, p);
+  }
 
-  std::string res{};
+  auto TUPLE_ORDER = [](const std::tuple<int, int, int> &a,
+                        const std::tuple<int, int, int> &b) -> bool {
+    const auto &[s1, e1, r1] = a;
+    const auto &[s2, e2, r2] = b;
+
+    return e1 < e2;
+  };
+
+  std::sort(intervals, intervals + n, TUPLE_ORDER);
+
+  // latest interval that can precede the ith interval
+  int compatible[n];
+  for (int i = 0; i < n; ++i)
+  {
+    int s   = std::get<0>(intervals[i]);
+    auto it = std::upper_bound(intervals, intervals + i,
+                               std::make_tuple(-1, s - 1, -1), TUPLE_ORDER);
+    if (it == intervals)
+      compatible[i] = 0;
+    else
+      compatible[i] = static_cast<int>(std::distance(intervals, it - 1) + 1);
+  }
+
+  // max money from an ordering involving only first i intervals
+  int64_t mx[n + 1];
+  mx[0] = 0;
+  for (int j = 1; j <= n; j++)
+  {
+    int w = std::get<2>(intervals[j - 1]);
+    int p = compatible[j - 1];
+
+    mx[j] = std::max(w + mx[p], mx[j - 1]);
+  }
+
+  io::cout << mx[n] << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _Projects
 
 int main()
 {
@@ -368,27 +406,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _Projects::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

@@ -9,6 +9,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_map>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,22 +343,112 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _598D
 {
+
+struct DisjointSetForest
+{
+public:
+  std::vector<int> sizes, parents;
+
+  DisjointSetForest(int n) : sizes(n), parents(n)
+  {
+    for (int u = 0; u < n; u++)
+      make_set(u);
+  }
+
+  void make_set(int u)
+  {
+    parents[u] = u;
+    sizes[u]   = 1;
+  }
+
+  int find_set(int u)
+  {
+    if (parents[u] == u)
+      return u;
+    else
+    {
+      parents[u] = find_set(parents[u]);
+      return parents[u];
+    }
+  }
+
+  bool unite(int x, int y)
+  {
+    int x_root{find_set(x)}, y_root{find_set(y)};
+
+    if (x_root == y_root)
+      return false;
+
+    if (sizes[x_root] < sizes[y_root])
+      std::swap(x_root, y_root);
+
+    sizes[x_root] += sizes[y_root];
+    parents[y_root] = x_root;
+
+    return true;
+  }
+};
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m, k;
+  io::cin >> n >> m >> k;
 
   std::string grid[n];
   for (int i = 0; i < n; i++)
     io::cin >> grid[i];
 
-  std::string res{};
+  auto get_idx = [&m](int y, int x) -> int { return m * y + x; };
+
+  DisjointSetForest dsu(m * n);
+
+  int dx[4] = {-1, 0, 1, 0};
+  int dy[4] = {0, 1, 0, -1};
+
+  bool visited[n * m];
+  std::memset(visited, false, sizeof(bool) * m * n);
+
+  auto dfs = [&visited, &dsu, &get_idx, &dx, &dy,
+              &grid](auto &&dfs, const std::pair<int, int> u,
+                     int64_t &cnt) -> void {
+    const auto [y, x]      = u;
+    visited[get_idx(y, x)] = true;
+
+    for (int i = 0; i < 4; i++)
+    {
+      int Y{y + dy[i]}, X{x + dx[i]};
+      if (grid[Y][X] == '*')
+        cnt += 1;
+      else if (!visited[get_idx(Y, X)])
+      {
+        dsu.unite(get_idx(y, x), get_idx(Y, X));
+        dfs(dfs, {Y, X}, cnt);
+      }
+    }
+  };
+
+  std::unordered_map<int, int64_t> repr_sizes{};
+
+  for (int y = 0; y < n; y++)
+    for (int x = 0; x < m; x++)
+      if (grid[y][x] == '.' && !visited[get_idx(y, x)])
+      {
+        int64_t cnt{};
+        dfs(dfs, {y, x}, cnt);
+        repr_sizes[dsu.find_set(get_idx(y, x))] = cnt;
+      }
+
+  while (k-- > 0)
+  {
+    int y, x;
+    io::cin >> y >> x;
+    io::cout << repr_sizes[dsu.find_set(get_idx(y - 1, x - 1))] << "\n";
+  }
 }
 
-} // namespace _MinimalGridPath
+} // namespace _598D
 
 int main()
 {
@@ -368,27 +459,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _598D::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

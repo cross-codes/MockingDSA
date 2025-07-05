@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,7 +343,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _TreeDiameter
 {
 
 auto run() -> void
@@ -350,14 +351,62 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  std::vector<int> adj[n];
+  for (int i = 0; i < n - 1; i++)
+  {
+    int a, b;
+    io::cin >> a >> b;
 
-  std::string res{};
+    adj[a - 1].push_back(b - 1);
+    adj[b - 1].push_back(a - 1);
+  }
+
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  int dist[n];
+  dist[0] = 0;
+
+  std::queue<int> queue{};
+  queue.push(0);
+  while (!queue.empty())
+  {
+    int u = queue.front();
+    queue.pop();
+
+    visited[u] = true;
+    for (const int &v : adj[u])
+      if (!visited[v])
+      {
+        dist[v] = dist[u] + 1;
+        queue.push(v);
+      }
+  }
+
+  auto it = std::max_element(dist, dist + n);
+  int mxv = static_cast<int>(std::distance(dist, it));
+  std::memset(visited, false, sizeof(bool) * n);
+
+  dist[mxv] = 0;
+  queue.push(mxv);
+  while (!queue.empty())
+  {
+    int u = queue.front();
+    queue.pop();
+
+    visited[u] = true;
+    for (const int &v : adj[u])
+      if (!visited[v])
+      {
+        dist[v] = dist[u] + 1;
+        queue.push(v);
+      }
+  }
+
+  io::cout << *std::max_element(dist, dist + n) << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _TreeDiameter
 
 int main()
 {
@@ -368,27 +417,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _TreeDiameter::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

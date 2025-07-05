@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,7 +343,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _RemovalGame
 {
 
 auto run() -> void
@@ -350,14 +351,32 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  std::string grid[n];
+  int64_t x[n];
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+    io::cin >> x[i];
 
-  std::string res{};
+  // max diff from [i..j] inclusive
+  int64_t mxs[n][n];
+
+  for (int i = 0; i < n; i++)
+    mxs[i][i] = x[i];
+
+  for (int len = 2; len <= n; len++)
+    for (int i = 0; i + len <= n; i++)
+    {
+      int j     = i + len - 1;
+      mxs[i][j] = INT64_MIN;
+
+      mxs[i][j] = std::max(mxs[i][j], x[i] - mxs[i + 1][j]);
+      mxs[i][j] = std::max(mxs[i][j], x[j] - mxs[i][j - 1]);
+    }
+
+  int64_t tot = std::accumulate(x, x + n, 0LL);
+
+  io::cout << ((tot + mxs[0][n - 1]) / 2) << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _RemovalGame
 
 int main()
 {
@@ -368,27 +387,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _RemovalGame::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

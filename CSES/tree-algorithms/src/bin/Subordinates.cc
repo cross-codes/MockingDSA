@@ -342,7 +342,7 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _Subordinates
 {
 
 auto run() -> void
@@ -350,14 +350,42 @@ auto run() -> void
   int n;
   io::cin >> n;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  std::vector<int> adj[n];
 
-  std::string res{};
+  for (int i = 1; i <= n - 1; i++)
+  {
+    int p;
+    io::cin >> p;
+
+    adj[i].push_back(p - 1);
+    adj[p - 1].push_back(i);
+  }
+
+  bool visited[n];
+  std::memset(visited, 0x00, sizeof(bool) * n);
+
+  int subtree_size[n];
+  std::fill(subtree_size, subtree_size + n, 0);
+
+  auto dfs = [&visited, &adj, &subtree_size](auto &&dfs, int u) -> int {
+    visited[u] = true;
+
+    for (const int &v : adj[u])
+      if (!visited[v])
+        subtree_size[u] += dfs(dfs, v);
+
+    return 1 + subtree_size[u];
+  };
+
+  dfs(dfs, 0);
+
+  for (int e : subtree_size)
+    io::cout << e << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _Subordinates
 
 int main()
 {
@@ -368,27 +396,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _Subordinates::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

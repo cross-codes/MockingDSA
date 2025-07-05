@@ -12,7 +12,7 @@
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
-namespace IO
+namespace io
 {
 
 #ifndef BUFFER_SIZE
@@ -267,6 +267,13 @@ private:
   std::size_t idx = 0, size = 0;
   int const fd;
 
+  InputReader &operator>>(char &c) noexcept
+  {
+    flush();
+    c = buffer[idx++];
+    return *this;
+  }
+
 public:
   [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
   {
@@ -291,20 +298,13 @@ public:
     }
   }
 
-  InputReader &operator>>(char &c) noexcept
-  {
-    flush();
-    c = buffer[idx++];
-    return *this;
-  }
-
   InputReader &operator>>(std::string &x) noexcept
   {
     char c;
     while (*this >> c, c < ' ')
       continue;
     x = c;
-    while (*this >> c, c >= ' ')
+    while (*this >> c, c > ' ')
       x += c;
 
     return *this;
@@ -335,11 +335,12 @@ public:
     return *this;
   }
 };
-} // namespace IO
 
-IO::InputReader console_in(STDIN_FILENO);
-IO::OutputWriter console_out(STDOUT_FILENO);
-IO::OutputWriter console_err(STDERR_FILENO);
+InputReader cin(STDIN_FILENO);
+OutputWriter cout(STDOUT_FILENO);
+OutputWriter cerr(STDERR_FILENO);
+
+} // namespace io
 
 namespace _D
 {
@@ -347,20 +348,25 @@ namespace _D
 auto run() -> void
 {
   int N, W;
-  console_in >> N >> W;
+  io::cin >> N >> W;
 
-  int w[N + 1], v[N + 1];
-  int64_t f[W + 1];
+  int w[N], v[N];
+  for (int i = 0; i < N; i++)
+    io::cin >> w[i] >> v[i];
+
+  // max value using nothing out of the first i items and a sack of capacity j
+  int64_t f[N + 1][W + 1];
+  std::memset(f, 0x00, sizeof(f));
+
   for (int i = 1; i <= N; i++)
-    console_in >> w[i] >> v[i];
+    for (int j = 1; j <= W; j++)
+    {
+      f[i][j] = f[i - 1][j];
+      if (w[i - 1] <= j)
+        f[i][j] = std::max(f[i][j], f[i - 1][j - w[i - 1]] + v[i - 1]);
+    }
 
-  std::fill(f, f + W + 1, 0);
-
-  for (int i = 1; i <= N; i++)
-    for (int j = W; j >= w[i]; j--)
-      f[j] = std::max(f[j], f[j - w[i]] + v[i]);
-
-  console_out << f[W] << "\n";
+  io::cout << f[N][W] << "\n";
 }
 
 } // namespace _D
@@ -371,17 +377,16 @@ int main()
   FILE *stream = std::freopen("input.txt", "r", stdin);
   if (stream == nullptr)
   {
-    console_err << "Input file not found\n";
+    io::cerr << "Input file not found\n";
     __builtin_trap();
   }
 #endif
 
   int t{1};
-
   while (t-- > 0)
     _D::run();
 
-  console_out.flush();
+  io::cout.flush();
 
 #ifdef ANTUMBRA
   std::fclose(stdin);

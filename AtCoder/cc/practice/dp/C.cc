@@ -342,22 +342,36 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _C
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int N;
+  io::cin >> N;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  int a[N], b[N], c[N];
+  for (int i = 0; i < N; i++)
+    io::cin >> a[i] >> b[i] >> c[i];
 
-  std::string res{};
+  // max points gained by the end of i'th day doing task j
+  int mx[N + 1][3];
+  std::memset(mx, 0x00, sizeof(mx));
+  mx[1][0] = a[0];
+  mx[1][1] = b[0];
+  mx[1][2] = c[0];
+
+  for (int i = 2; i <= N; i++)
+  {
+    mx[i][0] = std::max(mx[i - 1][1], mx[i - 1][2]) + a[i - 1];
+    mx[i][1] = std::max(mx[i - 1][0], mx[i - 1][2]) + b[i - 1];
+    mx[i][2] = std::max(mx[i - 1][0], mx[i - 1][1]) + c[i - 1];
+  }
+
+  io::cout << std::max(mx[N][0], std::max(mx[N][1], mx[N][2]));
 }
 
-} // namespace _MinimalGridPath
+} // namespace _C
 
 int main()
 {
@@ -368,27 +382,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _C::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

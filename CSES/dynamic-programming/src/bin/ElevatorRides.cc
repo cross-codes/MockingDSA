@@ -342,22 +342,46 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _ElevatorRides
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, x;
+  io::cin >> n >> x;
 
-  std::string grid[n];
+  int w[n];
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+    io::cin >> w[i];
 
-  std::string res{};
+  std::pair<int, int> best[1 << n];
+  best[0] = {1, 0};
+
+  for (int s = 1; s < (1 << n); s++)
+  {
+    best[s] = {n + 1, 0};
+    for (int p = 0; p < n; p++)
+    {
+      if (s & (1 << p))
+      {
+        auto option = best[s ^ (1 << p)];
+        if (option.second + w[p] <= x)
+          option.second += w[p];
+        else
+        {
+          option.first += 1;
+          option.second = w[p];
+        }
+
+        best[s] = std::min(best[s], option);
+      }
+    }
+  }
+
+  io::cout << best[(1 << n) - 1].first << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _ElevatorRides
 
 int main()
 {
@@ -368,27 +392,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _ElevatorRides::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

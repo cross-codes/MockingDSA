@@ -387,9 +387,52 @@ auto run() -> void
   for (int e : dcc)
     distance[e] = 0;
 
+  int parents[n];
+  std::memset(parents, -1, sizeof(int) * n);
+
   for (int i = 0; i < n - 1; i++)
     for (const auto &[a, b, w] : edges)
-      distance[b] = std::min(distance[b], distance[a] + w);
+    {
+      if (distance[a] + w < distance[b])
+      {
+        distance[b] = distance[a] + w;
+        parents[b]  = a;
+      }
+    }
+
+  int cycle_v{-1};
+  for (const auto &[a, b, w] : edges)
+    if (distance[a] + w < distance[b])
+    {
+      distance[b] = distance[a] + w;
+      parents[b]  = a;
+      cycle_v     = b;
+    }
+
+  if (cycle_v == -1)
+  {
+    io::cout << "NO\n";
+    return;
+  }
+
+  io::cout << "YES\n";
+  for (int i = 0; i < n; i++)
+    cycle_v = parents[cycle_v];
+
+  std::vector<int> cycle{};
+  for (int v = cycle_v;; v = parents[v])
+  {
+    cycle.push_back(v);
+    if (v == cycle_v && cycle.size() > 1)
+      break;
+  }
+
+  std::reverse(cycle.begin(), cycle.end());
+
+  for (int v : cycle)
+    io::cout << v + 1 << " ";
+
+  io::cout << "\n";
 }
 
 } // namespace _CycleFinding
