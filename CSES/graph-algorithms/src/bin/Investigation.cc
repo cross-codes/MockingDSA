@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,46 +343,123 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _Investigation
 {
+
+constexpr int MOD = static_cast<int>(1e9 + 7);
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, m;
+  io::cin >> n >> m;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  std::vector<std::pair<int, int>> adj[n], adjT[n];
+  std::vector<std::tuple<int, int, int>> edges{};
+  for (int i = 0; i < m; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int a, b, c;
+    io::cin >> a >> b >> c;
+
+    adj[a - 1].emplace_back(b - 1, c);
+    adjT[b - 1].emplace_back(a - 1, c);
+    edges.emplace_back(a - 1, b - 1, c);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  std::priority_queue<std::pair<int64_t, int>> queue{};
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  bool processed[n];
+  std::memset(processed, false, sizeof(bool) * n);
+
+  int64_t dist1[n], distN[n];
+  std::fill(dist1, dist1 + n, INT64_MAX >> 2);
+  std::fill(distN, distN + n, INT64_MAX >> 2);
+
+  dist1[0] = 0;
+  queue.emplace(0, 0);
+  while (!queue.empty())
+  {
+    int a = queue.top().second;
+    queue.pop();
+
+    if (processed[a])
+      continue;
+
+    processed[a] = true;
+    for (const auto &[b, w] : adj[a])
+      if (dist1[b] > dist1[a] + w)
+      {
+        dist1[b] = dist1[a] + w;
+        queue.emplace(-dist1[b], b);
+      }
+  }
+
+  distN[n - 1] = 0;
+  std::memset(processed, false, sizeof(bool) * n);
+
+  queue.emplace(0, n - 1);
+  while (!queue.empty())
+  {
+    int a = queue.top().second;
+    queue.pop();
+
+    if (processed[a])
+      continue;
+
+    processed[a] = true;
+    for (const auto &[b, w] : adjT[a])
+      if (distN[b] > distN[a] + w)
+      {
+        distN[b] = distN[a] + w;
+        queue.emplace(-distN[b], b);
+      }
+  }
+
+  std::vector<std::pair<int, int>> adj_sub[n];
+  for (const auto &[a, b, w] : edges)
+    if (dist1[a] + w + distN[b] == dist1[n - 1])
+      adj_sub[a].emplace_back(b, w);
+
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  std::vector<int> order{};
+
+  auto dfs = [&adj_sub, &visited, &order](auto &&dfs, int u) -> void {
+    visited[u] = true;
+
+    for (const auto &[v, w] : adj_sub[u])
+      if (!visited[v])
+        dfs(dfs, v);
+
+    order.push_back(u);
+  };
+
+  for (int i = 0; i < n; i++)
+    if (!visited[i])
+      dfs(dfs, i);
+
+  std::reverse(order.begin(), order.end());
+
+  int64_t cnt[n], mnf[n], mxf[n];
+  std::memset(cnt, 0x00, sizeof(int64_t) * n);
+  std::fill(mnf, mnf + n, INT64_MAX >> 2);
+  std::fill(mxf, mxf + n, INT64_MIN >> 2);
+
+  cnt[0] = 1, mnf[0] = 0, mxf[0] = 0;
+  for (int u : order)
+  {
+    for (const auto &[v, w] : adj_sub[u])
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      cnt[v] = (cnt[v] + cnt[u]) % MOD;
+      mnf[v] = std::min(mnf[v], mnf[u] + 1);
+      mxf[v] = std::max(mxf[v], mxf[u] + 1);
     }
+  }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  io::cout.append<"% % % %\n">(dist1[n - 1], cnt[n - 1], mnf[n - 1],
+                               mxf[n - 1]);
 }
-
-} // namespace _E
+} // namespace _Investigation
 
 int main()
 {
@@ -396,7 +474,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _Investigation::run();
 
   io::cout.flush();
 

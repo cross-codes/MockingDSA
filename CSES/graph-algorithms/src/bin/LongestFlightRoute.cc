@@ -342,46 +342,80 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _LongestFlightRoute
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, m;
+  io::cin >> n >> m;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int a, b;
+    io::cin >> a >> b;
+    adj[a - 1].push_back(b - 1);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  std::vector<int> order{};
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-    {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
-    }
+  auto dfs = [&visited, &adj, &order](auto &&dfs, int u) -> void {
+    visited[u] = true;
+    for (const int &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+    order.push_back(u);
+  };
 
-  io::cout << mx << "\n";
+  dfs(dfs, 0);
+  if (!visited[n - 1])
+  {
+    io::cout << "IMPOSSIBLE\n";
+    return;
+  }
+
+  std::reverse(order.begin(), order.end());
+
+  int l[n], p[n];
+  std::memset(l, 0x00, sizeof(int) * n);
+  std::memset(p, -1, sizeof(int) * n);
+
+  int tpz = static_cast<int>(order.size());
+
+  for (int i = 0; i < tpz; i++)
+  {
+    int u = order[i];
+    for (const int &v : adj[u])
+      if (l[u] + 1 > l[v])
+      {
+        l[v] = l[u] + 1;
+        p[v] = u;
+      }
+  }
+
+  std::vector<int> path{};
+  int temp = n - 1;
+  while (temp != 0)
+  {
+    path.push_back(temp + 1);
+    temp = p[temp];
+  }
+  path.push_back(1);
+
+  int N = static_cast<int>(path.size());
+
+  io::cout << N << "\n";
+  for (int i = N - 1; i >= 0; i--)
+    io::cout << path[i] << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _LongestFlightRoute
 
 int main()
 {
@@ -396,7 +430,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _LongestFlightRoute::run();
 
   io::cout.flush();
 

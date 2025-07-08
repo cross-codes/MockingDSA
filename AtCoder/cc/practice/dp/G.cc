@@ -342,46 +342,56 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _G
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, m;
+  io::cin >> n >> m;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int u, v;
+    io::cin >> u >> v;
+
+    adj[u - 1].push_back(v - 1);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-    {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
-    }
+  std::vector<int> order{};
+  auto dfs = [&visited, &adj, &order](auto &&dfs, int u) -> void {
+    visited[u] = true;
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+    for (const auto &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
 
-  io::cout << mx << "\n";
+    order.push_back(u);
+  };
+
+  for (int i = 0; i < n; i++)
+    if (!visited[i])
+      dfs(dfs, i);
+
+  std::reverse(order.begin(), order.end());
+
+  int l[n];
+  std::memset(l, 0x00, sizeof(int) * n);
+
+  for (int u : order)
+  {
+    for (const int &v : adj[u])
+      l[v] = std::max(l[v], l[u] + 1);
+  }
+
+  io::cout << *std::max_element(l, l + n) << "\n";
 }
 
-} // namespace _E
+} // namespace _G
 
 int main()
 {
@@ -396,7 +406,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _G::run();
 
   io::cout.flush();
 

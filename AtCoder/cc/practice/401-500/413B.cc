@@ -9,6 +9,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,46 +343,32 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _413B
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n;
+  io::cin >> n;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
-  {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
-  }
+  std::string a[n];
+  for (int i = 0; i < n; i++)
+    io::cin >> a[i];
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
-
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  std::unordered_set<std::string> set{};
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      if (i == j)
+        continue;
+
+      set.insert(a[i] + a[j]);
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  io::cout << set.size() << "\n";
 }
 
-} // namespace _E
+} // namespace _413B
 
 int main()
 {
@@ -396,7 +383,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _413B::run();
 
   io::cout.flush();
 

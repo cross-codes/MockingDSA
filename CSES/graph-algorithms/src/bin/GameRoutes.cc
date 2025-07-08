@@ -342,46 +342,63 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _GameRoutes
 {
+
+constexpr int64_t MOD{static_cast<int64_t>(1e9 + 7)};
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, m;
+  io::cin >> n >> m;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  std::vector<int> adj[n];
+  for (int i = 0; i < m; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int a, b;
+    io::cin >> a >> b;
+
+    adj[a - 1].push_back(b - 1);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  std::vector<int> order{};
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+
+  auto dfs = [&order, &adj, &visited](auto &&dfs, int u) -> void {
+    visited[u] = true;
+
+    for (const int &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
+
+    order.push_back(u);
+  };
+
+  dfs(dfs, 0);
+  std::reverse(order.begin(), order.end());
+
+  int tpz = static_cast<int>(order.size());
+
+  int64_t ways[n];
+  std::memset(ways, 0x00, sizeof(int64_t) * n);
+  ways[0] = 1;
+
+  for (int i = 0; i < tpz; i++)
+  {
+    int u = order[i];
+    for (const auto &v : adj[u])
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      ways[v] += ways[u];
+      ways[v] %= MOD;
     }
+  }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  io::cout << ways[n - 1] << "\n";
 }
 
-} // namespace _E
+} // namespace _GameRoutes
 
 int main()
 {
@@ -396,7 +413,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _GameRoutes::run();
 
   io::cout.flush();
 

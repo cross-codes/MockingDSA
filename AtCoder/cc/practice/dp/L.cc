@@ -342,46 +342,34 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _L
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int N;
+  io::cin >> N;
 
-  int w[N], v[N];
+  int a[N];
   for (int i = 0; i < N; i++)
-  {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
-  }
+    io::cin >> a[i];
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
+  // optimal difference for range [i..j] inclusive
+  int64_t diff[N][N];
   for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+    diff[i][i] = a[i];
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  for (int len = 2; len <= N; len++)
+    for (int i = 0; i + len <= N; i++)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      int j      = i + len - 1;
+      diff[i][j] = std::max(a[i] - diff[i + 1][j], a[j] - diff[i][j - 1]);
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  io::cout << diff[0][N - 1] << "\n";
 }
 
-} // namespace _E
+} // namespace _L
 
 int main()
 {
@@ -396,7 +384,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _L::run();
 
   io::cout.flush();
 

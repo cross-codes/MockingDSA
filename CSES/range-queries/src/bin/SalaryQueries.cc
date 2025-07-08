@@ -4,6 +4,9 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <ext/rope>
 #include <fcntl.h>
 #include <string>
 #include <string_view>
@@ -342,46 +345,56 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _SalaryQueries
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, q;
+  io::cin >> n >> q;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  int cnt{};
+  std::pair<int, int> p[n];
+  for (int i = 0; i < n; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int num;
+    io::cin >> num;
+    p[i] = std::make_pair(num, cnt++);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  __gnu_pbds::tree<std::pair<int, int>, __gnu_pbds::null_type, std::less<>,
+                   __gnu_pbds::rb_tree_tag,
+                   __gnu_pbds::tree_order_statistics_node_update>
+      ost(p, p + n);
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  while (q-- > 0)
+  {
+    std::string query;
+    io::cin >> query;
+
+    if (query == "?")
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      int a, b;
+      io::cin >> a >> b;
+
+      auto nh = ost.order_of_key({b, INT_MAX});
+      auto nl = ost.order_of_key({a, INT_MIN});
+      io::cout << nh - nl << "\n";
     }
+    else
+    {
+      int k, x;
+      io::cin >> k >> x;
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+      auto [old, mark] = p[k - 1];
+      ost.erase({old, mark});
+      p[k - 1] = std::make_pair(x, cnt++);
+      ost.insert(p[k - 1]);
+    }
+  }
 }
 
-} // namespace _E
+} // namespace _SalaryQueries
 
 int main()
 {
@@ -396,7 +409,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _SalaryQueries::run();
 
   io::cout.flush();
 

@@ -342,46 +342,75 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _402E
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n;
+  io::cin >> n;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
-  {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
-  }
+  std::vector<int> adj[n], adjT[n];
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
-
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  for (int y = 0; y < n; y++)
+    for (int x = 0; x < n; x++)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      int a;
+      io::cin >> a;
+      if (a > 0 && y != x)
+      {
+        adj[y].push_back(x);
+        adjT[x].push_back(y);
+      }
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
 
-  io::cout << mx << "\n";
+  std::vector<int> order{};
+
+  auto dfs = [&adj, &visited, &order](auto &&dfs, int u) -> void {
+    visited[u] = true;
+
+    for (const int &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
+
+    order.push_back(u);
+  };
+
+  for (int i = 0; i < n; i++)
+    if (!visited[i])
+      dfs(dfs, i);
+
+  std::reverse(order.begin(), order.end());
+  std::memset(visited, false, sizeof(bool) * n);
+
+  auto dfsT = [&adjT, &visited](auto &&dfsT, int u) -> void {
+    visited[u] = true;
+
+    for (const int &v : adjT[u])
+      if (!visited[v])
+        dfsT(dfsT, v);
+  };
+
+  int scc{};
+  for (int u : order)
+  {
+    if (!visited[u])
+    {
+      dfsT(dfsT, u);
+      scc += 1;
+    }
+  }
+
+  if (scc == 1)
+    io::cout << "YES\n";
+  else
+    io::cout << "NO\n";
 }
 
-} // namespace _E
+} // namespace _402E
 
 int main()
 {
@@ -396,7 +425,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _402E::run();
 
   io::cout.flush();
 

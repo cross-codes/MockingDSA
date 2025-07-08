@@ -342,46 +342,52 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _PlanetsQueriesI
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, q;
+  io::cin >> n >> q;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  int f[n];
+  for (int i = 0; i < n; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    io::cin >> f[i];
+    f[i] -= 1;
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  // succ(n, 2^x);
+  int succ[n][31];
+  for (int i = 0; i < n; i++)
+    succ[i][0] = i;
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  for (int i = 0; i < n; i++)
+    succ[i][1] = f[i];
+
+  for (int x = 2; x < 31; x++)
+    for (int i = 0; i < n; i++)
+      succ[i][x] = succ[succ[i][x - 1]][x - 1];
+
+  while (q-- > 0)
+  {
+    int x, k;
+    io::cin >> x >> k;
+
+    x -= 1;
+    int cur_pos{x};
+    while (k != 0)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      int pos = __builtin_ctz(k);
+      cur_pos = succ[cur_pos][pos + 1];
+      k &= (k - 1);
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+    io::cout << cur_pos + 1 << "\n";
+  }
 }
 
-} // namespace _E
+} // namespace _PlanetsQueriesI
 
 int main()
 {
@@ -396,7 +402,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _PlanetsQueriesI::run();
 
   io::cout.flush();
 

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,46 +343,60 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _J
 {
+
+std::string precise_str(long double value, int precision = 10)
+{
+  std::ostringstream oss;
+  oss.precision(precision);
+  oss << std::fixed << value;
+  return oss.str();
+}
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int N;
+  io::cin >> N;
 
-  int w[N], v[N];
+  // number of plates having 1, 2, 3 sushis
+  std::array<int, 3> types{};
   for (int i = 0; i < N; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int a;
+    io::cin >> a;
+    types[a - 1] += 1;
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  // exp. number of additional dice needed to reach the state where all sushi
+  // are eaten, when there are i plates with 1, j plates with 2 and k plates
+  // with 3
+  double exp[500][500][500]{};
+  std::memset(exp, -1, sizeof(exp));
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-    {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
-    }
+  auto dfs = [&exp, &N](auto &&dfs, int i, int j, int k) -> double {
+    if (exp[i][j][k] >= 0.0)
+      return exp[i][j][k];
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+    if (i == 0 && j == 0 && k == 0)
+      return 0.0;
 
-  io::cout << mx << "\n";
+    double expected = static_cast<double>(N);
+    if (i > 0)
+      expected += dfs(dfs, i - 1, j, k) * i;
+    if (j > 0)
+      expected += dfs(dfs, i + 1, j - 1, k) * j;
+    if (k > 0)
+      expected += dfs(dfs, i, j + 1, k - 1) * k;
+
+    expected /= (i + j + k);
+    return exp[i][j][k] = expected;
+  };
+
+  io::cout << precise_str(dfs(dfs, types[0], types[1], types[2]), 10) << "\n";
 }
 
-} // namespace _E
+} // namespace _J
 
 int main()
 {
@@ -396,7 +411,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _J::run();
 
   io::cout.flush();
 

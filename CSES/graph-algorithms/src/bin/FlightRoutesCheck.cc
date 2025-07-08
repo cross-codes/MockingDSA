@@ -342,46 +342,73 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _FlightRoutesCheck
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n, m;
+  io::cin >> n >> m;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  std::vector<int> adj[n], adjT[n];
+  for (int i = 0; i < m; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int a, b;
+    io::cin >> a >> b;
+    adj[a - 1].push_back(b - 1);
+    adjT[b - 1].push_back(a - 1);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  std::vector<int> order{};
+
+  auto dfs = [&visited, &order, &adj](auto &&dfs, int u) -> void {
+    visited[u] = true;
+    for (const int &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
+
+    order.push_back(u);
+  };
+
+  for (int i = 0; i < n; i++)
+    if (!visited[i])
+      dfs(dfs, i);
+
+  std::reverse(order.begin(), order.end());
+
+  std::memset(visited, false, sizeof(bool) * n);
+
+  auto dfsT = [&adjT, &visited](auto &&dfsT, int u) -> void {
+    visited[u] = true;
+
+    for (const int &v : adjT[u])
+      if (!visited[v])
+        dfsT(dfsT, v);
+  };
+
+  int scc{}, v1{order[0]}, v2{-1};
+  for (int u : order)
+  {
+    if (!visited[u])
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      if (scc == 1)
+        v2 = u;
+
+      scc += 1;
+      dfsT(dfsT, u);
     }
+  }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  if (scc == 1)
+    io::cout << "YES\n";
+  else
+    io::cout.append<"NO\n% %\n">(v2 + 1, v1 + 1);
 }
 
-} // namespace _E
+} // namespace _FlightRoutesCheck
 
 int main()
 {
@@ -396,7 +423,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _FlightRoutesCheck::run();
 
   io::cout.flush();
 

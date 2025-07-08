@@ -1,27 +1,39 @@
 #include <algorithm>
-#include <map>
+#include <climits>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  int threeSumClosest(std::vector<int> &nums, int target) {
-    std::size_t n = nums.size();
+  int threeSumClosest(std::vector<int> &nums, int target)
+  {
+    int n = static_cast<int>(nums.size());
     std::sort(nums.begin(), nums.end());
-    std::map<int, bool> sumToSign{};
 
-    for (std::size_t i = 0; i < n; i++) {
-      if (i > 0 && nums[i] == nums[i - 1])
-        continue;
+    int mn_diff{INT_MAX}, best{};
+    for (int i = 0; i < n; i++)
+    {
+      int l{i + 1}, r{n - 1};
+      while (l < r)
+      {
+        int nsum{nums[l] + nums[r]};
+        int absdiff = std::abs(target - (nsum + nums[i]));
 
-      for (std::size_t j = i + 1; j < n; j++) {
-        for (std::size_t k = j + 1; k < n; k++) {
-          int sum = nums[i] + (nums[j] + nums[k]);
-          sumToSign[std::abs(sum - target)] = sum >= target;
+        if (absdiff < mn_diff)
+        {
+          mn_diff = absdiff;
+          best    = nsum + nums[i];
         }
+
+        if (nsum + nums[i] < target)
+          l += 1;
+        else if (nsum + nums[i] > target)
+          r -= 1;
+        else
+          return nsum + nums[i];
       }
     }
 
-    auto it = sumToSign.begin();
-    return (it->second) ? (it->first) + target : -(it->first) + target;
+    return best;
   }
 };

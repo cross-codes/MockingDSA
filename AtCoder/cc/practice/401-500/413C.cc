@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,20 +343,52 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _413C
 {
 
 auto run() -> void
 {
-  int N, W;
-  io::cin >> N >> W;
+  std::queue<std::pair<int, int>> queue{};
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
-    io::cin >> w[i] >> v[i];
+  int q;
+  io::cin >> q;
+
+  while (q-- > 0)
+  {
+    int type;
+    io::cin >> type;
+    if (type == 1)
+    {
+      int c, x;
+      io::cin >> c >> x;
+
+      queue.emplace(c, x);
+    }
+    else
+    {
+      int64_t k;
+      io::cin >> k;
+
+      int64_t res{};
+      while (!queue.empty() && queue.front().first <= k)
+      {
+        res += static_cast<int64_t>(queue.front().first) * queue.front().second;
+        k -= queue.front().first;
+        queue.pop();
+      }
+
+      if (k > 0)
+      {
+        res += static_cast<int64_t>(queue.front().second) * k;
+        queue.front().first -= k;
+      }
+
+      io::cout << res << "\n";
+    }
+  }
 }
 
-} // namespace _E
+} // namespace _413C
 
 int main()
 {
@@ -370,7 +403,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _413C::run();
 
   io::cout.flush();
 

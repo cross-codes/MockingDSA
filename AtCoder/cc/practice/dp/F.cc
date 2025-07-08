@@ -342,46 +342,66 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _F
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  std::string s, t;
+  io::cin >> s >> t;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
-  {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
-  }
+  int n = static_cast<int>(s.size());
+  int m = static_cast<int>(t.size());
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  int l[n + 1][m + 1];
+  std::pair<int, int> p[n + 1][m + 1];
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  for (int y = 0; y <= n; y++)
+    l[y][0] = 0;
+
+  for (int x = 0; x <= m; x++)
+    l[0][x] = 0;
+
+  for (int y = 1; y <= n; y++)
+    for (int x = 1; x <= m; x++)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      if (s[y - 1] == t[x - 1])
+      {
+        l[y][x] = l[y - 1][x - 1] + 1;
+        p[y][x] = {y - 1, x - 1};
+      }
+      else
+      {
+        if (l[y - 1][x] > l[y][x - 1])
+        {
+          l[y][x] = l[y - 1][x];
+          p[y][x] = {y - 1, x};
+        }
+        else
+        {
+          l[y][x] = l[y][x - 1];
+          p[y][x] = {y, x - 1};
+        }
+      }
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+  std::string cs{};
+  int cy{n}, cx{m};
+  while (cy != 0 || cx != 0)
+  {
+    auto [ny, nx] = p[cy][cx];
+    if (ny == cy - 1 && nx == cx - 1)
+      cs.push_back(s[cy - 1]);
 
-  io::cout << mx << "\n";
+    cy = ny;
+    cx = nx;
+  }
+
+  std::reverse(cs.begin(), cs.end());
+  io::cout << cs << "\n";
 }
 
-} // namespace _E
+} // namespace _F
 
 int main()
 {
@@ -396,7 +416,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _F::run();
 
   io::cout.flush();
 

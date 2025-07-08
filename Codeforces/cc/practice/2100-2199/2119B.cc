@@ -342,46 +342,36 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _2119B
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n;
+  io::cin >> n;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  int64_t px, py, qx, qy;
+  io::cin >> px >> py >> qx >> qy;
+
+  int64_t delta = (qx - px) * (qx - px) + (qy - py) * (qy - py);
+
+  int64_t sum{}, mx{};
+  for (int i = 0; i < n; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    int64_t dist;
+    io::cin >> dist;
+    sum += dist;
+    mx = std::max(mx, dist);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
-
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-    {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
-    }
-
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  int64_t low = std::max(0LL, mx - (sum - mx));
+  if (low * low <= delta && delta <= sum * sum)
+    io::cout << "Yes\n";
+  else
+    io::cout << "No\n";
 }
 
-} // namespace _E
+} // namespace _2119B
 
 int main()
 {
@@ -395,8 +385,9 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
   while (t-- > 0)
-    _E::run();
+    _2119B::run();
 
   io::cout.flush();
 

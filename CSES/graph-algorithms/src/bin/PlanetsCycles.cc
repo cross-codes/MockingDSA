@@ -9,6 +9,7 @@
 #include <string_view>
 #include <type_traits>
 #include <unistd.h>
+#include <unordered_map>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -342,46 +343,80 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _PlanetsCycles
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int n;
+  io::cin >> n;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  int succ[n];
+  for (int i = 0; i < n; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    io::cin >> succ[i];
+    succ[i] -= 1;
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  int res[n];
+  std::memset(res, -1, sizeof(int) * n);
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  auto set_res = [&res, &succ](int u) -> void {
+    int curr{u}, ptr{};
+    std::vector<int> visit{};
+    std::unordered_map<int, int> idx{};
+
+    visit.push_back(u);
+    idx[u] = ptr++;
+    curr   = succ[curr];
+
+    while (true)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      if (res[curr] != -1)
+      {
+        int len = res[curr], acc{1};
+        for (int i = ptr - 1; i >= 0; i--)
+        {
+          res[visit[i]] = len + acc;
+          acc += 1;
+        }
+        break;
+      }
+      else if (idx.contains(curr))
+      {
+        int cs = curr, sidx = idx[cs], len{ptr - sidx};
+        for (int i = sidx; i < ptr; i++)
+          res[visit[i]] = len;
+
+        int acc{1};
+        for (int i = sidx - 1; i >= 0; i--)
+        {
+          res[visit[i]] = len + acc;
+          acc += 1;
+        }
+
+        break;
+      }
+      else
+      {
+        visit.push_back(curr);
+        idx[curr] = ptr++;
+        curr      = succ[curr];
+      }
     }
+  };
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+  for (int i = 0; i < n; i++)
+    if (res[i] == -1)
+      set_res(i);
 
-  io::cout << mx << "\n";
+  for (int e : res)
+    io::cout << e << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _PlanetsCycles
 
 int main()
 {
@@ -396,7 +431,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _PlanetsCycles::run();
 
   io::cout.flush();
 

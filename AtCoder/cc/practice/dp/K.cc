@@ -342,46 +342,56 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _K
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int N, K;
+  io::cin >> N >> K;
 
-  int w[N], v[N];
+  int a[N];
   for (int i = 0; i < N; i++)
-  {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
-  }
+    io::cin >> a[i];
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  // winner of the game with player i having to make a move on j remaining
+  // stones
+  int winner[2][K + 1];
+  std::memset(winner, -1, sizeof(winner));
 
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+  winner[0][0] = 1;
+  winner[1][0] = 0;
+
+  for (int stone = 1; stone <= K; stone++)
+    for (int player = 0; player < 2; player++)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      if (player == 1)
+      {
+        int value = 0;
+        for (int i = 0; i < N; i++)
+          if (a[i] <= stone)
+            value = std::max(value, winner[0][stone - a[i]]);
+
+        winner[1][stone] = value;
+      }
+      else
+      {
+        int value = 1;
+        for (int i = 0; i < N; i++)
+          if (a[i] <= stone)
+            value = std::min(value, winner[1][stone - a[i]]);
+
+        winner[0][stone] = value;
+      }
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
-
-  io::cout << mx << "\n";
+  if (winner[0][K])
+    io::cout << "Second\n";
+  else
+    io::cout << "First\n";
 }
 
-} // namespace _E
+} // namespace _K
 
 int main()
 {
@@ -396,7 +406,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _K::run();
 
   io::cout.flush();
 

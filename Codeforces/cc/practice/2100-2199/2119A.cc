@@ -342,46 +342,53 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _2119A
 {
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int a, b, x, y;
+  io::cin >> a >> b >> x >> y;
 
-  int w[N], v[N];
-  for (int i = 0; i < N; i++)
+  if (a > b)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
-  }
-
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
-
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
+    if (!(a & 1) || a > b + 1)
     {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+      io::cout << "-1\n";
+      return;
     }
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+    io::cout << y << "\n";
+    return;
+  }
 
-  io::cout << mx << "\n";
+  if (x < y)
+    io::cout << static_cast<int64_t>(x) * (b - a) << "\n";
+  else
+  {
+    if (a & 1)
+    {
+      int splity   = (b - a) >> 1;
+      int splitx   = (b - a) - splity;
+
+      int64_t cost = (splitx * static_cast<int64_t>(x)) +
+                     (static_cast<int64_t>(splity) * y);
+
+      io::cout << cost << "\n";
+    }
+    else
+    {
+      int splitx   = (b - a) >> 1;
+      int splity   = (b - a) - splitx;
+      int64_t cost = (splitx * static_cast<int64_t>(x)) +
+                     (static_cast<int64_t>(splity) * y);
+
+      io::cout << cost << "\n";
+    }
+  }
 }
 
-} // namespace _E
+} // namespace _2119A
 
 int main()
 {
@@ -395,8 +402,9 @@ int main()
 #endif
 
   int t{1};
+  io::cin >> t;
   while (t-- > 0)
-    _E::run();
+    _2119A::run();
 
   io::cout.flush();
 

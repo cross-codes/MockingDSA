@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -342,46 +343,56 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _E
+namespace _I
 {
+
+std::string precise_str(long double value, int precision = 10)
+{
+  std::ostringstream oss;
+  oss.precision(precision);
+  oss << std::fixed << value;
+  return oss.str();
+}
 
 auto run() -> void
 {
-  int N, W, V{};
-  io::cin >> N >> W;
+  int N;
+  io::cin >> N;
 
-  int w[N], v[N];
+  long double p[N];
   for (int i = 0; i < N; i++)
   {
-    io::cin >> w[i] >> v[i];
-    V += v[i];
+    std::string prob;
+    io::cin >> prob;
+    p[i] = std::stold(prob);
   }
 
-  // min sum of weights using first i items and a value j
-  int64_t mn[N + 1][V + 1];
-  std::memset(mn, 0x3f, sizeof(mn));
-  for (int i = 0; i < N; i++)
-    mn[i][0] = 0;
+  // probability of having i heads in the first j tosses
+  long double prob[N + 1][N + 1];
+  for (int y = 0; y <= N; y++)
+    for (int x = 0; x <= N; x++)
+      prob[y][x] = 0.00L;
+
+  prob[0][0] = 1.00L;
+  for (int y = 1; y <= N; y++)
+    prob[y][0] = 0.00L;
+
+  for (int x = 1; x <= N; x++)
+    prob[0][x] = prob[0][x - 1] * (1 - p[x - 1]);
 
   for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-    {
-      if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
-    }
+    for (int j = 1; j <= N; j++)
+      prob[i][j] =
+          (prob[i][j - 1] * (1 - p[j - 1])) + (prob[i - 1][j - 1] * p[j - 1]);
 
-  int mx{};
-  for (int i = 1; i <= N; i++)
-    for (int j = 1; j <= V; j++)
-      if (mn[i][j] <= W)
-        mx = std::max(mx, j);
+  long double res{};
+  for (int x = (N >> 1) + 1; x <= N; x++)
+    res += prob[x][N];
 
-  io::cout << mx << "\n";
+  io::cout << precise_str(res, 10) << "\n";
 }
 
-} // namespace _E
+} // namespace _I
 
 int main()
 {
@@ -396,7 +407,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _I::run();
 
   io::cout.flush();
 
