@@ -1,12 +1,12 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <deque>
 #include <fcntl.h>
+#include <functional>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -344,67 +344,91 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _MountainRange
 {
+
+template <typename T> struct IdempotentSparseTable
+{
+private:
+  std::function<T(const T &, const T &)> function_;
+  std::vector<std::vector<T>> table;
+
+public:
+  IdempotentSparseTable(std::function<T(const T &, const T &)> func, T array[],
+                        std::size_t n)
+      : function_(func)
+  {
+    std::size_t K = std::__lg(n);
+
+    table.resize(K + 1, std::vector<T>(n));
+    std::copy(array, array + n, table[0].begin());
+
+    for (std::size_t y = 1; y < table.size(); y++)
+      for (std::size_t x = 0, k = 1 << (y - 1); x <= n - (1 << y); x++, k++)
+        table[y][x] = function_(table[y - 1][x], table[y - 1][k]);
+  }
+
+  T query_range(std::size_t from_idx, std::size_t past_end_idx)
+  {
+    std::size_t row = std::__lg(past_end_idx - from_idx);
+    return function_(table[row][from_idx],
+                     table[row][past_end_idx - (1 << row)]);
+  }
+};
 
 auto run() -> void
 {
   int n;
   io::cin >> n;
 
-  std::string grid[n];
+  int h[n], h_rev[n];
   for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
-
-  std::string res{};
-
-  std::deque<std::pair<int, int>> greedy_queue{};
-  greedy_queue.emplace_back(0, 0);
-
-  bool visited[n][n];
-  std::memset(visited, false, sizeof(visited));
-  visited[0][0] = true;
-
-  while (!greedy_queue.empty())
   {
-    int initial_size = static_cast<int>(greedy_queue.size());
-
-    char mnq{CHAR_MAX};
-    for (auto it = greedy_queue.begin(); it != greedy_queue.end(); it++)
-    {
-      const auto &[y, x] = *it;
-      mnq                = std::min(grid[y][x], mnq);
-    }
-
-    res.push_back(mnq);
-
-    while (initial_size--)
-    {
-      auto [y, x] = greedy_queue.front();
-      greedy_queue.pop_front();
-      char c = grid[y][x];
-
-      if (c == mnq)
-      {
-        if (y + 1 < n && !visited[y + 1][x])
-        {
-          visited[y + 1][x] = true;
-          greedy_queue.emplace_back(y + 1, x);
-        }
-
-        if (x + 1 < n && !visited[y][x + 1])
-        {
-          visited[y][x + 1] = true;
-          greedy_queue.emplace_back(y, x + 1);
-        }
-      }
-    }
+    io::cin >> h[i];
+    h_rev[n - i - 1] = h[i];
   }
 
-  io::cout << res << "\n";
+  auto MAX_SELECT = [](const int &a, const int &b) -> int {
+    return std::max(a, b);
+  };
+
+  IdempotentSparseTable<int> table(MAX_SELECT, h, n);
+  IdempotentSparseTable<int> table_rev(MAX_SELECT, h_rev, n);
+
+  auto pred = [](IdempotentSparseTable<int> &table, int begin, int end,
+                 int target) -> bool {
+    return table.query_range(begin, end + 1) >= target;
+  };
+
+  auto extent = [&n, &pred](IdempotentSparseTable<int> &table, int begin,
+                            int h) -> int {
+    int L{begin}, R{n};
+    while (R - L > 1)
+    {
+      int M                              = std::midpoint(L, R);
+      (pred(table, begin, M, h) ? R : L) = M;
+    }
+
+    return L - begin + 1;
+  };
+
+  int mx{};
+  for (int i = 0; i < n - 1; i++)
+  {
+    int height = h[i];
+    mx         = std::max(mx, extent(table, i + 1, height));
+  }
+
+  for (int i = 0; i < n; i++)
+  {
+    int height = h_rev[i];
+    mx         = std::max(mx, extent(table_rev, i + 1, height));
+  }
+
+  io::cout << mx << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _MountainRange
 
 int main()
 {
@@ -415,27 +439,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _MountainRange::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

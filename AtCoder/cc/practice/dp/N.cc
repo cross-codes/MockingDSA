@@ -1,11 +1,9 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <deque>
 #include <fcntl.h>
 #include <string>
 #include <string_view>
@@ -344,67 +342,44 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _N
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int N;
+  io::cin >> N;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  int a[N];
+  for (int i = 0; i < N; i++)
+    io::cin >> a[i];
 
-  std::string res{};
+  // minimum cost of merging [i..j] inclusive
+  int64_t mn[N][N];
 
-  std::deque<std::pair<int, int>> greedy_queue{};
-  greedy_queue.emplace_back(0, 0);
+  int64_t prefix[N + 1];
+  prefix[0] = 0;
+  for (int i = 1; i <= N; i++)
+    prefix[i] = prefix[i - 1] + a[i - 1];
 
-  bool visited[n][n];
-  std::memset(visited, false, sizeof(visited));
-  visited[0][0] = true;
+  for (int i = 0; i < N; i++)
+    mn[i][i] = 0;
 
-  while (!greedy_queue.empty())
-  {
-    int initial_size = static_cast<int>(greedy_queue.size());
-
-    char mnq{CHAR_MAX};
-    for (auto it = greedy_queue.begin(); it != greedy_queue.end(); it++)
+  for (int len = 2; len <= N; len++)
+    for (int i = 0; i + len <= N; i++)
     {
-      const auto &[y, x] = *it;
-      mnq                = std::min(grid[y][x], mnq);
+      int j    = i + len - 1;
+      mn[i][j] = INT64_MAX;
+
+      for (int k = i; k < j; k++)
+        mn[i][j] = std::min(mn[i][j], mn[i][k] + mn[k + 1][j] + prefix[j + 1] -
+                                          prefix[i]);
     }
 
-    res.push_back(mnq);
-
-    while (initial_size--)
-    {
-      auto [y, x] = greedy_queue.front();
-      greedy_queue.pop_front();
-      char c = grid[y][x];
-
-      if (c == mnq)
-      {
-        if (y + 1 < n && !visited[y + 1][x])
-        {
-          visited[y + 1][x] = true;
-          greedy_queue.emplace_back(y + 1, x);
-        }
-
-        if (x + 1 < n && !visited[y][x + 1])
-        {
-          visited[y][x + 1] = true;
-          greedy_queue.emplace_back(y, x + 1);
-        }
-      }
-    }
-  }
-
-  io::cout << res << "\n";
+  io::cout << mn[0][N - 1] << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _N
 
 int main()
 {
@@ -415,27 +390,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _N::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

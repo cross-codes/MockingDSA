@@ -1,11 +1,9 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <deque>
 #include <fcntl.h>
 #include <string>
 #include <string_view>
@@ -344,67 +342,41 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _M
 {
+
+constexpr int64_t MOD = static_cast<int64_t>(1e9 + 7);
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int N, K;
+  io::cin >> N >> K;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  int a[N];
+  for (int i = 0; i < N; i++)
+    io::cin >> a[i];
 
-  std::string res{};
+  // ways to feed first i children with j remaining candies
+  int64_t ways[N + 1][K + 1];
+  std::memset(ways, 0x00, sizeof(ways));
+  ways[0][0] = 1;
 
-  std::deque<std::pair<int, int>> greedy_queue{};
-  greedy_queue.emplace_back(0, 0);
-
-  bool visited[n][n];
-  std::memset(visited, false, sizeof(visited));
-  visited[0][0] = true;
-
-  while (!greedy_queue.empty())
+  for (int i = 1; i <= N; i++)
   {
-    int initial_size = static_cast<int>(greedy_queue.size());
+    int64_t prefix[K + 2];
+    prefix[0] = 0;
+    for (int j = 1; j <= K + 1; j++)
+      prefix[j] = (prefix[j - 1] + ways[i - 1][j - 1]) % MOD;
 
-    char mnq{CHAR_MAX};
-    for (auto it = greedy_queue.begin(); it != greedy_queue.end(); it++)
-    {
-      const auto &[y, x] = *it;
-      mnq                = std::min(grid[y][x], mnq);
-    }
-
-    res.push_back(mnq);
-
-    while (initial_size--)
-    {
-      auto [y, x] = greedy_queue.front();
-      greedy_queue.pop_front();
-      char c = grid[y][x];
-
-      if (c == mnq)
-      {
-        if (y + 1 < n && !visited[y + 1][x])
-        {
-          visited[y + 1][x] = true;
-          greedy_queue.emplace_back(y + 1, x);
-        }
-
-        if (x + 1 < n && !visited[y][x + 1])
-        {
-          visited[y][x + 1] = true;
-          greedy_queue.emplace_back(y, x + 1);
-        }
-      }
-    }
+    for (int j = 0; j <= K; j++)
+      ways[i][j] =
+          (prefix[j + 1] - prefix[j - std::min(j, a[i - 1])] + MOD) % MOD;
   }
 
-  io::cout << res << "\n";
+  io::cout << ways[N][K] % MOD << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _M
 
 int main()
 {
@@ -415,27 +387,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _M::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

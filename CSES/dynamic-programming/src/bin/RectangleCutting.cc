@@ -1,11 +1,9 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <deque>
 #include <fcntl.h>
 #include <string>
 #include <string_view>
@@ -344,67 +342,41 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _RectangleCutting
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int a, b;
+  io::cin >> a >> b;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
+  // min_moves to cut i x j into a square (y x x)
+  int64_t mn[a + 1][b + 1];
+  std::memset(mn, 0x3f, sizeof(mn));
 
-  std::string res{};
+  for (int i = 1; i <= std::min(a, b); i++)
+    mn[i][i] = 0;
 
-  std::deque<std::pair<int, int>> greedy_queue{};
-  greedy_queue.emplace_back(0, 0);
+  for (int x = 2; x <= b; x++)
+    mn[1][x] = x - 1;
 
-  bool visited[n][n];
-  std::memset(visited, false, sizeof(visited));
-  visited[0][0] = true;
+  for (int y = 2; y <= a; y++)
+    mn[y][1] = y - 1;
 
-  while (!greedy_queue.empty())
-  {
-    int initial_size = static_cast<int>(greedy_queue.size());
-
-    char mnq{CHAR_MAX};
-    for (auto it = greedy_queue.begin(); it != greedy_queue.end(); it++)
+  for (int y = 2; y <= a; y++)
+    for (int x = 2; x <= b; x++)
     {
-      const auto &[y, x] = *it;
-      mnq                = std::min(grid[y][x], mnq);
+      for (int i = 1; i <= (y >> 1); i++)
+        mn[y][x] = std::min(mn[y][x], 1 + mn[y - i][x] + mn[i][x]);
+
+      for (int i = 1; i <= (x >> 1); i++)
+        mn[y][x] = std::min(mn[y][x], 1 + mn[y][x - i] + mn[y][i]);
     }
 
-    res.push_back(mnq);
-
-    while (initial_size--)
-    {
-      auto [y, x] = greedy_queue.front();
-      greedy_queue.pop_front();
-      char c = grid[y][x];
-
-      if (c == mnq)
-      {
-        if (y + 1 < n && !visited[y + 1][x])
-        {
-          visited[y + 1][x] = true;
-          greedy_queue.emplace_back(y + 1, x);
-        }
-
-        if (x + 1 < n && !visited[y][x + 1])
-        {
-          visited[y][x + 1] = true;
-          greedy_queue.emplace_back(y, x + 1);
-        }
-      }
-    }
-  }
-
-  io::cout << res << "\n";
+  io::cout << mn[a][b] << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _RectangleCutting
 
 int main()
 {
@@ -415,27 +387,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _RectangleCutting::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 

@@ -1,12 +1,11 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>
 #include <cassert>
-#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <deque>
 #include <fcntl.h>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -344,67 +343,78 @@ OutputWriter cerr(STDERR_FILENO);
 
 } // namespace io
 
-namespace _MinimalGridPath
+namespace _PlanetsAndKingdoms
 {
 
 auto run() -> void
 {
-  int n;
-  io::cin >> n;
+  int n, m;
+  io::cin >> n >> m;
 
-  std::string grid[n];
-  for (int i = 0; i < n; i++)
-    io::cin >> grid[i];
-
-  std::string res{};
-
-  std::deque<std::pair<int, int>> greedy_queue{};
-  greedy_queue.emplace_back(0, 0);
-
-  bool visited[n][n];
-  std::memset(visited, false, sizeof(visited));
-  visited[0][0] = true;
-
-  while (!greedy_queue.empty())
+  std::vector<int> adj[n], adjT[n];
+  for (int i = 0; i < m; i++)
   {
-    int initial_size = static_cast<int>(greedy_queue.size());
+    int a, b;
+    io::cin >> a >> b;
+    adj[a - 1].push_back(b - 1);
+    adjT[b - 1].push_back(a - 1);
+  }
 
-    char mnq{CHAR_MAX};
-    for (auto it = greedy_queue.begin(); it != greedy_queue.end(); it++)
+  bool visited[n];
+  std::memset(visited, false, sizeof(bool) * n);
+  std::vector<int> order{};
+
+  auto dfs = [&visited, &order, &adj](auto &&dfs, int u) -> void {
+    visited[u] = true;
+    for (const int &v : adj[u])
+      if (!visited[v])
+        dfs(dfs, v);
+
+    order.push_back(u);
+  };
+
+  for (int i = 0; i < n; i++)
+    if (!visited[i])
+      dfs(dfs, i);
+
+  std::reverse(order.begin(), order.end());
+
+  int component[n];
+  std::iota(component, component + n, 0);
+  std::memset(visited, false, sizeof(bool) * n);
+
+  auto dfs2 = [&visited, &adjT](auto &&dfs2, int u,
+                                std::vector<int> &seen) -> void {
+    visited[u] = true;
+    seen.push_back(u);
+
+    for (const int &v : adjT[u])
+      if (!visited[v])
+        dfs2(dfs2, v, seen);
+  };
+
+  int label{1};
+  for (int u : order)
+  {
+    if (!visited[u])
     {
-      const auto &[y, x] = *it;
-      mnq                = std::min(grid[y][x], mnq);
-    }
+      std::vector<int> seen{};
+      dfs2(dfs2, u, seen);
+      for (int v : seen)
+        component[v] = label;
 
-    res.push_back(mnq);
-
-    while (initial_size--)
-    {
-      auto [y, x] = greedy_queue.front();
-      greedy_queue.pop_front();
-      char c = grid[y][x];
-
-      if (c == mnq)
-      {
-        if (y + 1 < n && !visited[y + 1][x])
-        {
-          visited[y + 1][x] = true;
-          greedy_queue.emplace_back(y + 1, x);
-        }
-
-        if (x + 1 < n && !visited[y][x + 1])
-        {
-          visited[y][x + 1] = true;
-          greedy_queue.emplace_back(y, x + 1);
-        }
-      }
+      label += 1;
     }
   }
 
-  io::cout << res << "\n";
+  io::cout << label - 1 << "\n";
+  for (int e : component)
+    io::cout << e << " ";
+
+  io::cout << "\n";
 }
 
-} // namespace _MinimalGridPath
+} // namespace _PlanetsAndKingdoms
 
 int main()
 {
@@ -415,27 +425,15 @@ int main()
     io::cerr << "Input file not found\n";
     __builtin_trap();
   }
-
-  size_t stack_size = 268435456;
-  char *stack       = static_cast<char *>(std::malloc(stack_size));
-  char *send        = stack + stack_size;
-  send = reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(send) / 16 * 16);
-  send -= 8;
-
-  asm volatile("mov %%rsp, (%0)\n" : : "r"(send));
-  asm volatile("mov %0, %%rsp\n" : : "r"(send - 8));
 #endif
 
   int t{1};
   while (t-- > 0)
-    _MinimalGridPath::run();
+    _PlanetsAndKingdoms::run();
 
   io::cout.flush();
 
 #ifdef ANTUMBRA
-  asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-  std::free(stack);
-
   std::fclose(stdin);
 #endif
 
