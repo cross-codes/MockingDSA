@@ -14,38 +14,58 @@
 #include <sys/resource.h>
 #endif
 
-namespace _E
+namespace _1294C
 {
 
 auto run() -> void
 {
+  int n;
+  std::cin >> n;
 
-  int64_t N;
-  std::cin >> N;
-
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
-
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
+  std::vector<int> factors{};
+  for (int i = 2; i * i <= n; i++)
   {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
-
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
+    if (n % i == 0)
+    {
+      factors.push_back(i);
+      if (i * i != n)
+        factors.push_back(n / i);
+    }
   }
 
-  std::cout << cnt << "\n";
+  auto is_prime = [](int n) -> bool {
+    if (n < 2)
+      return false;
+
+    for (int i = 2; i * i <= n; i++)
+      if (n % i == 0)
+        return false;
+
+    return true;
+  };
+
+  for (int f : factors)
+  {
+    if (!is_prime(f))
+    {
+      for (int i = 2; i * i < f; i++)
+      {
+        if (f % i == 0 && n / f != i && f / i != n / f)
+        {
+          std::cout << std::format("YES\n{} {} {}\n", i, f / i, n / f);
+          return;
+        }
+      }
+    }
+  }
+
+  std::cout << "NO\n";
 }
 
-} // namespace _E
+} // namespace _1294C
 
 int main()
 {
-  std::cin.tie(nullptr)->sync_with_stdio(false);
-
 #ifdef ANTUMBRA
   const rlim_t stack_size = 268435456;
   struct rlimit rl;
@@ -68,8 +88,9 @@ int main()
 #endif
 
   int t{1};
+  std::cin >> t;
   while (t-- > 0)
-    _E::run();
+    _1294C::run();
 
   std::cout.flush();
 

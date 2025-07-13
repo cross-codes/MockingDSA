@@ -14,33 +14,47 @@
 #include <sys/resource.h>
 #endif
 
-namespace _E
+namespace _TreeMatching
 {
 
 auto run() -> void
 {
+  int n;
+  std::cin >> n;
 
-  int64_t N;
-  std::cin >> N;
-
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
-
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
+  std::vector<int> adj[n];
+  for (int i = 0; i < n - 1; i++)
   {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
-
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
+    int a, b;
+    std::cin >> a >> b;
+    adj[a - 1].push_back(b - 1);
+    adj[b - 1].push_back(a - 1);
   }
 
-  std::cout << cnt << "\n";
+  bool done[n];
+  std::memset(done, false, sizeof done);
+
+  int ans{};
+  auto dfs = [&done, &ans, &adj](auto &&dfs, int u, int e) -> void {
+    for (const int &v : adj[u])
+    {
+      if (v != e)
+      {
+        dfs(dfs, v, u);
+        if (!done[u] && !done[v])
+        {
+          done[u] = done[v] = true;
+          ans += 1;
+        }
+      }
+    }
+  };
+
+  dfs(dfs, 0, -1);
+  std::cout << ans << "\n";
 }
 
-} // namespace _E
+} // namespace _TreeMatching
 
 int main()
 {
@@ -69,7 +83,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _TreeMatching::run();
 
   std::cout.flush();
 

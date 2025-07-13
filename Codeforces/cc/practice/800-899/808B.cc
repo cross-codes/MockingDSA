@@ -4,6 +4,7 @@
 #include <cmath>   // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
+#include <iomanip>
 #include <iostream>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
@@ -14,38 +15,41 @@
 #include <sys/resource.h>
 #endif
 
-namespace _E
+namespace _808B
 {
 
 auto run() -> void
 {
+  int n, k;
+  std::cin >> n >> k;
 
-  int64_t N;
-  std::cin >> N;
+  int a[n];
+  for (int i = 0; i < n; i++)
+    std::cin >> a[i];
 
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
+  __int128_t win_sum{}, tot{};
+  for (int i = 0; i < k; i++)
+    win_sum += a[i];
 
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
+  tot = win_sum;
+
+  int window_start{};
+  for (int i = k; i < n; i++)
   {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
-
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
+    win_sum += a[i];
+    win_sum -= a[window_start];
+    window_start += 1;
+    tot += win_sum;
   }
 
-  std::cout << cnt << "\n";
+  std::cout << std::fixed << std::setprecision(10)
+            << (static_cast<long double>(tot) / (n - k + 1)) << "\n";
 }
 
-} // namespace _E
+} // namespace _808B
 
 int main()
 {
-  std::cin.tie(nullptr)->sync_with_stdio(false);
-
 #ifdef ANTUMBRA
   const rlim_t stack_size = 268435456;
   struct rlimit rl;
@@ -69,7 +73,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _808B::run();
 
   std::cout.flush();
 

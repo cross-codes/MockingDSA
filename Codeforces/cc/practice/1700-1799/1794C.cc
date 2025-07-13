@@ -5,6 +5,7 @@
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
+#include <queue>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
@@ -14,38 +15,32 @@
 #include <sys/resource.h>
 #endif
 
-namespace _E
+namespace _1794C
 {
 
 auto run() -> void
 {
+  int n;
+  std::cin >> n;
 
-  int64_t N;
-  std::cin >> N;
-
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
-
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
+  std::queue<size_t> queue{};
+  for (int i = 0; i < n; i++)
   {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
-
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
+    int a;
+    std::cin >> a;
+    queue.push(a);
+    if (queue.front() < queue.size())
+      queue.pop();
+    std::cout << queue.size() << " ";
   }
 
-  std::cout << cnt << "\n";
+  std::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _1794C
 
 int main()
 {
-  std::cin.tie(nullptr)->sync_with_stdio(false);
-
 #ifdef ANTUMBRA
   const rlim_t stack_size = 268435456;
   struct rlimit rl;
@@ -68,8 +63,9 @@ int main()
 #endif
 
   int t{1};
+  std::cin >> t;
   while (t-- > 0)
-    _E::run();
+    _1794C::run();
 
   std::cout.flush();
 

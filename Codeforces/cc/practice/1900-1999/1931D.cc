@@ -5,6 +5,7 @@
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
+#include <map>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
@@ -14,33 +15,31 @@
 #include <sys/resource.h>
 #endif
 
-namespace _E
+namespace _1931D
 {
 
 auto run() -> void
 {
+  int n, x, y;
+  std::cin >> n >> x >> y;
 
-  int64_t N;
-  std::cin >> N;
+  int a[n];
+  for (int i = 0; i < n; i++)
+    std::cin >> a[i];
 
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
-
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
+  int64_t res{};
+  std::map<std::pair<int, int>, int> cnt{};
+  for (int i = 0; i < n; i++)
   {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
-
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
+    auto pair = std::make_pair((x - (a[i] % x) + x) % x, a[i] % y);
+    res += cnt[pair];
+    cnt[{a[i] % x, a[i] % y}] += 1;
   }
 
-  std::cout << cnt << "\n";
+  std::cout << res << "\n";
 }
 
-} // namespace _E
+} // namespace _1931D
 
 int main()
 {
@@ -68,8 +67,9 @@ int main()
 #endif
 
   int t{1};
+  std::cin >> t;
   while (t-- > 0)
-    _E::run();
+    _1931D::run();
 
   std::cout.flush();
 

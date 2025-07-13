@@ -58,6 +58,7 @@ public:
     }
 
     std::memset(visited, false, sizeof visited);
+
     for (int y = 0; y < n; y++)
     {
       queue.emplace(y, m - 1);
@@ -90,6 +91,7 @@ public:
     }
 
     std::bitset<40001> result = pacific & atlantic;
+
     std::vector<std::vector<int>> res{};
     for (int y = 0; y < n; y++)
       for (int x = 0; x < m; x++)

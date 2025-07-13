@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
+#include <unordered_map>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -14,33 +15,47 @@
 #include <sys/resource.h>
 #endif
 
-namespace _E
+namespace _1077C
 {
 
 auto run() -> void
 {
+  int n;
+  std::cin >> n;
 
-  int64_t N;
-  std::cin >> N;
-
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
-
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
+  int a[n];
+  int64_t sum{};
+  std::unordered_map<int64_t, int> freq{};
+  for (int i = 0; i < n; i++)
   {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
-
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
+    std::cin >> a[i];
+    sum += a[i];
+    freq[a[i]] += 1;
   }
 
-  std::cout << cnt << "\n";
+  std::vector<int> idx{};
+  for (int i = 0; i < n; i++)
+  {
+    int e        = a[i];
+    int64_t left = sum - e;
+    freq[e] -= 1;
+    if (freq[e] == 0)
+      freq.erase(e);
+
+    if (!(left & 1) && freq.contains(left >> 1))
+      idx.push_back(i + 1);
+
+    freq[e] += 1;
+  }
+
+  std::cout << idx.size() << "\n";
+  for (int e : idx)
+    std::cout << e << " ";
+
+  std::cout << "\n";
 }
 
-} // namespace _E
+} // namespace _1077C
 
 int main()
 {
@@ -69,7 +84,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _E::run();
+    _1077C::run();
 
   std::cout.flush();
 
