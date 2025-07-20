@@ -1,5 +1,6 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>     // IWYU pragma: keep
+#include <bit>       // IWYU pragma: keep
 #include <cassert>
 #include <cmath>   // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
@@ -19,25 +20,38 @@ namespace _E
 
 auto run() -> void
 {
+  int h, w;
+  std::cin >> h >> w;
 
-  int64_t N;
-  std::cin >> N;
+  int a[h + 1][w + 1];
+  std::memset(a, 0xcf, sizeof a);
 
-  // b + 1 ... 2b - 1, 2b + 1..3b - 1 .... N
-  // bmax = N - 1. After that a == c (TLE)
+  for (int y = 1; y <= h; y++)
+    for (int x = 1; x <= w; x++)
+      std::cin >> a[y][x];
 
-  int64_t cnt{};
-  for (int b = 2; b < N; b++)
-  {
-    int64_t K =
-        static_cast<int64_t>(std::ceil((N - 1) / static_cast<long double>(b)));
+  int64_t p[h + w];
+  for (int i = 1; i <= h + w - 1; i++)
+    std::cin >> p[i];
 
-    cnt += (b - 1) * (K - 2) + (N - ((K - 1) * b + 1) + 1);
-    if (N % b == 0)
-      cnt -= 1;
-  }
+  int64_t min[h + w][h + 1][w + 1];
+  std::memset(min, 0xcf, sizeof min);
+  min[0][1][1] = 0;
+  for (int day = 1; day <= h + w - 1; day++)
+    for (int y = 1; y <= h; y++)
+      for (int x = 1; x <= w; x++)
+      {
+        min[day][y][x] =
+            std::max(min[day - 1][y - 1][x] + a[y - 1][x] - p[day],
+                     min[day - 1][y][x - 1] + a[y][x - 1] - p[day]);
+      }
 
-  std::cout << cnt << "\n";
+  int64_t best{INT64_MIN};
+  for (int y = 1; y <= h; y++)
+    for (int x = 1; x <= w; x++)
+      best = std::max(best, min[h + w - 1][y][x]);
+
+  std::cout << -best << "\n";
 }
 
 } // namespace _E

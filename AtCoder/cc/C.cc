@@ -1,12 +1,15 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>     // IWYU pragma: keep
+#include <bit>       // IWYU pragma: keep
 #include <cassert>
 #include <cmath>   // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
+#include <queue>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -19,80 +22,47 @@ namespace _C
 
 auto run() -> void
 {
-  int a;
-  std::cin >> a;
-
-  int64_t n;
+  int n;
   std::cin >> n;
 
-  auto conv = [](int64_t num, int base) -> std::string {
-    std::string chars = "0123456789";
-    std::string res{};
-    while (num != 0)
-    {
-      res.push_back(chars[num % base]);
-      num /= base;
-    }
+  std::string s;
+  std::cin >> s;
 
-    std::reverse(res.begin(), res.end());
-    return res;
-  };
+  uint32_t len = static_cast<uint32_t>(s.length());
 
-  std::vector<int64_t> palindromes{};
-  for (int i = 0; i < 10; i++)
-    palindromes.push_back(i);
+  std::unordered_set<uint32_t> bad{};
+  for (uint32_t i = 1; i <= len; i++)
+    if (s[i - 1] == '1')
+      bad.insert(i);
 
-  for (int len = 2; len <= 12; len++)
+  bool visited[1 << 19];
+  std::memset(visited, false, sizeof visited);
+
+  std::queue<uint32_t> queue;
+  queue.push(0U);
+  visited[0] = true;
+
+  while (!queue.empty())
   {
-    int hl    = (len + 1) >> 1;
-    int64_t L = static_cast<int64_t>(std::pow(10LL, hl - 1));
-    int64_t R = static_cast<int64_t>(std::pow(10LL, hl)) - 1;
+    auto curr = queue.front();
+    queue.pop();
 
-    if (len & 1)
-    {
-      for (int64_t i = L; i <= R; i++)
+    for (int i = 0; i < n; i++)
+      if (!((curr >> i) & 1))
       {
-        std::string num = std::to_string(i), num_cpy = num;
-        std::reverse(num_cpy.begin(), num_cpy.end());
-        num += num_cpy.substr(1, std::string::npos);
-        palindromes.push_back(std::stoll(num));
+        uint32_t nxt = curr | (1 << i);
+        if (!bad.contains(nxt) && !visited[nxt])
+        {
+          visited[nxt] = true;
+          queue.push(nxt);
+        }
       }
-    }
-    else
-    {
-      for (int64_t i = L; i <= R; i++)
-      {
-        std::string num = std::to_string(i), num_cpy = num;
-        std::reverse(num_cpy.begin(), num_cpy.end());
-        num += num_cpy;
-        palindromes.push_back(std::stoll(num));
-      }
-    }
   }
 
-  auto is_palindrome = [](std::string num) -> bool {
-    int l{}, r{static_cast<int>(num.size()) - 1};
-    while (l <= r)
-    {
-      if (num[l] != num[r])
-        return false;
-      l += 1;
-      r -= 1;
-    }
-
-    return true;
-  };
-
-  int64_t result{};
-  for (int64_t e : palindromes)
-  {
-    if (e > n)
-      break;
-    if (is_palindrome(conv(e, a)))
-      result += e;
-  }
-
-  std::cout << result << "\n";
+  if (visited[(1 << n) - 1])
+    std::cout << "Yes\n";
+  else
+    std::cout << "No\n";
 }
 
 } // namespace _C
@@ -123,6 +93,7 @@ int main()
 #endif
 
   int t{1};
+  std::cin >> t;
   while (t-- > 0)
     _C::run();
 

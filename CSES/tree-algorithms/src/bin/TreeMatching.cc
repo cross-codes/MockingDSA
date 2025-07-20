@@ -31,27 +31,29 @@ auto run() -> void
     adj[b - 1].push_back(a - 1);
   }
 
-  bool done[n];
-  std::memset(done, false, sizeof done);
+  int wc[n], wo[n];
+  std::memset(wc, 0x00, sizeof wc);
+  std::memset(wo, 0x00, sizeof wo);
 
-  int ans{};
-  auto dfs = [&done, &ans, &adj](auto &&dfs, int u, int e) -> void {
-    for (const int &v : adj[u])
+  auto dfs = [&wc, &wo, &adj](auto &&dfs, int u, int p) -> void {
+    for (int v : adj[u])
     {
-      if (v != e)
+      if (v != p)
       {
         dfs(dfs, v, u);
-        if (!done[u] && !done[v])
-        {
-          done[u] = done[v] = true;
-          ans += 1;
-        }
+        wc[u] += std::max(wc[v], wo[v]);
       }
+    }
+
+    for (int v : adj[u])
+    {
+      if (v != p)
+        wo[u] = std::max(wo[u], 1 + wc[u] + wc[v] - std::max(wc[v], wo[v]));
     }
   };
 
   dfs(dfs, 0, -1);
-  std::cout << ans << "\n";
+  std::cout << std::max(wo[0], wc[0]) << "\n";
 }
 
 } // namespace _TreeMatching

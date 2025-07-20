@@ -1,66 +1,66 @@
-#include <climits>
+#include <cstdint>
 #include <cstring>
-#include <numeric>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 #include <vector>
+
+#pragma GCC target("popcnt")
 
 class Solution
 {
 public:
-  int minTime(int n, std::vector<std::vector<int>> &edges, int k)
+  std::vector<int> popcountDepth(std::vector<long long> &nums,
+                                 std::vector<std::vector<long long>> &queries)
   {
-    auto dfs = [](auto &&dfs, int u, std::vector<int> adj[],
-                  bool visited[]) -> void {
-      visited[u] = true;
+    int n = static_cast<int>(nums.size());
+    int64_t pd[n];
+    std::memset(pd, 0x00, sizeof pd);
 
-      for (const auto &v : adj[u])
-        if (!visited[v])
-          dfs(dfs, v, adj, visited);
-    };
+    __gnu_pbds::tree<std::pair<int64_t, int64_t>, __gnu_pbds::null_type,
+                     std::less<>, __gnu_pbds::rb_tree_tag,
+                     __gnu_pbds::tree_order_statistics_node_update>
+        ost{};
 
-    // dcc >= k;
-    auto pred = [&n, &edges, &dfs, &k](int t) -> bool {
-      std::vector<int> adj[n];
-
-      for (const auto &vec : edges)
-      {
-        int u = vec[0], v = vec[1], time = vec[2];
-        if (time > t)
-        {
-          adj[u].push_back(v);
-          adj[v].push_back(u);
-        }
-      }
-
-      bool visited[n];
-      std::memset(visited, false, sizeof(bool) * n);
-
-      int dcc{};
-      for (int i = 0; i < n; i++)
-      {
-        if (!visited[i])
-        {
-          dcc += 1;
-          dfs(dfs, i, adj, visited);
-        }
-      }
-
-      return dcc >= k;
-    };
-
-    int mxtime{INT_MIN};
-    for (const auto &vec : edges)
-      mxtime = std::max(mxtime, vec[2]);
-
-    if (mxtime == INT_MIN)
-      return 0;
-
-    int L{-1}, R{mxtime + 1};
-    while (R - L > 1)
+    for (int i = 0; i < n; i++)
     {
-      int M             = std::midpoint(L, R);
-      (pred(M) ? R : L) = M;
+      int64_t e = nums[i];
+      int64_t cnt{};
+      while (e != 1)
+      {
+        e = __builtin_popcountll(e);
+        cnt += 1;
+      }
+
+      pd[i] = cnt;
+      ost.insert({cnt, i});
     }
 
-    return R;
+    std::vector<int> res{};
+    for (const auto &q : queries)
+    {
+      int64_t type = q[0];
+      if (type == 1)
+      {
+        int64_t l = q[1], r = q[2], d = q[3];
+        auto sit = ost.order_of_key({d, l});
+        auto eit = ost.order_of_key({d, r + 1});
+        res.push_back(static_cast<int>(eit - sit));
+      }
+      else
+      {
+        int64_t idx = q[1], val = q[2];
+        ost.erase({pd[idx], idx});
+        int64_t cnt{};
+        while (val != 1)
+        {
+          val = __builtin_popcountll(val);
+          cnt += 1;
+        }
+        pd[idx] = cnt;
+        ost.insert({cnt, idx});
+      }
+    }
+
+    return res;
   }
 };

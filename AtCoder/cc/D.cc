@@ -1,11 +1,11 @@
 #include <algorithm> // IWYU pragma: keep
 #include <array>     // IWYU pragma: keep
+#include <bit>       // IWYU pragma: keep
 #include <cassert>
 #include <cmath>   // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
-#include <map>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
@@ -20,19 +20,41 @@ namespace _D
 
 auto run() -> void
 {
-  int n, m;
+  int64_t n, m;
   std::cin >> n >> m;
 
-  std::map<int64_t, int> map{};
-  for (int i = 0; i < n; i++)
+  std::pair<int64_t, int64_t> xchg[m];
+  for (int i = 0; i < m; i++)
+    std::cin >> xchg[i].first >> xchg[i].second;
+
+  auto SORT_ORDER = [](const std::pair<int64_t, int64_t> &a,
+                       const std::pair<int64_t, int64_t> &b) -> bool {
+    int64_t cmp = a.second - a.first - (b.second - b.first);
+    if (cmp == 0)
+      return a.first < b.first;
+    else
+      return cmp > 0;
+  };
+
+  std::sort(xchg, xchg + m, SORT_ORDER);
+
+  int64_t cnt{}, x{n};
+  for (int i = 0; i < m; i++)
   {
-    int64_t x;
-    std::cin >> x;
-    map[x] += 1;
+    int64_t y = xchg[i].first, z = xchg[i].second;
+
+    if (x < y)
+      continue;
+
+    int64_t r = (x - y) / (y - z);
+    if (x - (r * (y - z)) >= y)
+      r += 1;
+
+    cnt += r;
+    x -= r * (xchg[i].first - xchg[i].second);
   }
 
-  int64_t mn[map.size() + 1][m + 1];
-  std::memset(mn, 0x3f, sizeof mn);
+  std::cout << cnt << "\n";
 }
 
 } // namespace _D

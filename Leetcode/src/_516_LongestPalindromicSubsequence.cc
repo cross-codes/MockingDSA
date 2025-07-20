@@ -1,4 +1,5 @@
-#include <array>
+#include <algorithm>
+#include <cstring>
 #include <string>
 
 class Solution
@@ -6,15 +7,20 @@ class Solution
 public:
   int longestPalindromeSubseq(std::string s)
   {
-    std::size_t n{s.size()};
+    std::string s_cpy = s;
+    std::reverse(s_cpy.begin(), s_cpy.end());
+    int n = static_cast<int>(s.size());
 
-    std::array<std::array<int, 1001>, 1001> l{};
-    for (std::size_t i = 1UZ; i <= n; i++)
-      for (std::ptrdiff_t j = n; j >= 1; j--)
-        if (s[i - 1] == s[j - 1])
-          l[i][n - j + 1] = l[i - 1][n - j] + 1;
+    int l[n + 1][n + 1];
+    std::memset(l, 0x00, sizeof l);
+    for (int y = 1; y <= n; y++)
+      for (int x = 1; x <= n; x++)
+      {
+        if (s[y - 1] == s_cpy[x - 1])
+          l[y][x] = l[y - 1][x - 1] + 1;
         else
-          l[i][n - j + 1] = std::max(l[i - 1][n - j + 1], l[i][n - j]);
+          l[y][x] = std::max(l[y - 1][x], l[y][x - 1]);
+      }
 
     return l[n][n];
   }

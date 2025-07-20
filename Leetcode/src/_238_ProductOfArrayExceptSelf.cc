@@ -1,27 +1,30 @@
 #include <cstring>
-#include <memory>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  std::vector<int> productExceptSelf(std::vector<int> &nums) {
-    std::size_t n = nums.size();
+  std::vector<int> productExceptSelf(std::vector<int> &nums)
+  {
+    int n = static_cast<int>(nums.size());
 
-    std::unique_ptr<int[]> behind(new int[n]);
-    std::unique_ptr<int[]> ahead(new int[n]);
+    int behind[n], infront[n];
+    std::memset(behind, 0x00, sizeof behind);
+    std::memset(infront, 0x00, sizeof infront);
 
-    std::memset(behind.get(), 0x00, sizeof(int) * n);
-    std::memset(ahead.get(), 0x00, sizeof(int) * n);
+    behind[0] = nums[0];
+    for (int i = 1; i < n; i++)
+      behind[i] = behind[i - 1] * nums[i];
 
-    behind[0] = 1, ahead[n - 1] = 1;
-    for (std::size_t i = 1; i < n; i++) {
-      behind[i] = behind[i - 1] * nums[i - 1];
-      ahead[n - i - 1] = ahead[n - i] * nums[n - i];
-    }
+    infront[n - 1] = nums[n - 1];
+    for (int i = n - 2; i >= 0; i--)
+      infront[i] = infront[i + 1] * nums[i];
 
-    std::vector<int> res{};
-    for (std::size_t i = 0; i < n; i++)
-      res.push_back(behind[i] * ahead[i]);
+    std::vector<int> res(n);
+    res[0]     = infront[1];
+    res[n - 1] = behind[n - 2];
+    for (int i = 1; i < n - 1; i++)
+      res[i] = behind[i - 1] * infront[i + 1];
 
     return res;
   }

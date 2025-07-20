@@ -6,32 +6,27 @@ class Solution
 public:
   int maxCoins(std::vector<int> &nums)
   {
+    int n = static_cast<int>(nums.size());
     nums.insert(nums.begin(), 1);
     nums.push_back(1);
 
-    int n = static_cast<int>(nums.size());
+    int mxc[n + 3][n + 3];
+    std::memset(mxc, 0x00, sizeof mxc);
 
-    int mxc[n][n];
-    std::memset(mxc, 0x00, sizeof(mxc));
+    for (int i = 2; i <= n + 1; i++)
+      mxc[i][i] = nums[i - 2] * nums[i - 1] * nums[i];
 
-    for (int i = 1; i < n - 1; i++)
-      mxc[i][i] = nums[i - 1] * nums[i] * nums[i + 1];
-
-    for (int len = 2; len <= n - 2; ++len)
-    {
-      for (int i = 1, j = i + len - 1; j < n - 1; i++, j++)
+    for (int len = 2; len <= n; len++)
+      for (int i = 2; i + len <= n + 2; i++)
       {
-        int border = nums[i - 1] * nums[j + 1], best{};
-        for (int k = i; k <= j; ++k)
+        int j = i + len - 1;
+        for (int k = i; k <= j; k++)
         {
-          int q = mxc[i][k - 1] + mxc[k + 1][j] + border * nums[k];
-          best  = std::max(best, q);
+          int left = mxc[i][k - 1], right = mxc[k + 1][j];
+          mxc[i][j] = std::max(mxc[i][j], left + right + nums[k - 1] * nums[i - 2] * nums[j]);
         }
-
-        mxc[i][j] = best;
       }
-    }
 
-    return mxc[1][n - 2];
+    return mxc[2][n + 1];
   }
 };
