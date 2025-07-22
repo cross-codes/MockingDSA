@@ -1,44 +1,49 @@
-#include <climits>
 #include <stack>
 #include <vector>
 
-class Solution {
+class Solution
+{
 public:
-  inline int area(int length, int height) { return length * height; }
-
-  int largestRectangleArea(std::vector<int> &heights) {
+  int largestRectangleArea(std::vector<int> &heights)
+  {
     int n = static_cast<int>(heights.size());
-    std::stack<std::pair<int, int>> forwardStack{}, backwardStack{};
-    std::vector<int> smallerValuesBehind(n);
 
-    for (int i = 0; i < n; i++) {
-      int val = heights[i];
-      if (forwardStack.empty() || forwardStack.top().first >= val) {
-        while (!forwardStack.empty() && forwardStack.top().first >= val)
-          forwardStack.pop();
-      }
+    int lnxt[n], rnxt[n];
+    std::stack<std::pair<int, int>> stack{};
+    for (int i = 0; i < n; i++)
+    {
+      while (!stack.empty() && stack.top().first >= heights[i])
+        stack.pop();
 
-      smallerValuesBehind[i] =
-          (forwardStack.empty()) ? -1 : forwardStack.top().second;
-      forwardStack.push({val, i});
+      if (stack.empty())
+        lnxt[i] = -1;
+      else
+        lnxt[i] = stack.top().second;
+
+      stack.emplace(heights[i], i);
     }
 
-    int maxArea = INT_MIN;
-    for (int i = n - 1; i >= 0; i--) {
-      int val = heights[i];
-      if (backwardStack.empty() || backwardStack.top().first >= val) {
-        while (!backwardStack.empty() && backwardStack.top().first >= val)
-          backwardStack.pop();
-      }
+    std::stack<std::pair<int, int>> new_stack{};
+    for (int i = n - 1; i >= 0; i--)
+    {
+      while (!new_stack.empty() && new_stack.top().first >= heights[i])
+        new_stack.pop();
 
-      int right = (backwardStack.empty()) ? n : backwardStack.top().second;
-      int height = heights[i], left = smallerValuesBehind[i];
-      maxArea =
-          std::max(maxArea, this->area(height, right - 1 - (left + 1) + 1));
+      if (new_stack.empty())
+        rnxt[i] = n;
+      else
+        rnxt[i] = new_stack.top().second;
 
-      backwardStack.push({val, i});
+      new_stack.emplace(heights[i], i);
     }
 
-    return maxArea;
+    int mx{};
+    for (int i = 0; i < n; i++)
+    {
+      int ls = lnxt[i], rs = rnxt[i];
+      mx = std::max((rs - ls - 1) * heights[i], mx);
+    }
+
+    return mx;
   }
 };
