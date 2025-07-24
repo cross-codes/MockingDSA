@@ -366,10 +366,9 @@ auto run() -> void
   for (int i = 1; i <= N; i++)
     for (int j = 1; j <= V; j++)
     {
+      mn[i][j] = mn[i - 1][j];
       if (v[i - 1] <= j)
-        mn[i][j] = mn[i - 1][j - v[i - 1]] + w[i - 1];
-      for (int k = 1; k <= i; k++)
-        mn[i][j] = std::min(mn[i - k][j], mn[i][j]);
+        mn[i][j] = std::min(mn[i - 1][j - v[i - 1]] + w[i - 1], mn[i - 1][j]);
     }
 
   int mx{};

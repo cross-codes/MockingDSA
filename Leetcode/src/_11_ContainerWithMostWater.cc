@@ -1,35 +1,26 @@
-#include <climits>
+#include <algorithm>
 #include <vector>
 
-class Solution {
-private:
-  auto calculateArea(int heightA, int heightB, std::ptrdiff_t width) -> int {
-    return std::min(heightA, heightB) * static_cast<int>(width);
-  }
-
+class Solution
+{
 public:
-  int maxArea(std::vector<int> &heights) {
-    std::ptrdiff_t n = heights.size();
-    std::ptrdiff_t l = 0, r = n - 1;
+  int maxArea(std::vector<int> &height)
+  {
+    int n = static_cast<int>(height.size());
+    int swl{}, l{}, r{n - 1};
+    int mx = *std::max_element(height.begin(), height.end());
+    int best{};
+    while (l < r && swl <= mx)
+    {
+      while (height[l] < swl && l < r)
+        l += 1;
+      while (height[r] < swl && r > l)
+        r -= 1;
 
-    int maxArea = INT_MIN;
-    while (l < r) {
-      maxArea = std::max(maxArea, calculateArea(heights[l], heights[r], r - l));
-
-      if (heights[l] > heights[r])
-        r--;
-      else if (heights[l] < heights[r])
-        l++;
-      else {
-        int gainLeft = heights[l + 1] - heights[l];
-        int gainRight = heights[r - 1] - heights[r];
-        if (gainLeft > gainRight)
-          l++;
-        else
-          r--;
-      }
+      best = std::max(swl * (r - l), best);
+      swl += 1;
     }
 
-    return maxArea;
+    return best;
   }
 };
