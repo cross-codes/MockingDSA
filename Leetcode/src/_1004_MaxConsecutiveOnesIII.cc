@@ -1,45 +1,52 @@
-#include <queue>
+#include <climits>
+#include <deque>
 #include <vector>
 
-class Solution {
- public:
-  int longestOnes(std::vector<int> &nums, int k) {
-    std::ptrdiff_t n = nums.size();
-    std::ptrdiff_t longestWinSize{};
-    std::ptrdiff_t winStart{};
+class Solution
+{
+public:
+  int longestOnes(std::vector<int> &nums, int k)
+  {
+    int n = static_cast<int>(nums.size());
+    std::deque<int> queue{};
 
-    if (k == 0) {
-      bool inWindow{false};
-      for (std::ptrdiff_t i = 0Z; i < n; i++) {
-        if (inWindow) {
-          if (nums[i] == 0) {
-            longestWinSize = std::max(longestWinSize, i - winStart);
-            inWindow       = false;
-          }
-        } else {
-          if (nums[i] == 1) {
-            inWindow = true;
-            winStart = i;
-          }
+    int mx{INT_MIN}, l{}, r{}, cnt{};
+    while (r < n)
+    {
+      if (cnt < k)
+      {
+        if (nums[r] == 0)
+        {
+          queue.push_back(r);
+          mx = std::max(mx, r - l + 1);
+          cnt += 1;
         }
+        else
+          mx = std::max(mx, r - l + 1);
+      }
+      else
+      {
+        if (nums[r] == 0)
+        {
+          mx = std::max(mx, r - l);
+          if (!queue.empty())
+          {
+            l = queue.front() + 1;
+            queue.pop_front();
+          }
+          else
+            l = r + 1;
+
+          if (!queue.empty())
+            queue.push_back(r);
+        }
+        else
+          mx = std::max(mx, r - l + 1);
       }
 
-      return static_cast<int>(inWindow ? std::max(longestWinSize, n - winStart)
-                                       : longestWinSize);
+      r += 1;
     }
 
-    std::queue<std::size_t> zeroPos{};
-    for (std::ptrdiff_t i = 0Z; i < n; i++) {
-      if (nums[i] == 0) {
-        if (zeroPos.size() == k) {
-          longestWinSize = std::max(longestWinSize, i - winStart);
-          winStart       = zeroPos.front() + 1;
-          zeroPos.pop();
-        }
-        zeroPos.push(i);
-      }
-    }
-
-    return static_cast<int>(std::max(longestWinSize, n - winStart));
+    return mx;
   }
 };

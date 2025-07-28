@@ -1,5 +1,4 @@
-#include <climits>
-#include <unordered_set>
+#include <algorithm>
 #include <vector>
 
 class Solution
@@ -7,21 +6,18 @@ class Solution
 public:
   int maxSum(std::vector<int> &nums)
   {
-    std::unordered_set<int> seen{};
-    std::size_t n{nums.size()};
+    std::sort(nums.begin(), nums.end());
+    auto last = std::unique(nums.begin(), nums.end());
+    nums.erase(last, nums.end());
 
-    int sum{}, maxNum{INT_MIN};
-    for (std::size_t i = 0UZ; i < n; i++)
-    {
-      maxNum = std::max(maxNum, nums[i]);
+    int res{};
+    for (int e : nums)
+      if (e > 0)
+        res += e;
 
-      if (nums[i] >= 0 && !seen.contains(nums[i]))
-      {
-        sum += nums[i];
-        seen.insert(nums[i]);
-      }
-    }
+    if (res == 0)
+      return *std::max_element(nums.begin(), nums.end());
 
-    return (seen.size() == 0) ? maxNum : sum;
+    return res;
   }
 };
