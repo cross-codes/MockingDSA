@@ -15,14 +15,44 @@
 #include <sys/resource.h>
 #endif
 
-namespace _D
+namespace _1009
 {
 
 auto run() -> void
 {
+  int N, K;
+  std::cin >> N >> K;
+
+  int64_t lookup[20][10];
+  std::memset(lookup, -1, sizeof lookup);
+
+  auto call = [&N, &K, &lookup](auto &&call, int pos, int prev) -> int64_t {
+    if (pos == N)
+      return 1;
+
+    if (lookup[pos][prev] != -1)
+      return lookup[pos][prev];
+
+    int64_t res{};
+    for (int d = 0; d < K; d++)
+    {
+      if (d == 0 && prev == 0)
+        continue;
+
+      res += call(call, pos + 1, d);
+    }
+
+    return lookup[pos][prev] = res;
+  };
+
+  int64_t res{};
+  for (int i = 1; i < K; i++)
+    res += call(call, 1, i);
+
+  std::cout << res << "\n";
 }
 
-} // namespace _D
+} // namespace _1009
 
 int main()
 {
@@ -51,7 +81,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _D::run();
+    _1009::run();
 
   std::cout.flush();
 

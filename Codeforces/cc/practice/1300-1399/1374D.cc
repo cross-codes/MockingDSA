@@ -6,6 +6,7 @@
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
+#include <set>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
@@ -15,14 +16,46 @@
 #include <sys/resource.h>
 #endif
 
-namespace _D
+namespace _1374D
 {
 
 auto run() -> void
 {
+  int n, k;
+  std::cin >> n >> k;
+
+  std::multiset<int> a{};
+  for (int i = 0; i < n; i++)
+  {
+    int x;
+    std::cin >> x;
+    if (x % k != 0)
+      a.insert(x % k);
+  }
+
+  int64_t x{};
+  while (!a.empty())
+  {
+    auto it = a.lower_bound(x % k);
+    if (it == a.end())
+      x = ((x / k) + 1) * k;
+    else
+    {
+      if (*it == x % k)
+        a.erase(it);
+      else
+      {
+        x += *it - (x % k);
+        a.erase(it);
+      }
+      x += 1;
+    }
+  }
+
+  std::cout << x << "\n";
 }
 
-} // namespace _D
+} // namespace _1374D
 
 int main()
 {
@@ -50,8 +83,9 @@ int main()
 #endif
 
   int t{1};
+  std::cin >> t;
   while (t-- > 0)
-    _D::run();
+    _1374D::run();
 
   std::cout.flush();
 

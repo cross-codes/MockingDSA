@@ -15,14 +15,33 @@
 #include <sys/resource.h>
 #endif
 
-namespace _D
+namespace _2018
 {
+
+constexpr int64_t MOD = static_cast<int64_t>(1e9 + 7);
 
 auto run() -> void
 {
+  int n, a, b;
+  std::cin >> n >> a >> b;
+
+  int64_t num[n + 1][2];
+  std::memset(num, 0x00, sizeof num);
+  num[0][0] = num[0][1] = 1;
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 1; j <= a && i + j <= n; j++)
+      num[i + j][0] = (num[i + j][0] + num[i][1]) % MOD;
+
+    for (int j = 1; j <= b && i + j <= n; j++)
+      num[i + j][1] = (num[i + j][1] + num[i][0]) % MOD;
+  }
+
+  std::cout << (num[n][0] + num[n][1]) % MOD << "\n";
 }
 
-} // namespace _D
+} // namespace _2018
 
 int main()
 {
@@ -51,7 +70,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _D::run();
+    _2018::run();
 
   std::cout.flush();
 

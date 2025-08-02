@@ -2,14 +2,13 @@
 #include <array>     // IWYU pragma: keep
 #include <bit>       // IWYU pragma: keep
 #include <cassert>
-#include <chrono>
 #include <cmath>   // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
-#include <unordered_map>
+#include <unordered_set>
 #include <utility> // IWYU pragma: keep
 #include <vector>  // IWYU pragma: keep
 
@@ -17,65 +16,31 @@
 #include <sys/resource.h>
 #endif
 
-namespace _C
+namespace _A
 {
-
-struct HasherFunctor
-{
-private:
-  static std::uint64_t randomAddress()
-  {
-    char *p = new char;
-    delete p;
-    return std::uint64_t(p);
-  }
-
-  static std::uint32_t hash32(std::uint32_t x)
-  {
-    x += 0x9e3779b9;
-    x = (x ^ (x >> 16)) * 0x85ebca6b;
-    x = (x ^ (x >> 13)) * 0xc2b2ae35;
-    return x ^ (x >> 16);
-  }
-
-  static std::uint64_t splitmix64(std::uint64_t x)
-  {
-    x += 0x9e3779b97f4a7c15;
-    x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
-    x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
-    return x ^ (x >> 31);
-  }
-
-public:
-  template <typename T> std::uint64_t operator()(T x) const
-  {
-    static const std::uint64_t FIXED_RANDOM =
-        splitmix64(std::chrono::steady_clock::now().time_since_epoch().count() *
-                   (randomAddress() | 1));
-    return sizeof(x) <= 4 ? hash32(unsigned(x ^ FIXED_RANDOM))
-                          : splitmix64(x ^ FIXED_RANDOM);
-  }
-};
 
 auto run() -> void
 {
   int n;
   std::cin >> n;
 
-  std::unordered_map<int, int, HasherFunctor> cnt{};
-  int64_t res{};
-  for (int i = 1; i <= n; i++)
+  std::unordered_set<int> a{};
+  for (int i = 0; i < n; i++)
   {
-    int a;
-    std::cin >> a;
-    res += cnt[i - a];
-    cnt[a + i] += 1;
+    int x;
+    std::cin >> x;
+    a.insert(x);
   }
 
-  std::cout << res << "\n";
+  int x;
+  std::cin >> x;
+  if (a.contains(x))
+    std::cout << "Yes\n";
+  else
+    std::cout << "No\n";
 }
 
-} // namespace _C
+} // namespace _A
 
 int main()
 {
@@ -104,7 +69,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _C::run();
+    _A::run();
 
   std::cout.flush();
 

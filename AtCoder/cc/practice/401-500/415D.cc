@@ -20,6 +20,41 @@ namespace _D
 
 auto run() -> void
 {
+  int64_t n, m;
+  std::cin >> n >> m;
+
+  std::pair<int64_t, int64_t> xchg[m];
+  for (int i = 0; i < m; i++)
+    std::cin >> xchg[i].first >> xchg[i].second;
+
+  auto SORT_ORDER = [](const std::pair<int64_t, int64_t> &a,
+                       const std::pair<int64_t, int64_t> &b) -> bool {
+    int64_t cmp = a.second - a.first - (b.second - b.first);
+    if (cmp == 0)
+      return a.first < b.first;
+    else
+      return cmp > 0;
+  };
+
+  std::sort(xchg, xchg + m, SORT_ORDER);
+
+  int64_t cnt{}, x{n};
+  for (int i = 0; i < m; i++)
+  {
+    int64_t y = xchg[i].first, z = xchg[i].second;
+
+    if (x < y)
+      continue;
+
+    int64_t r = (x - y) / (y - z);
+    if (x - (r * (y - z)) >= y)
+      r += 1;
+
+    cnt += r;
+    x -= r * (xchg[i].first - xchg[i].second);
+  }
+
+  std::cout << cnt << "\n";
 }
 
 } // namespace _D

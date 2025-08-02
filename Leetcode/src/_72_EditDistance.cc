@@ -4,31 +4,30 @@
 class Solution
 {
 public:
-  int minDistance(std::string x, std::string y)
+  int minDistance(std::string s, std::string t)
   {
-    int n = static_cast<int>(x.size());
-    int m = static_cast<int>(y.size());
+    int n = static_cast<int>(s.size());
+    int m = static_cast<int>(t.size());
+
+    int e[n + 1][m + 1];
+    std::memset(e, 0x00, sizeof e);
 
     if (n == 0 || m == 0)
       return std::max(n, m);
 
-    int e[n + 1][m + 1]; // min ops to make x[0..i] = y[0..j]
-    std::memset(e, 0x00, sizeof(e));
+    for (int x = 0; x <= m; x++)
+      e[0][x] = x;
 
-    for (int i = 0; i <= n; i++)
-      e[i][0] = i;
+    for (int y = 0; y <= n; y++)
+      e[y][0] = y;
 
-    for (int i = 0; i <= m; i++)
-      e[0][i] = i;
-
-    for (int i = 1; i <= n; i++)
-      for (int j = 1; j <= m; j++)
+    for (int y = 1; y <= n; y++)
+      for (int x = 1; x <= m; x++)
       {
-        int del = e[i - 1][j] + 1;
-        int add = e[i][j - 1] + 1;
-        int rep = e[i - 1][j - 1] + (x[i - 1] != y[j - 1]);
-
-        e[i][j] = std::min(del, std::min(add, rep));
+        int del = e[y - 1][x] + 1;
+        int ins = e[y][x - 1] + 1;
+        int rep = e[y - 1][x - 1] + (s[y - 1] != t[x - 1]);
+        e[y][x] = std::min({del, ins, rep});
       }
 
     return e[n][m];

@@ -6,6 +6,7 @@
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
 #include <iostream>
+#include <set>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility> // IWYU pragma: keep
@@ -20,38 +21,76 @@ namespace _E
 
 auto run() -> void
 {
-  int h, w;
-  std::cin >> h >> w;
+  int n, m, x, y;
+  std::cin >> n >> m >> x >> y;
 
-  int a[h + 1][w + 1];
-  std::memset(a, 0xcf, sizeof a);
+  std::multiset<int> adj[n];
+  for (int i = 0; i < m; i++)
+  {
+    int u, v;
+    std::cin >> u >> v;
+    adj[u - 1].insert(v - 1);
+    adj[v - 1].insert(u - 1);
+  }
 
-  for (int y = 1; y <= h; y++)
-    for (int x = 1; x <= w; x++)
-      std::cin >> a[y][x];
+  int p[n];
+  std::memset(p, -1, sizeof p);
 
-  int64_t p[h + w];
-  for (int i = 1; i <= h + w - 1; i++)
-    std::cin >> p[i];
+  bool bad[n];
+  std::memset(bad, false, sizeof bad);
 
-  int64_t min[h + w][h + 1][w + 1];
-  std::memset(min, 0xcf, sizeof min);
-  min[0][1][1] = 0;
-  for (int day = 1; day <= h + w - 1; day++)
-    for (int y = 1; y <= h; y++)
-      for (int x = 1; x <= w; x++)
+  bool visited[n];
+  std::memset(visited, false, sizeof visited);
+
+  // dfs?
+  auto dfs = [&y, &p, &bad, &visited, &adj](auto &&dfs, int u,
+                                            bool &terminate) -> void {
+    if (terminate)
+      return;
+
+    if (u == y - 1)
+    {
+      terminate = true;
+      return;
+    }
+
+    visited[u] = true;
+    for (const int &v : adj[u])
+    {
+      if (terminate)
+        return;
+
+      if (!visited[v] && !bad[v])
       {
-        min[day][y][x] =
-            std::max(min[day - 1][y - 1][x] + a[y - 1][x] - p[day],
-                     min[day - 1][y][x - 1] + a[y][x - 1] - p[day]);
+        p[v] = u;
+        dfs(dfs, v, terminate);
+        if (terminate)
+          return;
+
+        bad[v]     = true;
+        visited[v] = false;
+        p[v]       = -1;
       }
+    }
+  };
 
-  int64_t best{INT64_MIN};
-  for (int y = 1; y <= h; y++)
-    for (int x = 1; x <= w; x++)
-      best = std::max(best, min[h + w - 1][y][x]);
+  bool terminate{};
+  dfs(dfs, x - 1, terminate);
 
-  std::cout << -best << "\n";
+  std::vector<int> path{};
+  int curr = y - 1;
+  path.push_back(curr);
+  while (curr != x - 1)
+  {
+    curr = p[curr];
+    path.push_back(curr);
+  }
+
+  std::reverse(path.begin(), path.end());
+  for (int e : path)
+    std::cout << 1 + e << " ";
+
+  std::cout << "\n";
 }
 
 } // namespace _E
@@ -82,6 +121,7 @@ int main()
 #endif
 
   int t{1};
+  std::cin >> t;
   while (t-- > 0)
     _E::run();
 

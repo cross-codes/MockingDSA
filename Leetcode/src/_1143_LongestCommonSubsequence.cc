@@ -1,4 +1,4 @@
-#include <array>
+#include <cstring>
 #include <string>
 
 class Solution
@@ -6,16 +6,20 @@ class Solution
 public:
   int longestCommonSubsequence(std::string text1, std::string text2)
   {
-    auto m = text1.size(), n = text2.size();
-    std::array<std::array<int, 1001>, 1001> d{};
+    int n = static_cast<int>(text1.size());
+    int m = static_cast<int>(text2.size());
 
-    for (std::size_t i = 1UZ; i < m + 1; i++)
-      for (std::size_t j = 1UZ; j < n + 1; j++)
-        if (text1[i - 1] == text2[j - 1])
-          d[i][j] = d[i - 1][j - 1] + 1;
+    int d[n + 1][m + 1];
+    std::memset(d, 0x00, sizeof d);
+    for (int y = 1; y <= n; y++)
+      for (int x = 1; x <= m; x++)
+      {
+        if (text1[y - 1] == text2[x - 1])
+          d[y][x] = d[y - 1][x - 1] + 1;
         else
-          d[i][j] = std::max(d[i - 1][j], d[i][j - 1]);
+          d[y][x] = std::max(d[y - 1][x], d[y][x - 1]);
+      }
 
-    return d[m][n];
+    return d[n][m];
   }
 };

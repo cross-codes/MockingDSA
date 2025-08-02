@@ -5,6 +5,7 @@
 #include <cmath>   // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
 #include <cstring> // IWYU pragma: keep
+#include <deque>
 #include <iostream>
 #include <string> // IWYU pragma: keep
 #include <unistd.h>
@@ -15,14 +16,32 @@
 #include <sys/resource.h>
 #endif
 
-namespace _D
+namespace _B
 {
 
 auto run() -> void
 {
+  std::string s;
+  std::cin >> s;
+
+  int n = static_cast<int>(s.size());
+
+  std::deque<int> pos{};
+  for (int i = 1; i <= n; i++)
+    if (s[i - 1] == '#')
+      pos.push_back(i);
+
+  while (!pos.empty())
+  {
+    int a = pos.front();
+    pos.pop_front();
+    int b = pos.front();
+    pos.pop_front();
+    std::cout << a << "," << b << "\n";
+  }
 }
 
-} // namespace _D
+} // namespace _B
 
 int main()
 {
@@ -51,7 +70,7 @@ int main()
 
   int t{1};
   while (t-- > 0)
-    _D::run();
+    _B::run();
 
   std::cout.flush();
 

@@ -1,5 +1,4 @@
-#include <array>
-#include <climits>
+#include <cstring>
 #include <vector>
 
 class Solution
@@ -7,20 +6,23 @@ class Solution
 public:
   int minPathSum(std::vector<std::vector<int>> &grid)
   {
-    auto m = grid.size(), n = grid[0].size();
-    std::array<std::array<int, 201>, 201> minCost;
+    int n = static_cast<int>(grid.size());
+    int m = static_cast<int>(grid[0].size());
 
-    std::fill(minCost[0].begin(), minCost[0].end(), INT_MAX);
-    for (std::size_t i = 0; i < 201; i++)
-      minCost[i][0] = INT_MAX;
+    int mn[n][m];
+    std::memset(mn, 0x3f, sizeof mn);
+    mn[0][0] = grid[0][0];
+    for (int x = 1; x < m; x++)
+      mn[0][x] = mn[0][x - 1] + grid[0][x];
 
-    minCost[1][1] = grid[0][0];
-    for (std::size_t y = 1UZ; y <= m; y++)
-      for (std::size_t x = 1UZ; x <= n; x++)
-        if (!(y == 1UZ && x == 1UZ))
-          minCost[y][x] = grid[y - 1][x - 1] +
-                          std::min(minCost[y - 1][x], minCost[y][x - 1]);
+    for (int y = 1; y < n; y++)
+      mn[y][0] = mn[y - 1][0] + grid[y][0];
 
-    return minCost[m][n];
+    for (int y = 1; y < n; y++)
+      for (int x = 1; x < m; x++)
+        mn[y][x] =
+            std::min(mn[y - 1][x] + grid[y][x], mn[y][x - 1] + grid[y][x]);
+
+    return mn[n - 1][m - 1];
   }
 };
