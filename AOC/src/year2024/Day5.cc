@@ -18,10 +18,7 @@ auto pt1() -> void
   }
 
   auto PARTIAL_ORDERING = [&is_behind](const int &a, const int &b) -> bool {
-    if (is_behind[a].contains(b))
-      return true;
-    else
-      return false;
+    return is_behind[a].contains(b);
   };
 
   const char delim = ',';
@@ -60,10 +57,7 @@ auto pt2() -> void
   }
 
   auto PARTIAL_ORDERING = [&is_behind](const int &a, const int &b) -> bool {
-    if (is_behind[a].contains(b))
-      return true;
-    else
-      return false;
+    return is_behind[a].contains(b);
   };
 
   const char delim = ',';
