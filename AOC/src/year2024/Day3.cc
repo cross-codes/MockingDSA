@@ -1,4 +1,4 @@
-#include "include/runner.hh"
+#include "runner.hh"
 
 namespace Day3
 {

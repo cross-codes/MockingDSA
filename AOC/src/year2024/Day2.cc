@@ -1,4 +1,4 @@
-#include "include/runner.hh"
+#include "runner.hh"
 
 namespace Day2
 {
@@ -13,8 +13,7 @@ auto pt1() -> void
   {
     std::istringstream iss(line);
     std::vector<int> split{};
-    int x;
-    while (iss >> x)
+    for (int x; iss >> x;)
       split.push_back(x);
 
     int n = static_cast<int>(split.size());
@@ -51,8 +50,7 @@ auto pt2() -> void
   {
     std::istringstream iss(line);
     std::vector<int> split{};
-    int x;
-    while (iss >> x)
+    for (int x; iss >> x;)
       split.push_back(x);
 
     int n = static_cast<int>(split.size());

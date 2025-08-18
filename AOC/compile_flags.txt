@@ -2,7 +2,7 @@
 -std=c++23
 -O2
 -I/home/cross/MockingDSA/lib
--I/home/cross/MockingDSA/AOC/src
+-I/home/cross/MockingDSA/AOC/src/include
 -funroll-loops
 -fsanitize=undefined,address
 -fno-sanitize-recover

@@ -1,4 +1,4 @@
-#include "include/runner.hh"
+#include "runner.hh"
 
 namespace Day1
 {
@@ -6,8 +6,7 @@ namespace Day1
 auto pt1() -> void
 {
   std::vector<int64_t> l1{}, l2{};
-  int64_t x, y;
-  while (std::cin >> x >> y)
+  for (int64_t x, y; std::cin >> x >> y;)
   {
     l1.push_back(x);
     l2.push_back(y);
@@ -25,8 +24,7 @@ auto pt2() -> void
 {
   std::vector<int64_t> l1{};
   std::unordered_map<int64_t, int> cnt2{};
-  int64_t x, y;
-  while (std::cin >> x >> y)
+  for (int64_t x, y; std::cin >> x >> y;)
   {
     l1.push_back(x);
     cnt2[y] += 1;

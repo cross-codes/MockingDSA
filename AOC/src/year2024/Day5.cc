@@ -1,4 +1,4 @@
-#include "include/runner.hh"
+#include "runner.hh"
 
 namespace Day5
 {
@@ -29,9 +29,8 @@ auto pt1() -> void
     std::istringstream iss(s);
     std::vector<int> res{};
 
-    int x;
     std::string temp{};
-    while (std::getline(iss, temp, delim))
+    for (int x; std::getline(iss, temp, delim);)
       if (std::istringstream(temp) >> x)
         res.push_back(x);
 
@@ -68,9 +67,8 @@ auto pt2() -> void
     std::istringstream iss(s);
     std::vector<int> res{};
 
-    int x;
     std::string temp{};
-    while (std::getline(iss, temp, delim))
+    for (int x; std::getline(iss, temp, delim);)
       if (std::istringstream(temp) >> x)
         res.push_back(x);
 
