@@ -19,6 +19,7 @@ inline void init()
       std::cerr << "WARN: setrlimit failed\n";
   }
 }
+
 template <typename... FunctionList, size_t... Idxs>
 void exec_all_impl(std::index_sequence<Idxs...>, FunctionList &&...fns)
 {
