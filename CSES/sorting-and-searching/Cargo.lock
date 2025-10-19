@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "sorting-and-searching"
+name = "introductory-problems"
 version = "0.1.0"
