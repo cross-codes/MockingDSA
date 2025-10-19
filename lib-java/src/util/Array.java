@@ -1,4 +1,4 @@
-import interfaces.Procedure;
+package util;
 
 public final class Array {
 

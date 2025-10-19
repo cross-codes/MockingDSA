@@ -1,3 +1,5 @@
+package collections;
+
 import java.util.Objects;
 
 public class OrderedPair<F extends Comparable<F>, S extends Comparable<S>>

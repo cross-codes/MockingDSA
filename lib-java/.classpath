@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"></classpathentry>
-  <classpathentry kind="src" path="collections"></classpathentry>
-  <classpathentry kind="src" path="extras"></classpathentry>
-  <classpathentry kind="src" path="geometry"></classpathentry>
-  <classpathentry kind="src" path="interfaces"></classpathentry>
-  <classpathentry kind="src" path="primitives"></classpathentry>
-  <classpathentry kind="src" path="util"></classpathentry>
+  <classpathentry kind="src" path="src"></classpathentry>
   <classpathentry kind="output" path="bin"></classpathentry>
 </classpath>

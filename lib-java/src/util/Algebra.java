@@ -1,8 +1,5 @@
 package util;
 
-import interfaces.LongFunction;
-import interfaces.Procedure;
-
 public final class Algebra {
 
   private static final double EPSILON = 1E-6;
