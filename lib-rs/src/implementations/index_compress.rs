@@ -9,8 +9,7 @@ impl<T> IndexCompress<T>
 where
   T: Ord + Clone,
 {
-  pub fn new(mut vec: Vec<T>) -> Self
-  {
+  pub fn new(mut vec: Vec<T>) -> Self {
     vec.sort();
     vec.dedup();
     Self {
@@ -18,16 +17,13 @@ where
     }
   }
 
-  pub fn get_compressed_index(&self, value: &T) -> usize
-  {
-    match self.compressed_vals.binary_search(value)
-    {
+  pub fn get_compressed_index(&self, value: &T) -> usize {
+    match self.compressed_vals.binary_search(value) {
       Ok(idx) | Err(idx) => idx,
     }
   }
 
-  pub fn get_max_range(&self) -> usize
-  {
+  pub fn get_max_range(&self) -> usize {
     self.compressed_vals.len().saturating_sub(1)
   }
 }

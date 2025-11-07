@@ -1,3 +1,24 @@
+use io::{ConsoleIO, IO};
+use std::error::Error;
+
+fn run(io: &mut impl IO, _case: u32) {
+  let _: i32 = io.read();
+  let mut p: Vec<i64> = io.read_iter().collect();
+
+  p.sort_unstable();
+  let x = p[p.len() >> 1];
+  writeln!(io, "{}", p.iter().fold(0, |acc, &s| acc + (s - x).abs())).unwrap()
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+  let mut io = ConsoleIO::new();
+
+  let t: u32 = 1;
+  (1..=t).for_each(|i| run(&mut io, i));
+
+  Ok(())
+}
+
 pub mod io {
   use std::{
     fmt::{self, Debug},
@@ -53,13 +74,13 @@ pub mod io {
     }
   }
 
-  pub struct StdIO {
+  pub struct ConsoleIO {
     reader: BufReader<Stdin>,
     input: String,
     output: String,
   }
 
-  impl StdIO {
+  impl ConsoleIO {
     pub fn new() -> Self {
       Self {
         reader: BufReader::new(std::io::stdin()),
@@ -69,7 +90,7 @@ pub mod io {
     }
   }
 
-  impl IO for StdIO {
+  impl IO for ConsoleIO {
     fn read_line(&mut self) -> &str {
       self.input = String::new();
       self.reader.read_line(&mut self.input).unwrap();
@@ -81,25 +102,25 @@ pub mod io {
     }
   }
 
-  impl fmt::Write for StdIO {
+  impl fmt::Write for ConsoleIO {
     fn write_str(&mut self, s: &str) -> fmt::Result {
       write!(&mut self.output, "{s}")
     }
   }
 
-  impl Drop for StdIO {
+  impl Drop for ConsoleIO {
     fn drop(&mut self) {
       println!("{}", self.output);
     }
   }
 
-  pub struct MockIO<'a> {
+  pub struct DebugIO<'a> {
     input: std::str::Lines<'a>,
     line: &'a str,
     pub output: String,
   }
 
-  impl<'a> MockIO<'a> {
+  impl<'a> DebugIO<'a> {
     pub fn new(input: &'a str) -> Self {
       Self {
         input: input.lines(),
@@ -113,7 +134,7 @@ pub mod io {
     }
   }
 
-  impl IO for MockIO<'_> {
+  impl IO for DebugIO<'_> {
     fn read_line(&mut self) -> &str {
       self.line = self.input.next().unwrap();
       self.line.trim_end()
@@ -124,7 +145,7 @@ pub mod io {
     }
   }
 
-  impl fmt::Write for MockIO<'_> {
+  impl fmt::Write for DebugIO<'_> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
       write!(&mut self.output, "{s}")
     }

@@ -1,3 +1,44 @@
+use io::{ConsoleIO, IO};
+use std::error::Error;
+
+fn run(io: &mut impl IO, _case: u32) {
+  let n: i64 = io.read();
+  if (n * (n + 1)) % 4 != 0 {
+    writeln!(io, "NO").unwrap()
+  } else {
+    let target: i64 = (n * (n + 1)) / 4;
+    let (mut set1, mut set2): (Vec<i64>, Vec<i64>) = (
+      Vec::with_capacity(n as usize),
+      Vec::with_capacity(n as usize),
+    );
+
+    let mut sum1: i64 = 0;
+    for i in (1..=n).rev() {
+      if sum1 + i <= target {
+        set1.push(i);
+        sum1 += i;
+      } else {
+        set2.push(i);
+      }
+    }
+
+    writeln!(io, "YES").unwrap();
+    writeln!(io, "{}", set1.len()).unwrap();
+    set1.iter().for_each(|a| write!(io, "{} ", a).unwrap());
+    writeln!(io, "{}", set2.len()).unwrap();
+    set2.iter().for_each(|b| write!(io, "{} ", b).unwrap())
+  }
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+  let mut io = ConsoleIO::new();
+
+  let t: u32 = 1;
+  (1..=t).for_each(|i| run(&mut io, i));
+
+  Ok(())
+}
+
 pub mod io {
   use std::{
     fmt::{self, Debug},
@@ -53,13 +94,13 @@ pub mod io {
     }
   }
 
-  pub struct StdIO {
+  pub struct ConsoleIO {
     reader: BufReader<Stdin>,
     input: String,
     output: String,
   }
 
-  impl StdIO {
+  impl ConsoleIO {
     pub fn new() -> Self {
       Self {
         reader: BufReader::new(std::io::stdin()),
@@ -69,7 +110,7 @@ pub mod io {
     }
   }
 
-  impl IO for StdIO {
+  impl IO for ConsoleIO {
     fn read_line(&mut self) -> &str {
       self.input = String::new();
       self.reader.read_line(&mut self.input).unwrap();
@@ -81,25 +122,25 @@ pub mod io {
     }
   }
 
-  impl fmt::Write for StdIO {
+  impl fmt::Write for ConsoleIO {
     fn write_str(&mut self, s: &str) -> fmt::Result {
       write!(&mut self.output, "{s}")
     }
   }
 
-  impl Drop for StdIO {
+  impl Drop for ConsoleIO {
     fn drop(&mut self) {
       println!("{}", self.output);
     }
   }
 
-  pub struct MockIO<'a> {
+  pub struct DebugIO<'a> {
     input: std::str::Lines<'a>,
     line: &'a str,
     pub output: String,
   }
 
-  impl<'a> MockIO<'a> {
+  impl<'a> DebugIO<'a> {
     pub fn new(input: &'a str) -> Self {
       Self {
         input: input.lines(),
@@ -113,7 +154,7 @@ pub mod io {
     }
   }
 
-  impl IO for MockIO<'_> {
+  impl IO for DebugIO<'_> {
     fn read_line(&mut self) -> &str {
       self.line = self.input.next().unwrap();
       self.line.trim_end()
@@ -124,7 +165,7 @@ pub mod io {
     }
   }
 
-  impl fmt::Write for MockIO<'_> {
+  impl fmt::Write for DebugIO<'_> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
       write!(&mut self.output, "{s}")
     }

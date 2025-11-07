@@ -17,14 +17,10 @@ where
     n: usize,
     default_value: T,
     f: impl Fn(&T, &T) -> T + 'static,
-  ) -> Self
-  {
-    let ceil_log2 = if n == 1
-    {
+  ) -> Self {
+    let ceil_log2 = if n == 1 {
       1
-    }
-    else
-    {
+    } else {
       64 - (n - 1).leading_zeros() as usize
     };
 
@@ -33,11 +29,9 @@ where
     tree[offset..offset + n].copy_from_slice(&array);
 
     let mut i: usize = offset;
-    while i != 1
-    {
+    while i != 1 {
       let mut j: usize = i;
-      while j < (i << 1)
-      {
+      while j < (i << 1) {
         tree[j >> 1] = f(&tree[j], &tree[j + 1]);
         j += 2;
       }
@@ -52,13 +46,11 @@ where
     }
   }
 
-  pub fn set_at_index(&mut self, mut index: usize, value: T)
-  {
+  pub fn set_at_index(&mut self, mut index: usize, value: T) {
     index += self.offset;
     self.tree[index] = value;
 
-    while index != 1
-    {
+    while index != 1 {
       self.tree[index >> 1] =
         (self.f)(&self.tree[index], &self.tree[index ^ 1]);
 
@@ -66,21 +58,17 @@ where
     }
   }
 
-  pub fn query_range(&self, mut l: usize, mut r: usize) -> T
-  {
+  pub fn query_range(&self, mut l: usize, mut r: usize) -> T {
     l += self.offset;
     r += self.offset;
 
     let mut result = self.default_value;
-    while l < r
-    {
-      if l & 1 != 0
-      {
+    while l < r {
+      if l & 1 != 0 {
         result = (self.f)(&result, &self.tree[l]);
         l += 1;
       }
-      if r & 1 != 0
-      {
+      if r & 1 != 0 {
         r -= 1;
         result = (self.f)(&result, &self.tree[r]);
       }

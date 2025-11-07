@@ -1,9 +1,13 @@
+package collections;
+
 import java.util.Comparator;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class TreeMultiset<E> {
 
-  public TreeMap<E, Integer> map;
+  private TreeMap<E, Integer> map;
   private int size;
 
   public TreeMultiset() {
@@ -31,11 +35,11 @@ public class TreeMultiset<E> {
     this.size = 0;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    TreeMultiset<E> cloned = (TreeMultiset<E>) super.clone();
-    cloned.map = new TreeMap<>(this.map);
+  public TreeMultiset<E> clone() {
+    TreeMultiset<E> cloned = new TreeMultiset<>(this.map.comparator());
+    cloned.map.putAll(this.map);
+    cloned.size = this.size;
     return cloned;
   }
 
@@ -75,6 +79,18 @@ public class TreeMultiset<E> {
     return this.size;
   }
 
+  public int count(E e) {
+    return this.map.containsKey(e) ? this.map.get(e) : 0;
+  }
+
+  public Set<E> elementSet() {
+    return this.map.keySet();
+  }
+
+  public Set<Map.Entry<E, Integer>> entryMultiset() {
+    return this.map.entrySet();
+  }
+
   public boolean removeOne(E e) {
     if (!this.map.containsKey(e))
       return false;
@@ -86,6 +102,16 @@ public class TreeMultiset<E> {
       this.map.put(e, --cnt);
 
     this.size -= 1;
+    return true;
+  }
+
+  public boolean removeAll(E e) {
+    if (!this.map.containsKey(e))
+      return false;
+
+    Integer cnt = this.map.get(e);
+    this.map.remove(e);
+    this.size -= cnt;
     return true;
   }
 }
