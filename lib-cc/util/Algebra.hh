@@ -1,4 +1,5 @@
 #include <cassert>
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -63,7 +64,7 @@ public:
 
   constexpr inline static auto ceil_log2(std::uint64_t n) -> int
   {
-    return (n == 1) ? 1 : 64 - __builtin_clzll(n - 1);
+    return std::bit_width(n - 1);
   }
 
   constexpr inline static auto is_prime(int64_t n) -> bool

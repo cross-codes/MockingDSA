@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Launchable(author = "Evermore", hostname = "probook", judge = "CSES")
 public class MovieTickets extends ModuleSignatures implements Runnable {
@@ -23,19 +25,18 @@ public class MovieTickets extends ModuleSignatures implements Runnable {
   private void solveCase(int _case) {
     int n = in.nextInt();
 
-    int[][] movies = new int[n][2];
+    ArrayList<IntegerOrderedPair> movies = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
-      movies[i][0] = in.nextInt();
-      movies[i][1] = in.nextInt();
+      movies.add(new IntegerOrderedPair(in.nextInt(), in.nextInt()));
     }
 
-    Arrays.sort(movies,
-        (a, b) -> Integer.compare(a[1], b[1]) == 0 ? Integer.compare(a[0], b[0]) : Integer.compare(a[1], b[1]));
+    movies.sort((a, b) -> Integer.compare(a.second, b.second) == 0 ? Integer.compare(a.first, b.first)
+        : Integer.compare(a.second, b.second));
 
     int mx = 0, cur = 0, cure = 0;
-    for (int[] pair : movies) {
-      if (pair[0] >= cure) {
-        cure = pair[1];
+    for (var pair : movies) {
+      if (pair.first >= cure) {
+        cure = pair.second;
         cur += 1;
         mx = Math.max(cur, mx);
       }
@@ -58,6 +59,41 @@ interface Procedure {
 @FunctionalInterface
 interface LongFunction {
   long apply(long t);
+}
+
+class IntegerOrderedPair implements Comparable<IntegerOrderedPair> {
+
+  public int first;
+  public int second;
+
+  public IntegerOrderedPair(int first, int second) {
+    this.first = first;
+    this.second = second;
+  }
+
+  @Override
+  public int compareTo(IntegerOrderedPair other) {
+    int cmp = Integer.compare(this.first, other.first);
+    if (cmp == 0)
+      return Integer.compare(this.second, other.second);
+
+    return cmp;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!(obj instanceof IntegerOrderedPair))
+      return false;
+    IntegerOrderedPair pair = (IntegerOrderedPair) obj;
+    return this.first == pair.first && this.second == pair.second;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.first, this.second);
+  }
 }
 
 class StandardInputReader {

@@ -4,11 +4,10 @@ import java.util.Arrays;
 import java.util.EmptyStackException;
 
 public class Stack<E> {
-
-  private E[] stack;
   public final boolean isUnbound;
   private int STACK_SIZE;
   private int pos = -1;
+  private E[] stack;
 
   @SuppressWarnings("unchecked")
   public Stack(int initialSize, boolean isUnbound) {

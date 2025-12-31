@@ -1,10 +1,10 @@
 package collections;
 
-class BinarySearchTree {
+public final class IntegerBinarySearchTree {
   private Node root;
   private final Node[] leaves;
 
-  public BinarySearchTree(int n) {
+  public IntegerBinarySearchTree(int n) {
     leaves = new Node[Integer.highestOneBit(n) << 1];
     for (int i = 0; i < leaves.length; i++)
       leaves[i] = new Node(null, null, 0);
@@ -37,13 +37,13 @@ class BinarySearchTree {
     return leaves[element].value != 0;
   }
 
-  public int getIndex(int element) {
+  public int orderOfKey(int x) {
     int index = 0;
-    for (Node node = leaves[element]; node != root; node = node.parent) {
+    for (Node node = leaves[x]; node != root; node = node.parent) {
       if (node.parent.right == node)
         index += node.parent.left.value;
     }
-    return leaves[element].value == 0 ? -index - 1 : index;
+    return leaves[x].value == 0 ? -index - 1 : index;
   }
 
   public void add(int element) {
@@ -51,19 +51,19 @@ class BinarySearchTree {
       node.value++;
   }
 
-  public void remove(int element) {
+  public void removeOne(int element) {
     for (Node node = leaves[element]; node != null; node = node.parent)
       node.value--;
   }
 
-  public int getElement(int index) {
+  public int findByOrder(int k) {
     int element = 0;
     int step = leaves.length / 2;
     for (Node node = root; node.left != null; step >>= 1) {
-      if (index < node.left.value)
+      if (k < node.left.value)
         node = node.left;
       else {
-        index -= node.left.value;
+        k -= node.left.value;
         element += step;
         node = node.right;
       }

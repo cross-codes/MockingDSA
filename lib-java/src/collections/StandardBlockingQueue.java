@@ -1,10 +1,9 @@
 package collections;
 
 public class StandardBlockingQueue<E> {
-
+  public int headPos = -1;
   private E[] queue;
   private int QUEUE_SIZE;
-  public int headPos = -1;
   private int endPos = 0;
 
   @SuppressWarnings("unchecked")

@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class TreeMultiset<E> {
-
   private TreeMap<E, Integer> map;
   private int size;
 

@@ -1,4 +1,4 @@
-package collections;
+package collections.tuples;
 
 import java.util.Objects;
 
@@ -18,8 +18,8 @@ public class OrderedPair<F extends Comparable<F>, S extends Comparable<S>>
     int cmp = this.first.compareTo(other.first);
     if (cmp == 0)
       return this.second.compareTo(other.second);
-    else
-      return cmp;
+
+    return cmp;
   }
 
   @Override
