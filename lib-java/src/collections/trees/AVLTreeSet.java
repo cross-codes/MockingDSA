@@ -1,11 +1,19 @@
-package collections.avl;
+package collections.trees;
 
+import java.util.Comparator;
 import java.util.function.Consumer;
 
-public class AVLTreeSet<E extends Comparable<E>> {
+class AVLTreeSet<E> {
   private Item<E> root;
+  private final Comparator<? super E> comparator;
 
+  @SuppressWarnings("unchecked")
   public AVLTreeSet() {
+    this.comparator = (Comparator<? super E>) Comparator.naturalOrder();
+  }
+
+  public AVLTreeSet(Comparator<? super E> cmp) {
+    this.comparator = cmp;
   }
 
   public int size() {
@@ -45,7 +53,7 @@ public class AVLTreeSet<E extends Comparable<E>> {
     E result = null;
 
     while (item != null) {
-      int comparison = e.compareTo(item.element);
+      int comparison = comparator.compare(e, item.element);
       if (comparison <= 0) {
         result = item.element;
         item = item.left;
@@ -61,7 +69,7 @@ public class AVLTreeSet<E extends Comparable<E>> {
     E result = null;
 
     while (item != null) {
-      int comparison = e.compareTo(item.element);
+      int comparison = comparator.compare(e, item.element);
       if (comparison < 0) {
         result = item.element;
         item = item.left;
@@ -79,7 +87,7 @@ public class AVLTreeSet<E extends Comparable<E>> {
       Item<E> item = root;
       Item<E> child;
       while (true) {
-        int comparison = e.compareTo(item.element);
+        int comparison = comparator.compare(e, item.element);
         if (comparison < 0) {
           if (item.left == null) {
             item.left = new Item<>(e, item);
@@ -133,7 +141,7 @@ public class AVLTreeSet<E extends Comparable<E>> {
 
   public void remove(E e) {
     for (Item<E> item = root; item != null;) {
-      int comparison = e.compareTo(item.element);
+      int comparison = comparator.compare(e, item.element);
       if (comparison < 0)
         item = item.left;
       else if (comparison > 0)
@@ -148,7 +156,7 @@ public class AVLTreeSet<E extends Comparable<E>> {
   public int countHigher(E e) {
     int count = 0;
     for (Item<E> item = root; item != null;) {
-      int comparison = e.compareTo(item.element);
+      int comparison = comparator.compare(e, item.element);
       if (comparison < 0) {
         count += item.right == null ? 1 : item.right.size + 1;
         item = item.left;
@@ -166,7 +174,7 @@ public class AVLTreeSet<E extends Comparable<E>> {
   public int countLower(E e) {
     int count = 0;
     for (Item<E> item = root; item != null;) {
-      int comparison = e.compareTo(item.element);
+      int comparison = comparator.compare(e, item.element);
       if (comparison > 0) {
         count += item.left == null ? 1 : item.left.size + 1;
         item = item.right;

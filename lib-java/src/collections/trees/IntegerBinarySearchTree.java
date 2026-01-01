@@ -1,4 +1,4 @@
-package collections;
+package collections.trees;
 
 public final class IntegerBinarySearchTree {
   private Node root;

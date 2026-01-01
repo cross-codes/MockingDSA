@@ -32,7 +32,7 @@ class SegmentTree {
     }
   }
 
-  void setAtIndex(int index, int value) {
+  void setAtIndex(int index, long value) {
     index += offset;
     tree[index] = value;
 

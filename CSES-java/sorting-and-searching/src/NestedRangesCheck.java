@@ -1,8 +1,9 @@
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.LongBinaryOperator;
+import java.util.Objects;
 
 @Launchable(author = "Evermore", hostname = "probook", judge = "CSES")
-public class DynamicRangeMinimumQueries extends ModuleSignatures implements Runnable {
+public class NestedRangesCheck extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -18,29 +19,52 @@ public class DynamicRangeMinimumQueries extends ModuleSignatures implements Runn
   }
 
   public static void main(String... args) {
-    new Thread(null, new DynamicRangeMinimumQueries(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new NestedRangesCheck(), "LaunchableDriver", 1048576L).start();
   }
 
   private void solveCase(int _case) {
-    int n = in.nextInt(), q = in.nextInt();
-    long[] x = in.readLongArray(n);
+    int n = in.nextInt();
+    int[] firstPass = new int[n], secondPass = new int[n];
 
-    SegmentTree tree = new SegmentTree(Long::min, x, Long.MAX_VALUE);
-    for (int i = 0; i < q; i++) {
-      int c = in.nextInt();
-      if (c == 1) {
-        int k = in.nextInt(), u = in.nextInt();
-        tree.setAtIndex(k - 1, u);
-      } else {
-        int a = in.nextInt(), b = in.nextInt();
-        out.append(tree.rangeQuery(a - 1, b)).appendNewLine();
-      }
+    ArrayList<IntegerOrderedTriplet> intervals = new ArrayList<>(n);
+    for (int i = 0; i < n; i++) {
+      intervals.add(new IntegerOrderedTriplet(in.nextInt(), in.nextInt(), i));
     }
+
+    intervals
+        .sort((a, b) -> (a.first == b.first) ? Integer.compare(a.second, b.second) : Integer.compare(b.first, a.first));
+
+    int mnr = Integer.MAX_VALUE;
+    for (var item : intervals) {
+      firstPass[item.third] = (mnr <= item.second ? 1 : 0);
+      mnr = Math.min(mnr, item.second);
+    }
+
+    intervals
+        .sort((a, b) -> (a.first == b.first) ? Integer.compare(b.second, a.second) : Integer.compare(a.first, b.first));
+
+    int mxr = Integer.MIN_VALUE;
+    for (var item : intervals) {
+      secondPass[item.third] = (mxr >= item.second ? 1 : 0);
+      mxr = Math.max(mxr, item.second);
+    }
+
+    for (int e : firstPass) {
+      out.append(e).append(" ");
+    }
+
+    out.appendNewLine();
+
+    for (int e : secondPass) {
+      out.append(e).append(" ");
+    }
+
+    out.appendNewLine();
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = DynamicRangeMinimumQueries.class)
+@MultipleInheritanceDisallowed(inheritor = NestedRangesCheck.class)
 abstract class ModuleSignatures {
 }
 
@@ -54,64 +78,46 @@ interface LongFunction {
   long apply(long t);
 }
 
-class SegmentTree {
-  private int n, offset;
-  private long[] tree;
-  private LongBinaryOperator function;
-  private long defaultValue;
+class IntegerOrderedTriplet
+    implements Comparable<IntegerOrderedTriplet> {
 
-  SegmentTree(LongBinaryOperator function, long[] array, long defaultValue) {
-    this.n = array.length;
-    this.function = function;
-    this.defaultValue = defaultValue;
+  public int first;
+  public int second;
+  public int third;
 
-    this.offset = 1 << (32 - Integer.numberOfLeadingZeros(n - 1));
-    this.tree = new long[offset << 1];
-    Arrays.fill(tree, defaultValue);
-
-    System.arraycopy(array, 0, tree, offset, array.length);
-
-    int i = offset;
-    while (i != 1) {
-      int j = i;
-      while (j < i << 1) {
-        tree[j >> 1] = function.applyAsLong(tree[j], tree[j + 1]);
-        j += 2;
-      }
-
-      i >>= 1;
-    }
+  public IntegerOrderedTriplet(int first, int second, int third) {
+    this.first = first;
+    this.second = second;
+    this.third = third;
   }
 
-  void setAtIndex(int index, int value) {
-    index += offset;
-    tree[index] = value;
+  @Override
+  public int compareTo(IntegerOrderedTriplet other) {
+    int cmp = Integer.compare(this.first, other.first);
+    if (cmp != 0)
+      return cmp;
 
-    while (index != 1) {
-      tree[index >> 1] = function.applyAsLong(tree[index], tree[index ^ 1]);
-      index >>= 1;
-    }
+    cmp = Integer.compare(this.second, other.second);
+    if (cmp != 0)
+      return cmp;
+
+    return Integer.compare(this.third, other.third);
   }
 
-  long rangeQuery(int a, int b) {
-    a += offset;
-    b += offset;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!(obj instanceof IntegerOrderedTriplet))
+      return false;
+    IntegerOrderedTriplet triplet = (IntegerOrderedTriplet) obj;
+    return this.first == triplet.first && this.second == triplet.second
+        && this.third == triplet.third;
+  }
 
-    long result = defaultValue;
-    while (a < b) {
-      if ((a & 1) != 0) {
-        result = function.applyAsLong(result, tree[a++]);
-      }
-
-      if ((b & 1) != 0) {
-        result = function.applyAsLong(result, tree[--b]);
-      }
-
-      a >>= 1;
-      b >>= 1;
-    }
-
-    return result;
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.first, this.second, this.third);
   }
 }
 

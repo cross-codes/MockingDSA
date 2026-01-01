@@ -23,10 +23,7 @@ public class StaticRangeMinimumQueries extends ModuleSignatures implements Runna
 
   private void solveCase(int _case) {
     int n = in.nextInt(), q = in.nextInt();
-    long[] x = new long[n];
-    for (int i = 0; i < n; i++) {
-      x[i] = in.nextLong();
-    }
+    long[] x = in.readLongArray(n);
 
     IdempotentSparseTable table = new IdempotentSparseTable(Math::min, x);
 

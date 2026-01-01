@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.function.LongBinaryOperator;
 
 @Launchable(author = "Evermore", hostname = "probook", judge = "CSES")
-public class DynamicRangeMinimumQueries extends ModuleSignatures implements Runnable {
+public class RangeUpdateQueries extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -18,29 +18,30 @@ public class DynamicRangeMinimumQueries extends ModuleSignatures implements Runn
   }
 
   public static void main(String... args) {
-    new Thread(null, new DynamicRangeMinimumQueries(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new RangeUpdateQueries(), "LaunchableDriver", 1048576L).start();
   }
 
   private void solveCase(int _case) {
     int n = in.nextInt(), q = in.nextInt();
     long[] x = in.readLongArray(n);
 
-    SegmentTree tree = new SegmentTree(Long::min, x, Long.MAX_VALUE);
+    DifferenceArray diff = new DifferenceArray(x);
+
     for (int i = 0; i < q; i++) {
-      int c = in.nextInt();
-      if (c == 1) {
-        int k = in.nextInt(), u = in.nextInt();
-        tree.setAtIndex(k - 1, u);
+      int type = in.nextInt();
+      if (type == 1) {
+        int a = in.nextInt(), b = in.nextInt(), u = in.nextInt();
+        diff.increaseInRange(a - 1, b, u);
       } else {
-        int a = in.nextInt(), b = in.nextInt();
-        out.append(tree.rangeQuery(a - 1, b)).appendNewLine();
+        int k = in.nextInt();
+        out.append(diff.getUnderlyingValue(k - 1)).appendNewLine();
       }
     }
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = DynamicRangeMinimumQueries.class)
+@MultipleInheritanceDisallowed(inheritor = RangeUpdateQueries.class)
 abstract class ModuleSignatures {
 }
 
@@ -83,7 +84,7 @@ class SegmentTree {
     }
   }
 
-  void setAtIndex(int index, int value) {
+  void setAtIndex(int index, long value) {
     index += offset;
     tree[index] = value;
 
@@ -112,6 +113,33 @@ class SegmentTree {
     }
 
     return result;
+  }
+}
+
+class DifferenceArray {
+  private long[] diff;
+  private SegmentTree tree;
+
+  DifferenceArray(long[] array) {
+    diff = new long[array.length + 1];
+    diff[0] = array[0];
+    for (int i = 1; i < array.length; i++) {
+      diff[i] = array[i] - array[i - 1];
+    }
+
+    tree = new SegmentTree(Long::sum, diff, 0);
+  }
+
+  void increaseInRange(int a, int b, long x) {
+    tree.setAtIndex(a, diff[a] + x);
+    diff[a] += x;
+
+    tree.setAtIndex(b, diff[b] - x);
+    diff[b] -= x;
+  }
+
+  long getUnderlyingValue(int index) {
+    return tree.rangeQuery(0, index + 1);
   }
 }
 

@@ -23,10 +23,7 @@ public class DynamicRangeSumQueries extends ModuleSignatures implements Runnable
 
   private void solveCase(int _case) {
     int n = in.nextInt(), q = in.nextInt();
-    long[] x = new long[n];
-    for (int i = 0; i < n; i++) {
-      x[i] = in.nextLong();
-    }
+    long[] x = in.readLongArray(n);
 
     SegmentTree tree = new SegmentTree(Long::sum, x, 0);
     for (int i = 0; i < q; i++) {
