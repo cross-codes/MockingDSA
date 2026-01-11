@@ -22,74 +22,68 @@ public class PalindromeReorder extends ModuleSignatures implements Runnable {
   }
 
   private void solveCase(int _case) {
-    byte[] str = in.nextLine();
-    int n = str.length;
+    byte[] input = in.nextLine();
+    int n = input.length;
+    byte[] res = new byte[n];
 
     int[] freq = new int[26];
-    for (byte b : str) {
-      freq[b - 'A'] += 1;
+    for (byte b : input) {
+      freq[(char) b - 'A'] += 1;
     }
 
-    byte odd_b = 0;
-    for (int i = 0; i < 26; i += 1) {
+    int oddPos = 0, oddFreq = -1;
+    for (int i = 0; i < 26; i++) {
       int e = freq[i];
-
       if ((e & 1) != 0) {
-        if (odd_b != 0) {
+        if (oddFreq != -1) {
           out.append("NO SOLUTION").appendNewLine();
           return;
+        } else {
+          oddPos = i;
+          oddFreq = e;
         }
-
-        odd_b = (byte) ('A' + i);
       }
     }
 
-    byte[] res = new byte[str.length];
     if ((n & 1) != 0) {
-      if (odd_b == 0) {
+      if (oddFreq == -1) {
         out.append("NO SOLUTION").appendNewLine();
         return;
       }
 
-      int l = 0;
+      int l = 0, r = n - 1;
       for (int i = 0; i < 26; i++) {
+        if (i == oddPos) {
+          continue;
+        }
+
         int e = freq[i];
-        for (int j = 0; j < e; j++) {
-          freq[l] = (byte) (i + 'A');
-          freq[n - l - 1] = (byte) (i + 'A');
-          l += 1;
+        for (int j = 0; j < e; j += 2) {
+          res[l++] = (byte) (i + 'A');
+          res[r--] = (byte) (i + 'A');
         }
       }
 
-      int f = freq[odd_b - 'A'];
-      for (int i = 0; i < n; i++) {
-        if (res[i] == 0) {
-          if (f == 0) {
-            out.append("NO SOLUTION").appendNewLine();
-            return;
-          } else {
-            res[i] = odd_b;
-          }
-        }
+      for (int j = l; j <= r; j++) {
+        res[j] = (byte) (oddPos + 'A');
       }
     } else {
-      if (odd_b != 0) {
+      if (oddFreq != -1) {
         out.append("NO SOLUTION").appendNewLine();
         return;
       }
 
-      int l = 0;
+      int l = 0, r = n - 1;
       for (int i = 0; i < 26; i++) {
         int e = freq[i];
-        for (int j = 0; j < e; j++) {
-          freq[l] = (byte) (i + 'A');
-          freq[n - l - 1] = (byte) (i + 'A');
-          l += 1;
+        for (int j = 0; j < e; j += 2) {
+          res[l++] = (byte) (i + 'A');
+          res[r--] = (byte) (i + 'A');
         }
       }
     }
 
-    out.append(new String(res, StandardCharsets.UTF_8)).appendNewLine();
+    out.append(new String(res, StandardCharsets.US_ASCII)).appendNewLine();
   }
 
 }

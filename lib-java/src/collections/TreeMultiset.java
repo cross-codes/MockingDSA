@@ -20,7 +20,7 @@ public class TreeMultiset<E> {
   }
 
   public boolean add(E e) {
-    this.map.put(e, this.map.getOrDefault(e, 0) + 1);
+    this.map.merge(e, 1, Integer::sum);
     this.size += 1;
     return true;
   }
@@ -79,7 +79,7 @@ public class TreeMultiset<E> {
   }
 
   public int count(E e) {
-    return this.map.containsKey(e) ? this.map.get(e) : 0;
+    return this.map.getOrDefault(e, 0);
   }
 
   public Set<E> elementSet() {

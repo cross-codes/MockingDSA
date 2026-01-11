@@ -32,7 +32,7 @@ class SegmentTree {
     }
   }
 
-  void setAtIndex(int index, long value) {
+  public void setAtIndex(int index, long value) {
     index += offset;
     tree[index] = value;
 
@@ -42,7 +42,7 @@ class SegmentTree {
     }
   }
 
-  long rangeQuery(int a, int b) {
+  public long rangeQuery(int a, int b) {
     a += offset;
     b += offset;
 

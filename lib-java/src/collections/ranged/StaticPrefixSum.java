@@ -17,7 +17,7 @@ class StaticPrefixSum {
     }
   }
 
-  long rangeSum(int a, int b) {
+  public long rangeSum(int a, int b) {
     return prefix[b] - prefix[a];
   }
 }

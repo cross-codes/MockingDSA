@@ -23,21 +23,19 @@ public class TowerOfHanoi extends ModuleSignatures implements Runnable {
   private void solveCase(int _case) {
     int n = in.nextInt();
 
-    final IntegerQuadSupplier[] move = new IntegerQuadSupplier[1];
-
-    move[0] = (disks, a, b, c) -> {
+    RIntegerQuadSupplier move = (self, disks, a, b, c) -> {
       if (disks == 1) {
         out.append(a).append(" ").append(c).appendNewLine();
         return;
       }
 
-      move[0].apply(disks - 1, a, c, b);
+      self.apply(self, disks - 1, a, c, b);
       out.append(a).append(" ").append(c).appendNewLine();
-      move[0].apply(disks - 1, b, a, c);
+      self.apply(self, disks - 1, b, a, c);
     };
 
     out.append((1 << n) - 1).appendNewLine();
-    move[0].apply(n, 1, 2, 3);
+    move.apply(move, n, 1, 2, 3);
   }
 
 }
@@ -57,8 +55,8 @@ interface LongFunction {
 }
 
 @FunctionalInterface
-interface IntegerQuadSupplier {
-  void apply(int a, int b, int c, int d);
+interface RIntegerQuadSupplier {
+  void apply(RIntegerQuadSupplier self, int a, int b, int c, int d);
 }
 
 class StandardInputReader {

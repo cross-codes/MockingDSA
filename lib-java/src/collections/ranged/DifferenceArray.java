@@ -14,7 +14,7 @@ class DifferenceArray {
     tree = new SegmentTree(Long::sum, diff, 0);
   }
 
-  void increaseInRange(int a, int b, long x) {
+  public void increaseInRange(int a, int b, long x) {
     tree.setAtIndex(a, diff[a] + x);
     diff[a] += x;
 
@@ -22,7 +22,7 @@ class DifferenceArray {
     diff[b] -= x;
   }
 
-  long getUnderlyingValue(int index) {
+  public long getUnderlyingValue(int index) {
     return tree.rangeQuery(0, index + 1);
   }
 }

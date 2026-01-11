@@ -22,7 +22,7 @@ class IdempotentSparseTable {
     }
   }
 
-  long rangeQuery(int a, int b) {
+  public long rangeQuery(int a, int b) {
     int row = 31 - Integer.numberOfLeadingZeros(b - a);
     return function.applyAsLong(table[row][a], table[row][b - (1 << row)]);
   }
