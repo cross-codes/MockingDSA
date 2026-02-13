@@ -1,59 +1,35 @@
 #include <set>
 
 class MedianWindow {
- private:
-  std::vector<int> array_;
-  std::size_t current_begin_, current_end_;
-  std::size_t size_, window_size_;
-  std::size_t expected_low_size_, expected_high_size_;
-
-  void balance_sets_() {
-    while (low.size() < expected_low_size_) {
-      auto it = high.begin();
-      low.insert(*it);
-      lower_sum += *it;
-      higher_sum -= *it;
-      high.erase(it);
-    }
-
-    while (high.size() < expected_high_size_) {
-      auto it = --low.end();
-      higher_sum += *it;
-      high.insert(*it);
-      lower_sum -= *it;
-      low.erase(it);
-    }
-  }
-
  public:
   std::multiset<int> low, high;
   std::int64_t lower_sum{}, higher_sum{};
 
   MedianWindow(const std::vector<int>& array, std::size_t k)
-      : array_(array), current_begin_(0), current_end_(0), window_size_(k) {
+      : m_array(array), m_current_begin(0), m_current_end(0), m_window_size(k) {
     if (k & 1)
-      expected_low_size_ = (k >> 1) + 1, expected_high_size_ = k >> 1;
+      m_expected_low_size = (k >> 1) + 1, m_expected_high_size = k >> 1;
     else
-      expected_low_size_ = expected_high_size_ = k >> 1;
+      m_expected_low_size = m_expected_high_size = k >> 1;
 
-    for (std::size_t i = 0; i < size_; i++)
-      array_[i] = array[i];
+    for (std::size_t i = 0; i < m_size; i++)
+      m_array[i] = array[i];
 
-    for (std::size_t i = 0; i < window_size_; i++) {
-      low.insert(array_[i]);
-      lower_sum += array_[i];
+    for (std::size_t i = 0; i < m_window_size; i++) {
+      low.insert(m_array[i]);
+      lower_sum += m_array[i];
     }
 
     balance_sets_();
   }
 
   int next_median() {
-    if (current_end_ == 0) [[unlikely]] {
-      current_end_ = window_size_;
+    if (m_current_end == 0) [[unlikely]] {
+      m_current_end = m_window_size;
       return *low.rbegin();
     }
 
-    int r = array_[current_begin_++];
+    int r = m_array[m_current_begin++];
 
     if (low.contains(r)) {
       auto it = low.find(r);
@@ -65,7 +41,7 @@ class MedianWindow {
       high.erase(high.find(r));
     }
 
-    int e = array_[current_end_++];
+    int e = m_array[m_current_end++];
     if (!high.empty() && e > *high.begin()) {
       higher_sum += e;
       high.insert(e);
@@ -76,5 +52,29 @@ class MedianWindow {
 
     balance_sets_();
     return *low.rbegin();
+  }
+
+ private:
+  std::vector<int> m_array;
+  std::size_t m_current_begin, m_current_end;
+  std::size_t m_size, m_window_size;
+  std::size_t m_expected_low_size, m_expected_high_size;
+
+  void balance_sets_() {
+    while (low.size() < m_expected_low_size) {
+      auto it = high.begin();
+      low.insert(*it);
+      lower_sum += *it;
+      higher_sum -= *it;
+      high.erase(it);
+    }
+
+    while (high.size() < m_expected_high_size) {
+      auto it = --low.end();
+      higher_sum += *it;
+      high.insert(*it);
+      lower_sum -= *it;
+      low.erase(it);
+    }
   }
 };

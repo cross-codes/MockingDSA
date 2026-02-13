@@ -4,40 +4,36 @@
 #include <memory>
 #include <vector>
 
+template <size_t N>
 class FixedDensePrime {
- private:
-  constexpr inline static int N = 1000001;
-  std::array<int, N> minima_, powers_;
-  std::bitset<N> parity_, squareFree_;
-
  public:
   std::vector<int> primes_;
 
-  explicit FixedDensePrime() : minima_{}, powers_{} {
+  explicit FixedDensePrime() : m_minima{}, m_powers{} {
     for (int i = 2; i < (N + 1) >> 1; i++) {
       int minimum, power;
-      if (minima_[i] == 0) {
+      if (m_minima[i] == 0) {
         minimum = i;
         power   = 1;
-        parity_.set(i, true);
-        squareFree_.set(i, true);
+        m_parity.set(i, true);
+        m_square_free.set(i, true);
         primes_.push_back(i);
       } else {
-        minimum = minima_[i];
-        power   = powers_[i];
+        minimum = m_minima[i];
+        power   = m_powers[i];
       }
 
       for (int e : primes_) {
         int index{e * i};
         if (index < N) {
-          minima_[index] = e;
-          parity_.set(index, !parity_[i]);
+          m_minima[index] = e;
+          m_parity.set(index, !m_parity[i]);
           if (e == minimum) {
-            powers_[index] = power + 1;
+            m_powers[index] = power + 1;
             break;
           } else {
-            powers_[index] = 1;
-            squareFree_.set(index, squareFree_[i]);
+            m_powers[index] = 1;
+            m_square_free.set(index, m_square_free[i]);
           }
         } else
           break;
@@ -45,24 +41,24 @@ class FixedDensePrime {
     }
 
     for (int i = (N + 1) >> 1 | 1; i < N; i += 2) {
-      if (minima_[i] == 0) {
-        parity_.set(i, true);
-        squareFree_.set(i, true);
+      if (m_minima[i] == 0) {
+        m_parity.set(i, true);
+        m_square_free.set(i, true);
       }
     }
   }
 
-  auto is_square_free(int n) -> bool { return squareFree_[n]; }
-  auto get_parity(int n) -> bool { return parity_[n]; }
+  auto is_square_free(int n) -> bool { return m_square_free[n]; }
+  auto get_parity(int n) -> bool { return m_parity[n]; }
 
   auto totient(int n) -> int {
     int result{1};
-    while (minima_[n] != 0) {
+    while (m_minima[n] != 0) {
       int factor{1};
-      for (int i = 1; i < powers_[n]; i++)
-        factor *= minima_[n];
-      result *= factor * (minima_[n] - 1);
-      n /= factor * minima_[n];
+      for (int i = 1; i < m_powers[n]; i++)
+        factor *= m_minima[n];
+      result *= factor * (m_minima[n] - 1);
+      n /= factor * m_minima[n];
     }
 
     if (n != 1)
@@ -72,11 +68,11 @@ class FixedDensePrime {
   }
 
   void for_prime_factors(int n, std::function<void(const int&)> consume) {
-    while (minima_[n] != 0) {
-      consume(minima_[n]);
+    while (m_minima[n] != 0) {
+      consume(m_minima[n]);
       int factor{1};
-      for (int i = 0; i < powers_[n]; i++)
-        factor *= minima_[n];
+      for (int i = 0; i < m_powers[n]; i++)
+        factor *= m_minima[n];
       n /= factor;
     }
 
@@ -85,11 +81,11 @@ class FixedDensePrime {
   }
 
   void for_powers(int n, std::function<void(const int&)> consume) {
-    while (minima_[n] != 0) {
-      consume(powers_[n]);
+    while (m_minima[n] != 0) {
+      consume(m_powers[n]);
       int factor{1};
-      for (int i = 0; i < powers_[n]; i++)
-        factor *= minima_[n];
+      for (int i = 0; i < m_powers[n]; i++)
+        factor *= m_minima[n];
       n /= factor;
     }
 
@@ -100,11 +96,11 @@ class FixedDensePrime {
   void for_prime_factors_and_powers(
       int n,
       std::function<void(const int&, const int&)> biConsume) {
-    while (minima_[n] != 0) {
-      biConsume(minima_[n], powers_[n]);
+    while (m_minima[n] != 0) {
+      biConsume(m_minima[n], m_powers[n]);
       int factor{1};
-      for (int i = 0; i < powers_[n]; i++)
-        factor *= minima_[n];
+      for (int i = 0; i < m_powers[n]; i++)
+        factor *= m_minima[n];
       n /= factor;
     }
 
@@ -123,20 +119,20 @@ class FixedDensePrime {
       if (include1)
         consume(1);
 
-      std::vector<int64_t> primeFactors{}, powers{};
+      std::vector<int64_t> prime_factors{}, powers{};
 
-      for_prime_factors_and_powers(n, [&primeFactors, &powers](int a, int b) {
-        primeFactors.push_back(a), powers.push_back(b);
+      for_prime_factors_and_powers(n, [&prime_factors, &powers](int a, int b) {
+        prime_factors.push_back(a), powers.push_back(b);
       });
 
-      std::vector<int64_t> factors = primeFactors;
-      std::unique_ptr<int[]> currentPowers(new int[factors.size()]);
-      std::ranges::fill(currentPowers.get(),
-                        currentPowers.get() + factors.size(), 1);
+      std::vector<int64_t> factors = prime_factors;
+      std::unique_ptr<int[]> current_powers(new int[factors.size()]);
+      std::ranges::fill(current_powers.get(),
+                        current_powers.get() + factors.size(), 1);
 
       int index{};
       while (true) {
-        if (currentPowers[index] > powers[index])
+        if (current_powers[index] > powers[index])
           index++;
         else if (factors[index] == n) {
           if (includeN)
@@ -145,15 +141,19 @@ class FixedDensePrime {
         } else {
           consume(factors[index]);
           for (int i = 0; i <= index; i++)
-            factors[i] = factors[index] * primeFactors[i];
+            factors[i] = factors[index] * prime_factors[i];
 
-          std::ranges::fill(currentPowers.get(), currentPowers.get() + index,
+          std::ranges::fill(current_powers.get(), current_powers.get() + index,
                             1);
 
-          currentPowers[index]++;
+          current_powers[index]++;
           index = 0;
         }
       }
     }
   }
+
+ private:
+  std::array<int, N> m_minima, m_powers;
+  std::bitset<N> m_parity, m_square_free;
 };

@@ -5,35 +5,22 @@
 
 template <std::integral T>
 class BinarySearchTree {
- private:
-  struct Node {
-    std::weak_ptr<Node> parent;
-    std::shared_ptr<Node> left, right;
-    T value;
-
-    Node(std::shared_ptr<Node> left, std::shared_ptr<Node> right, T value)
-        : left(left), right(right), value(value) {};
-  };
-
-  std::shared_ptr<Node> root;
-  std::vector<std::shared_ptr<Node>> leaves;
-
  public:
   BinarySearchTree(size_t n) {
     if (n < 1) {
       n = 1;
     }
 
-    leaves.resize(std::bit_floor(n) << 1);
-    for (size_t i = 0; i < leaves.size(); i++) {
-      leaves[i] = std::make_shared<Node>(nullptr, nullptr, T{});
+    m_leaves.resize(std::bit_floor(n) << 1);
+    for (size_t i = 0; i < m_leaves.size(); i++) {
+      m_leaves[i] = std::make_shared<Node>(nullptr, nullptr, T{});
     }
   }
 
-  void set(int element) { leaves[element]->value = 1; }
+  void set(int element) { m_leaves[element]->value = 1; }
 
   void build() {
-    std::vector<std::shared_ptr<Node>> nodes = leaves;
+    std::vector<std::shared_ptr<Node>> nodes = m_leaves;
 
     while (nodes.size() != 1) {
       std::vector<std::shared_ptr<Node>> new_nodes{};
@@ -50,18 +37,18 @@ class BinarySearchTree {
 
       nodes = new_nodes;
     }
-    root = nodes[0];
+    m_root = nodes[0];
   }
 
-  auto size() const -> T { return root->value; }
+  auto size() const -> T { return m_root->value; }
 
   auto contains(int element) const -> bool {
-    return leaves[element]->value != 0;
+    return m_leaves[element]->value != 0;
   }
 
   auto order_of_key(T x) const -> int {
     int index{};
-    for (auto node = leaves[x]; node != root;) {
+    for (auto node = m_leaves[x]; node != m_root;) {
       auto p = node->parent.lock();
       if (!p) {
         break;
@@ -73,32 +60,32 @@ class BinarySearchTree {
       node = p;
     }
 
-    return leaves[x]->value == 0 ? -index - 1 : index;
+    return m_leaves[x]->value == 0 ? -index - 1 : index;
   }
 
   void add(int element) {
-    for (auto node = leaves[element]; node != nullptr;) {
+    for (auto node = m_leaves[element]; node != nullptr;) {
       node->value += 1;
       node = node->parent.lock();
     }
   }
 
   void remove_one(int element) {
-    for (auto node = leaves[element]; node != nullptr;) {
+    for (auto node = m_leaves[element]; node != nullptr;) {
       node->value -= 1;
       node = node->parent.lock();
     }
   }
 
   auto find_by_order(int k) const -> T {
-    if (!root) {
+    if (!m_root) {
       return 0;
     }
 
     T element{};
-    size_t step = leaves.size() >> 1;
+    size_t step = m_leaves.size() >> 1;
 
-    for (auto node = root; node->left != nullptr; step >>= 1) {
+    for (auto node = m_root; node->left != nullptr; step >>= 1) {
       if (k < node->left->value) {
         node = node->left;
       } else {
@@ -110,4 +97,17 @@ class BinarySearchTree {
 
     return element;
   }
+
+ private:
+  struct Node {
+    std::weak_ptr<Node> parent;
+    std::shared_ptr<Node> left, right;
+    T value;
+
+    Node(std::shared_ptr<Node> left, std::shared_ptr<Node> right, T value)
+        : left(left), right(right), value(value) {};
+  };
+
+  std::shared_ptr<Node> m_root;
+  std::vector<std::shared_ptr<Node>> m_leaves;
 };

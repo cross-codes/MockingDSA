@@ -1,13 +1,16 @@
-#include <algorithm>  // IWYU pragma: keep
-#include <array>      // IWYU pragma: keep
-#include <bit>        // IWYU pragma: keep
-#include <cassert>    // IWYU pragma: keep
-#include <cmath>      // IWYU pragma: keep
-#include <cstdint>    // IWYU pragma: keep
-#include <cstring>    // IWYU pragma: keep
-#include <deque>      // IWYU pragma: keep
-#include <iostream>   // IWYU pragma: keep
-#include <set>
+#include <algorithm>      // IWYU pragma: keep
+#include <array>          // IWYU pragma: keep
+#include <bit>            // IWYU pragma: keep
+#include <cassert>        // IWYU pragma: keep
+#include <cmath>          // IWYU pragma: keep
+#include <concepts>       // IWYU pragma: keep
+#include <cstdint>        // IWYU pragma: keep
+#include <cstring>        // IWYU pragma: keep
+#include <deque>          // IWYU pragma: keep
+#include <iostream>       // IWYU pragma: keep
+#include <map>            // IWYU pragma: keep
+#include <memory>         // IWYU pragma: keep
+#include <set>            // IWYU pragma: keep
 #include <string>         // IWYU pragma: keep
 #include <unordered_map>  // IWYU pragma: keep
 #include <unordered_set>  // IWYU pragma: keep
@@ -32,7 +35,7 @@ auto run() -> void {
   }
 
   std::multiset<int64_t> prefix_store{};
-  int64_t mx{(-9223372036854775807LL - 1)};
+  int64_t mx{INT64_MIN};
   for (int i = a; i <= n; i++) {
     prefix_store.insert(prefix[i - a]);
     if (i >= b + 1) [[likely]] {

@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 @Launchable(author = "Evermore", hostname = "probook", judge = "CSES")
-public class MovieTickets extends ModuleSignatures implements Runnable {
+public class SumOfFourValues extends ModuleSignatures implements Runnable {
 
   private final StandardInputReader in = new StandardInputReader();
   private final StandardOutputWriter out = new StandardOutputWriter();
@@ -19,35 +20,49 @@ public class MovieTickets extends ModuleSignatures implements Runnable {
   }
 
   public static void main(String... args) {
-    new Thread(null, new MovieTickets(), "LaunchableDriver", 1048576L).start();
+    new Thread(null, new SumOfFourValues(), "LaunchableDriver", 1048576L).start();
   }
 
   private void solveCase(int _case) {
     int n = in.nextInt();
+    long x = in.nextLong();
 
-    ArrayList<IntegerOrderedPair> movies = new ArrayList<>(n);
-    for (int i = 0; i < n; i++) {
-      movies.add(new IntegerOrderedPair(in.nextInt(), in.nextInt()));
+    ArrayList<IntegerOrderedPair> a = new ArrayList<>(n);
+    for (int i = 1; i <= n; i++) {
+      a.add(new IntegerOrderedPair(in.nextInt(), i));
     }
 
-    movies.sort((a, b) -> Integer.compare(a.second, b.second) == 0 ? Integer.compare(a.first, b.first)
-        : Integer.compare(a.second, b.second));
+    Collections.sort(a);
 
-    int mx = 0, cur = 0, cure = 0;
-    for (var pair : movies) {
-      if (pair.first >= cure) {
-        cure = pair.second;
-        cur += 1;
-        mx = Math.max(cur, mx);
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        long pref = a.get(i).first + a.get(j).first;
+        if (pref > x) {
+          break;
+        }
+
+        int l = j + 1, r = n - 1;
+        while (l < r) {
+          long suff = a.get(l).first + a.get(r).first;
+          if (pref + suff > x) {
+            r -= 1;
+          } else if (pref + suff < x) {
+            l += 1;
+          } else {
+            out.append(String.format("%d %d %d %d", a.get(i).second, a.get(j).second, a.get(l).second, a.get(r).second))
+                .appendNewLine();
+            return;
+          }
+        }
       }
     }
 
-    out.append(mx).appendNewLine();
+    out.append("IMPOSSIBLE").appendNewLine();
   }
 
 }
 
-@MultipleInheritanceDisallowed(inheritor = MovieTickets.class)
+@MultipleInheritanceDisallowed(inheritor = SumOfFourValues.class)
 abstract class ModuleSignatures {
 }
 

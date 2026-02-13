@@ -1,35 +1,29 @@
 #include <vector>
 
-struct DisjointSetForest
-{
-public:
+struct DisjointSetForest {
+ public:
   std::vector<int> sizes, parents;
 
-  DisjointSetForest(int n) : sizes(n), parents(n)
-  {
+  DisjointSetForest(int n) : sizes(n), parents(n) {
     for (int u = 0; u < n; u++)
       make_set(u);
   }
 
-  void make_set(int u)
-  {
+  void make_set(int u) {
     parents[u] = u;
     sizes[u]   = 1;
   }
 
-  int find_set(int u)
-  {
+  int find_set(int u) {
     if (parents[u] == u)
       return u;
-    else
-    {
+    else {
       parents[u] = find_set(parents[u]);
       return parents[u];
     }
   }
 
-  bool unite(int x, int y)
-  {
+  bool unite(int x, int y) {
     int x_root{find_set(x)}, y_root{find_set(y)};
 
     if (x_root == y_root)

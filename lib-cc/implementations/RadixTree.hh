@@ -2,27 +2,20 @@
 #include <memory>
 #include <string>
 
-struct TrieNode
-{
-public:
+struct TrieNode {
+ public:
   std::array<std::unique_ptr<TrieNode>, 26> children;
   bool is_end_of_word{};
 };
 
-struct RadixTree
-{
-private:
-  std::unique_ptr<TrieNode> root_;
+struct RadixTree {
+ public:
+  RadixTree() : m_root{std::make_unique<TrieNode>()} {};
 
-public:
-  RadixTree() : root_{std::make_unique<TrieNode>()} {};
+  void insert(const std::string& word) {
+    TrieNode* x = m_root.get();
 
-  void insert(const std::string &word)
-  {
-    TrieNode *x = root_.get();
-
-    for (const char &c : word)
-    {
+    for (const char& c : word) {
       if (x->children[c - 'a'] == nullptr)
         x->children[c - 'a'] = std::make_unique<TrieNode>();
 
@@ -32,11 +25,9 @@ public:
     x->is_end_of_word = true;
   }
 
-  auto contains_word(const std::string &word, bool prefix = false) -> bool
-  {
-    TrieNode *p = root_.get();
-    for (const char &c : word)
-    {
+  auto contains_word(const std::string& word, bool prefix = false) -> bool {
+    TrieNode* p = m_root.get();
+    for (const char& c : word) {
       if (p->children[c - 'a'] == nullptr)
         return false;
 
@@ -49,8 +40,10 @@ public:
     return true;
   }
 
-  auto contains_prefix(const std::string &prefix) -> bool
-  {
+  auto contains_prefix(const std::string& prefix) -> bool {
     return contains_word(prefix, true);
   }
+
+ private:
+  std::unique_ptr<TrieNode> m_root;
 };

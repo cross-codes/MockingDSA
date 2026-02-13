@@ -1,107 +1,86 @@
-#include <algorithm> // IWYU pragma: keep
+#include <fcntl.h>
+#include <unistd.h>
+#include <algorithm>  // IWYU pragma: keep
 #include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <fcntl.h>
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <unistd.h>
-#include <utility> // IWYU pragma: keep
-#include <vector>  // IWYU pragma: keep
+#include <utility>  // IWYU pragma: keep
+#include <vector>   // IWYU pragma: keep
 
-namespace io
-{
+namespace io {
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 1 << 20
 #endif
 
-#if (__cpp_nontype_template_parameter_class ||                                 \
+#if (__cpp_nontype_template_parameter_class || \
      (__cpp_nontype_template_args >= 201411L))
-template <std::size_t N> struct fixed_string
-{
-public:
+template <std::size_t N>
+struct fixed_string {
+ public:
   std::array<char, N> buf;
 
-  constexpr fixed_string(char const s[]) noexcept
-  {
+  constexpr fixed_string(char const s[]) noexcept {
     for (std::size_t i = 0; i < N; i++)
       buf[i] = s[i];
   }
 
-  constexpr auto begin() noexcept
-  {
-    return buf.begin();
-  }
+  constexpr auto begin() noexcept { return buf.begin(); }
 
-  constexpr auto end() noexcept
-  {
-    return buf.end();
-  }
+  constexpr auto end() noexcept { return buf.end(); }
 
-  constexpr auto begin() const noexcept
-  {
-    return buf.begin();
-  }
+  constexpr auto begin() const noexcept { return buf.begin(); }
 
-  constexpr auto end() const noexcept
-  {
-    return buf.end();
-  }
+  constexpr auto end() const noexcept { return buf.end(); }
 };
 
-template <std::size_t N> fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
+template <std::size_t N>
+fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
 #endif
 
-struct OutputWriter
-{
-private:
+struct OutputWriter {
+ private:
   std::array<char, BUFFER_SIZE> buffer;
   std::size_t idx = 0;
   int const fd;
 
-public:
-  [[nodiscard]] explicit OutputWriter(int const fd) noexcept : fd(fd)
-  {
-  }
+ public:
+  [[nodiscard]] explicit OutputWriter(int const fd) noexcept : fd(fd) {}
 
   [[nodiscard]] explicit OutputWriter(char const f[]) noexcept
-      : fd(open(f, O_WRONLY | O_CREAT, 0644))
-  {
-  }
+      : fd(open(f, O_WRONLY | O_CREAT, 0644)) {}
 
-  OutputWriter(OutputWriter const &)            = delete;
-  OutputWriter &operator=(OutputWriter const &) = delete;
+  OutputWriter(OutputWriter const&)            = delete;
+  OutputWriter& operator=(OutputWriter const&) = delete;
 
-  void flush() noexcept
-  {
+  void flush() noexcept {
     [[maybe_unused]] ssize_t rc = write(fd, buffer.data(), idx);
     assert(rc >= 0);
     idx = 0;
   }
 
-  void flush_if_overflow(std::size_t x) noexcept
-  {
+  void flush_if_overflow(std::size_t x) noexcept {
 #ifndef NO_AUTO_FLUSH
     if (buffer.size() - idx < x)
       flush();
 #endif
   }
 
-  OutputWriter &operator<<(char const c) noexcept
-  {
+  OutputWriter& operator<<(char const c) noexcept {
     flush_if_overflow(1);
     buffer[idx++] = c;
     return *this;
   }
 
-  template <class T, class = std::enable_if_t<std::is_integral<T>::value>,
+  template <class T,
+            class      = std::enable_if_t<std::is_integral<T>::value>,
             class unsT = typename std::make_unsigned<T>::type>
-  OutputWriter &operator<<(T const a) noexcept
-  {
+  OutputWriter& operator<<(T const a) noexcept {
     std::array<char,
                (long)(sizeof(T) * 2.40823996531) + 1 + std::is_signed<T>::value>
         d;
@@ -115,8 +94,7 @@ public:
       if (std::signbit(a))
         u = -u;
 
-    do
-    {
+    do {
       d[--i] = u % 10 + '0';
       u /= 10;
     } while (u);
@@ -131,8 +109,7 @@ public:
     return *this;
   }
 
-  OutputWriter &operator<<(char const s[]) noexcept
-  {
+  OutputWriter& operator<<(char const s[]) noexcept {
     size_t len = strlen(s);
     flush_if_overflow(len);
     std::memcpy(&buffer[idx], s, len);
@@ -140,16 +117,14 @@ public:
     return *this;
   }
 
-  OutputWriter &operator<<(std::string_view const s) noexcept
-  {
+  OutputWriter& operator<<(std::string_view const s) noexcept {
     flush_if_overflow(s.size());
     std::memcpy(&buffer[idx], s.data(), s.size());
     idx += s.size();
     return *this;
   }
 
-  OutputWriter &operator<<(std::string const &s) noexcept
-  {
+  OutputWriter& operator<<(std::string const& s) noexcept {
     flush_if_overflow(s.size());
     std::memcpy(&buffer[idx], s.data(), s.size());
     idx += s.size();
@@ -157,34 +132,28 @@ public:
   }
 
   template <class T, class = std::enable_if_t<std::is_floating_point<T>::value>>
-  OutputWriter &operator<<(T f) noexcept
-  {
+  OutputWriter& operator<<(T f) noexcept {
     constexpr std::size_t precision = 6;
 
     if constexpr (std::is_signed<T>::value)
-      if (std::signbit(f))
-      {
+      if (std::signbit(f)) {
         *this << '-';
         f *= -1;
       }
 
     int e = 0;
-    while (f < 1)
-    {
+    while (f < 1) {
       f *= 10;
       e -= 1;
     }
-    while (f >= 10)
-    {
+    while (f >= 10) {
       f /= 10;
       e += 1;
     }
 
-    if (e <= -5 || e >= 6)
-    {
+    if (e <= -5 || e >= 6) {
       flush_if_overflow(precision + 2);
-      for (std::size_t i = 0; i < precision; i++)
-      {
+      for (std::size_t i = 0; i < precision; i++) {
         if (i == 1)
           buffer[idx++] = '.';
 
@@ -195,9 +164,7 @@ public:
 
       buffer[idx++] = 'e';
       return *this << e;
-    }
-    else
-    {
+    } else {
       f *= std::pow(10, e);
       return *this << (unsigned)f << '.'
                    << (unsigned)(std::pow(10, precision - e - 1) *
@@ -205,20 +172,18 @@ public:
     }
   }
 
-  OutputWriter &operator<<(void *p) noexcept
-  {
-    constexpr char const *digits = "0123456789abcdef";
+  OutputWriter& operator<<(void* p) noexcept {
+    constexpr char const* digits = "0123456789abcdef";
 
-    std::array<char, 2 * sizeof(void *) + 2> d;
+    std::array<char, 2 * sizeof(void*) + 2> d;
     std::uint8_t i = d.size();
 
     static_assert(d.size() <= 256);
-    static_assert(sizeof(size_t) == sizeof(void *));
+    static_assert(sizeof(size_t) == sizeof(void*));
 
-    do
-    {
+    do {
       d[--i] = digits[(std::size_t)p & 0xF];
-      p      = (void *)((std::size_t)p >> 4);
+      p      = (void*)((std::size_t)p >> 4);
     } while (p);
 
     d[--i] = 'x';
@@ -231,16 +196,16 @@ public:
     return *this;
   }
 
-#if (__cpp_nontype_template_parameter_class ||                                 \
+#if (__cpp_nontype_template_parameter_class || \
      (__cpp_nontype_template_args >= 201411L))
-  template <fixed_string s, class... T> void append(T &&...v) noexcept
-  {
+  template <fixed_string s, class... T>
+  void append(T&&... v) noexcept {
     static_assert(std::count(s.begin(), s.end(), '%') == sizeof...(T),
                   "Number of parameters does not match format string");
 
     auto pos                           = s.begin();
 
-    [[maybe_unused]] auto const helper = [this, &pos](auto &&v) {
+    [[maybe_unused]] auto const helper = [this, &pos](auto&& v) {
       auto npos = std::find(pos, s.end(), '%');
       *this << std::string_view(pos, npos);
       *this << std::forward<decltype(v)>(v);
@@ -260,37 +225,29 @@ constexpr static auto is_digit = [] {
   return is_digit;
 }();
 
-struct InputReader
-{
-private:
+struct InputReader {
+ private:
   std::array<char, BUFFER_SIZE> buffer;
   std::size_t idx = 0, size = 0;
   int const fd;
 
-  InputReader &operator>>(char &c) noexcept
-  {
+  InputReader& operator>>(char& c) noexcept {
     flush();
     c = buffer[idx++];
     return *this;
   }
 
-public:
-  [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd)
-  {
-  }
+ public:
+  [[nodiscard]] explicit InputReader(int const fd) noexcept : fd(fd) {}
 
   [[nodiscard]] explicit InputReader(char const f[]) noexcept
-      : fd(open(f, O_RDONLY))
-  {
-  }
+      : fd(open(f, O_RDONLY)) {}
 
-  InputReader(InputReader const &)            = delete;
-  InputReader &operator=(InputReader const &) = delete;
+  InputReader(InputReader const&)            = delete;
+  InputReader& operator=(InputReader const&) = delete;
 
-  void flush() noexcept
-  {
-    if (idx == size)
-    {
+  void flush() noexcept {
+    if (idx == size) {
       ssize_t s = read(fd, buffer.data(), buffer.size());
       assert(s >= 0);
       size = s;
@@ -298,8 +255,7 @@ public:
     }
   }
 
-  InputReader &operator>>(std::string &x) noexcept
-  {
+  InputReader& operator>>(std::string& x) noexcept {
     char c;
     while (*this >> c, c < ' ')
       continue;
@@ -311,15 +267,13 @@ public:
   }
 
   template <class T, class = std::enable_if_t<std::is_integral<T>::value>>
-  InputReader &operator>>(T &i) noexcept
-  {
+  InputReader& operator>>(T& i) noexcept {
     while (flush(), buffer[idx] <= 32)
       idx++;
 
     bool sign = false;
     if constexpr (std::is_signed<T>::value)
-      if (buffer[idx] == '-')
-      {
+      if (buffer[idx] == '-') {
         sign = 1;
         idx++;
       }
@@ -340,4 +294,4 @@ InputReader cin(STDIN_FILENO);
 OutputWriter cout(STDOUT_FILENO);
 OutputWriter cerr(STDERR_FILENO);
 
-} // namespace io
+}  // namespace io

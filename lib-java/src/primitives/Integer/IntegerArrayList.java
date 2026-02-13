@@ -39,12 +39,12 @@ public class IntegerArrayList implements Cloneable, Iterable<Integer> {
       if (array.length == 0)
         array = new int[4];
       else
-        grow(size << 1);
+        ensureCapacity(size << 1);
     }
     array[size++] = e;
   }
 
-  private void grow(int capacity) {
+  public void ensureCapacity(int capacity) {
     int[] array = new int[capacity];
     System.arraycopy(this.array, 0, array, 0, size);
     this.array = array;

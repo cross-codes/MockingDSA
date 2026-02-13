@@ -21,8 +21,15 @@ public class ReadingBooks extends ModuleSignatures implements Runnable {
   }
 
   private void solveCase(int _case) {
-    int n = in.nextInt();
-    int[] t = in.readIntegerArray(n);
+    int n = in.nextInt(), maxVal = Integer.MIN_VALUE;
+    long sum = 0;
+    for (int i = 0; i < n; i++) {
+      int t = in.nextInt();
+      sum += t;
+      maxVal = Math.max(maxVal, t);
+    }
+
+    out.append(Math.max(sum, maxVal << 1)).appendNewLine();
   }
 
 }

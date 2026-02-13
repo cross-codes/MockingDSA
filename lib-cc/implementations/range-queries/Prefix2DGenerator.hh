@@ -2,15 +2,12 @@
 #include <vector>
 
 class Prefix2DGenerator {
- private:
-  std::vector<std::vector<int>> prefix_2D;
-
  public:
   Prefix2DGenerator(std::vector<std::vector<int>>& grid) {
     int n = static_cast<int>(grid.size());
     int m = static_cast<int>(grid[0].size());
 
-    prefix_2D.resize(n, std::vector<int>(m, 0));
+    m_prefix_2D.resize(n, std::vector<int>(m, 0));
 
     std::vector<std::vector<int>> vpsinc(m, std::vector<int>(n));
     for (int x = 0; x < m; x++)
@@ -22,11 +19,11 @@ class Prefix2DGenerator {
       }
 
     for (int y = 0; y < n; y++)
-      prefix_2D[y][0] = vpsinc[0][y];
+      m_prefix_2D[y][0] = vpsinc[0][y];
 
     for (int y = 0; y < n; y++)
       for (int x = 1; x < m; x++)
-        prefix_2D[y][x] = prefix_2D[y][x - 1] + vpsinc[x][y];
+        m_prefix_2D[y][x] = m_prefix_2D[y][x - 1] + vpsinc[x][y];
   }
 
   int sum_region(int y1, int x1, int y2, int x2) {
@@ -35,17 +32,20 @@ class Prefix2DGenerator {
     int cx = x2, cy = y1;
     int dx = x1, dy = y1;
 
-    int res{prefix_2D[ay][ax]};
+    int res{m_prefix_2D[ay][ax]};
 
     if (bx > 0)
-      res -= prefix_2D[by][bx - 1];
+      res -= m_prefix_2D[by][bx - 1];
 
     if (cy > 0)
-      res -= prefix_2D[cy - 1][cx];
+      res -= m_prefix_2D[cy - 1][cx];
 
     if (dx > 0 && dy > 0)
-      res += prefix_2D[dy - 1][dx - 1];
+      res += m_prefix_2D[dy - 1][dx - 1];
 
     return res;
   }
+
+ private:
+  std::vector<std::vector<int>> m_prefix_2D;
 };

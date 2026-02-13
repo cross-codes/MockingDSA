@@ -1,5 +1,7 @@
 package util;
 
+import interfaces.Procedure;
+
 public final class Algebra {
 
   private static final double EPSILON = 1E-6;
@@ -19,8 +21,8 @@ public final class Algebra {
     return (int) result;
   }
 
-  public static int modInverse(int n, int p) {
-    return modPow(n, p - 2, p);
+  public static int modInverse(int n, int m) {
+    return modPow(n, m - 2, m);
   }
 
   public static int[] modInverses(int n, int p) {
@@ -170,17 +172,24 @@ public final class Algebra {
     return rem - (compare(rem, divisor) >= 0 ? divisor : 0);
   }
 
-  public static long monotonicBinarySearch(
-      LongFunction function, long target, long lowerBound, long upperBound) {
-    while (lowerBound < upperBound) {
-      long mid = lowerBound + upperBound >> 1;
-      long result = function.apply(mid);
-      if (result < target)
-        lowerBound = mid + 1;
-      else
-        upperBound = mid;
+  public static boolean solveDiophantine(int a, int b, int c, int[] xyg) {
+    int[] xy = { xyg[0], xyg[1] };
+    xyg[2] = exGCD(Math.abs(a), Math.abs(b), xy);
+    if (c % xyg[2] != 0) {
+      return false;
     }
-    return lowerBound;
+
+    xyg[0] *= c / xyg[2];
+    xyg[1] *= c / xyg[2];
+    if (a < 0) {
+      xyg[0] = -xyg[0];
+    }
+
+    if (b < 0) {
+      xyg[1] = -xyg[1];
+    }
+
+    return true;
   }
 
   public static boolean isPrime(long n) {
@@ -354,6 +363,23 @@ public final class Algebra {
       }
       return true;
     }
+  }
+
+  private static int exGCD(int a, int b, int[] xy) {
+    if (b == 0) {
+      xy[0] = 1;
+      xy[1] = 0;
+      return a;
+    }
+
+    int d = exGCD(b, a % b, xy);
+    int x1 = xy[0];
+    int y1 = xy[1];
+
+    xy[0] = y1;
+    xy[1] = x1 - y1 * (a / b);
+
+    return d;
   }
 
   @Override

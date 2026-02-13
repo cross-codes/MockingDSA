@@ -4,20 +4,21 @@ JAR = jar
 
 JAVA_FILE ?= Main.java
 
-CLASS = $(basename $(notdir $(JAVA_FILE)))
+COMPILE_TARGET = $(basename $(notdir $(JAVA_FILE)))
+CLASS_NAME ?= $(COMPILE_TARGET)
+
 JAR_FILE = $(CLASS_NAME).jar
 RENAME_JAR_FILE = sol.jar
 MANIFEST_FILE = MANIFEST.MF
 
 all: jar
-
-$(CLASS): $(JAVA_FILE)
+$(COMPILE_TARGET): $(JAVA_FILE)
 	$(JC) -d . $(JAVA_FILE)
 
 $(MANIFEST_FILE):
-	echo "Main-Class: $(CLASS)" > $(MANIFEST_FILE)
+	echo "Main-Class: $(CLASS_NAME)" > $(MANIFEST_FILE)
 
-jar: $(CLASS) $(MANIFEST_FILE)
+jar: $(COMPILE_TARGET) $(MANIFEST_FILE)
 	$(JAR) cfvm $(JAR_FILE) $(MANIFEST_FILE) *.class
 	@mv $(JAR_FILE) $(RENAME_JAR_FILE)
 	@rm -f *.class $(MANIFEST_FILE)
