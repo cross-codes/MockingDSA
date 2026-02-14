@@ -51,7 +51,7 @@ public class MergeSortTree {
     }
   }
 
-  public int count(int from, int excludeTo, int inclusiveRangeStart, int inclusiveRangeEnd) {
+  public int inRange(int from, int excludeTo, int inclusiveRangeStart, int inclusiveRangeEnd) {
     if (from >= this.r || excludeTo <= this.l) {
       return 0;
     }
@@ -85,7 +85,7 @@ public class MergeSortTree {
       return idx2 - idx1;
     }
 
-    return this.left.count(from, excludeTo, inclusiveRangeStart, inclusiveRangeEnd)
-        + this.right.count(from, excludeTo, inclusiveRangeStart, inclusiveRangeEnd);
+    return this.left.inRange(from, excludeTo, inclusiveRangeStart, inclusiveRangeEnd)
+        + this.right.inRange(from, excludeTo, inclusiveRangeStart, inclusiveRangeEnd);
   }
 }
