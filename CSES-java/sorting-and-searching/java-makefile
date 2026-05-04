@@ -1,0 +1,27 @@
+# Compilers
+JC = javac
+JAR = jar
+
+JAVA_FILE ?= Main.java
+
+COMPILE_TARGET = $(basename $(notdir $(JAVA_FILE)))
+CLASS_NAME ?= $(COMPILE_TARGET)
+
+JAR_FILE = $(CLASS_NAME).jar
+RENAME_JAR_FILE = sol.jar
+MANIFEST_FILE = MANIFEST.MF
+
+all: jar
+$(COMPILE_TARGET): $(JAVA_FILE)
+	$(JC) -d . $(JAVA_FILE)
+
+$(MANIFEST_FILE):
+	echo "Main-Class: $(CLASS_NAME)" > $(MANIFEST_FILE)
+
+jar: $(COMPILE_TARGET) $(MANIFEST_FILE)
+	$(JAR) cfvm $(JAR_FILE) $(MANIFEST_FILE) *.class
+	@mv $(JAR_FILE) $(RENAME_JAR_FILE)
+	@rm -f *.class $(MANIFEST_FILE)
+
+clean:
+	rm $(RENAME_JAR_FILE)

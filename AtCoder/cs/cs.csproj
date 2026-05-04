@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
+    <DefineConstants>$(DefineConstants);EXP</DefineConstants>
+    <SourceExpander_Enable>true</SourceExpander_Enable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SourceExpander" Version="8.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Condition="'$(RunFile)' == ''" Include="**/*.cs" Exclude="obj/**;bin/**" />
+    <Compile Condition="'$(RunFile)' != ''" Include="$(RunFile)" />
+
+    <ProjectReference Include="/Users/cross/MockingDSA/Library/cs/Evermore.csproj" />
+  </ItemGroup>
+
+</Project>
