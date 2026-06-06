@@ -26,6 +26,7 @@ namespace _451B
 
         private static void SolveCase(int _case)
         {
+            (int akshaj, int praneeth) a = new();
             var (N, M) = (input.NextInt(), input.NextInt());
             (int prev, int next)[] dept = new (int, int)[M];
             for (int i = 0; i < N; i++)
